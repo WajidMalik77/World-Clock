@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Second needle — thin red/orange gradient line, longest, pointing straight UP -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M200,260 L200,200"
+        android:strokeWidth="2"
+        android:strokeColor="#FD251E"
+        android:strokeLineCap="round" />
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M200,200 L200,75"
+        android:strokeWidth="2"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:endX="200"
+                android:endY="75"
+                android:startX="200"
+                android:startY="200"
+                android:type="linear">
+                <item
+                    android:color="#FFFD251E"
+                    android:offset="0" />
+                <item
+                    android:color="#FFFE725C"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+</vector>

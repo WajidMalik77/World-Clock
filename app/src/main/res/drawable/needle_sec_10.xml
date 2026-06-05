@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Tail below pivot -->
+  <path
+      android:pathData="M200,230 L200,200"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeColor="#FFFFEA32"
+      android:strokeLineCap="round"/>
+
+  <!-- Main hand above pivot — yellow gradient -->
+  <path
+      android:pathData="M200,200 L200,85"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeLineCap="round">
+    <aapt:attr name="android:strokeColor">
+      <gradient
+          android:startX="200"
+          android:startY="200"
+          android:endX="200"
+          android:endY="85"
+          android:type="linear">
+        <item android:offset="0"     android:color="#FFFFEA32"/>
+        <item android:offset="0.933" android:color="#FFFAE315"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+
+  <!-- Circle at pivot -->
+  <path
+      android:fillColor="#FFFAE315"
+      android:pathData="M194,200 A6,6 0,1,0 206,200 A6,6 0,1,0 194,200 Z"/>
+
+</vector>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/clock_cell_size"
+    android:layout_height="@dimen/clock_cell_size">
+
+    <ImageView
+        android:id="@+id/ivDigitalBg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
+
+    <TextClock
+        android:id="@+id/tvDigitalTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:fontFamily="monospace"
+        android:format12Hour="hh:mm"
+        android:format24Hour="HH:mm"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

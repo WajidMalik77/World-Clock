@@ -1,0 +1,27 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.WorldClock" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+    </style>
+    <style name="CustomTimePickerTheme" parent="@style/ThemeOverlay.MaterialComponents.TimePicker">
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorHighlight">@color/txt_color</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/_24ssp</item>
+    </style>
+    <style name="DayChip">
+        <item name="android:layout_width">@dimen/_20sdp</item>
+        <item name="android:layout_height">@dimen/_20sdp</item>
+        <item name="android:layout_margin">@dimen/_6sdp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/bg_black_10</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/_14ssp</item>
+    </style>
+    <style name="Picker">
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textSize">@dimen/_20ssp</item>
+    </style>
+</resources>

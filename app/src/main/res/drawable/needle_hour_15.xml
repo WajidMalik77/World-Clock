@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Hour: original 1×13 vertical teal line — already portrait!
+       Just scale up, centre, pivot→up, no tail -->
+  <path
+      android:pathData="M200,200 L200,120"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeColor="#3FA599"
+      android:strokeLineCap="round"/>
+
+</vector>

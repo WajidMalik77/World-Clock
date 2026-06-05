@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Weltuhr</string>
+    <string name="this_process_may_contains_ads">Dieser Vorgang kann Werbung enthalten</string>
+    <string name="alarm_clock">Wecker</string>
+    <string name="language">Sprache</string>
+    <string name="next">Weiter</string>
+    <string name="skip">Überspringen</string>
+    <string name="finish">Fertig</string>
+    <string name="set_alarm_time">Alarmzeit einstellen</string>
+    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
+        Stellen Sie Ihre Alarmzeit ganz einfach ein, um sie perfekt mit Ihren Plänen abzustimmen. Genießen Sie müheloses Planen mit anpassbaren Alarmoptionen.
+    </string>
+    <string name="global_watch">Weltanzeige</string>
+    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
+        Die Weltanzeige bietet eine nahtlose Möglichkeit, die Uhrzeit in verschiedenen Städten und Ländern zu verfolgen, sodass Sie immer über unterschiedliche Zeitzonen informiert sind.
+    </string>
+    <string name="timer_running_out">Timer läuft ab</string>
+    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
+        Die Timer-Funktion ermöglicht es Ihnen, einen Countdown für bestimmte Zeiträume festzulegen, sodass Sie die Zeit für Aufgaben oder Ereignisse im Blick behalten.
+    </string>
+    <string name="get_premium_today">Heute Premium holen</string>
+    <string name="get_access_to_all_features">Zugriff auf alle Funktionen erhalten</string>
+    <string name="ad_free_experience">Werbefreie Erfahrung</string>
+    <string name="daily_content_update">Tägliche Inhaltsaktualisierung</string>
+    <string name="_6_month">6 Monate</string>
+    <string name="yearly">Jährlich</string>
+    <string name="life_time">Lebenslang</string>
+    <string name="cancel_anytime_on_google_play_store">Jederzeit im Google Play Store kündbar</string>
+    <string name="terms_of_services">Nutzungsbedingungen</string>
+    <string name="privacy_policy">Datenschutzrichtlinie</string>
+    <string name="subscribed_successfully">Erfolgreich abonniert</string>
+    <string name="subscription_failed">Abonnement fehlgeschlagen</string>
+    <string name="clock">Uhr</string>
+    <string name="alarm">Alarm</string>
+    <string name="stopwatch">Stoppuhr</string>
+    <string name="timer">Timer</string>
+    <string name="compass">Kompass</string>
+    <string name="widgets">Widgets</string>
+    <string name="search_city_or_region">Stadt oder Region suchen</string>
+    <string name="hours_ahead">%1$s Stunden voraus</string>
+    <string name="hours_behind">%1$s Stunden zurück</string>
+    <string name="same_time">Gleiche Uhrzeit</string>
+    <string name="add_city">Stadt hinzufügen</string>
+    <string name="no_alarm_created">Kein Alarm erstellt</string>
+    <string name="create_the_new_alarm_by_tapping_the_button">Erstellen Sie einen neuen Alarm, indem Sie auf die + Taste tippen</string>
+    <string name="permission">Berechtigung</string>
+    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
+        Überlagerungsberechtigung wird benötigt, damit der Alarm unter Android 10+ richtig funktioniert. Bitte gewähren Sie diese.
+    </string>
+    <string name="allow">Erlauben</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="upcoming_alarm">Bevorstehender Alarm</string>
+    <string name="save">Speichern</string>
+    <string name="alarm_sound">Alarmton:</string>
+    <string name="label">Label:</string>
+    <string name="snooze">Schlummern:</string>
+    <string name="vibrate">Vibrieren:</string>
+    <string name="once">Einmal</string>
+    <string name="alarm_time_is_now">Die Alarmzeit ist jetzt!</string>
+    <string name="no_active_alarms">Keine aktiven Alarme</string>
+    <string name="stop_watch">Stoppuhr</string>
+    <string name="set">SET</string>
+    <string name="min">MIN</string>
+    <string name="sec">SEK</string>
+    <string name="loading_sensors">Sensoren werden geladen…</string>
+    <string name="widget_clock">Widget-Uhr</string>
+    <string name="add">Hinzufügen</string>
+    <string name="no_widgets_created">Keine Widgets erstellt</string>
+    <string name="create_the_new_widget_by_clicking_the_add_button">Erstellen Sie ein neues Widget, indem Sie auf die Hinzufügen-Taste klicken</string>
+    <string name="delete_widget">Widget löschen</string>
+    <string name="are_you_sure_you_want_to_delete_this_widget">Möchten Sie dieses Widget wirklich löschen?</string>
+    <string name="delete">Löschen</string>
+    <string name="delete_clock">Uhr löschen</string>
+    <string name="are_you_sure_you_want_to_delete_this_clock">Möchten Sie diese Uhr wirklich löschen?</string>
+    <string name="settings1">Einstellungen</string>
+    <string name="terms_amp_conditions">Allgemeine Geschäftsbedingungen</string>
+    <string name="feedback">Feedback</string>
+    <string name="share_app">App teilen</string>
+    <string name="rate_us">Bewerten Sie uns</string>
+    <string name="more_apps">Mehr Apps</string>
+    <string name="fast_processing">Schnelle Verarbeitung</string>
+    <string name="get_npremium_access">HOLEN SIE SICH\nPREMIUM-ZUGANG</string>
+    <string name="enjoy_access_to_all_premium_features">Genießen Sie Zugriff auf alle Premium-Funktionen</string>
+    <string name="purchase">Kaufen</string>
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+        Steigen Sie mit einer Einmalzahlung auf Premium um und genießen Sie lebenslangen Zugriff auf exklusive Funktionen, werbefreie Inhalte und priorisierten Support.
+    </string>
+    <string name="continue_with_ads">Mit Werbung fortfahren</string>
+    <string name="for_lifetime">für lebenslang</string>
+    <string name="continue1">Weiter</string>
+    <string name="get_premium">Premium erhalten</string>
+    <string name="unlock_all_features_and_remove_ads">Alle Funktionen freischalten und Werbung entfernen</string>
+    <string name="new_alarm">Neuer Alarm</string>
+    <string name="weekly">Wöchentlich</string>
+    <string name="monthly">Monatlich</string>
+    <string name="when_you_subscribe_to_our_premium_content_your_subscription_will_renew_automatically_and_you_will_be_charged_at_start_of_each_billing_cycle_until_you_cancel_the_subscription">
+        Wenn Sie unser Premium-Angebot abonnieren, wird Ihr Abonnement automatisch verlängert und Ihnen zu Beginn jedes Abrechnungszeitraums in Rechnung gestellt, bis Sie es kündigen.
+    </string>
+    <string name="access_to_all_premium_features">Zugriff auf alle Premium-Funktionen</string>
+    <string name="please_add_timer_to_start">Bitte Timer hinzufügen, um zu starten!</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CustomClockView">
+        <attr name="clockFace" format="reference" />
+        <attr name="hourHand" format="reference" />
+        <attr name="minuteHand" format="reference" />
+        <attr name="secondHand" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="CustomAnalogClockView">
+        <attr name="acv_face" format="reference" />
+        <attr name="acv_hourHand" format="reference" />
+        <attr name="acv_minuteHand" format="reference" />
+        <attr name="acv_hourScale" format="float" />
+        <attr name="acv_minuteScale" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="DigitalClockView">
+        <attr name="dcv_background" format="reference" />
+        <attr name="dcv_timeColor" format="color" />
+        <attr name="dcv_label" format="string" />
+    </declare-styleable>
+
+</resources>

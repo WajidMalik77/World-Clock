@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ساعة العالم</string>
+    <string name="this_process_may_contains_ads">قد تحتوي هذه العملية على إعلانات</string>
+    <string name="alarm_clock">منبّه</string>
+    <string name="language">اللغة</string>
+    <string name="next">التالي</string>
+    <string name="skip">تخطي</string>
+    <string name="finish">إنهاء</string>
+    <string name="set_alarm_time">ضبط وقت المنبّه</string>
+    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
+        اضبط وقت المنبّه بسهولة ليتناسب تمامًا مع خططك. استمتع بجدولة سلسة مع خيارات منبّه قابلة للتخصيص.
+    </string>
+    <string name="global_watch">الساعة العالمية</string>
+    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
+        توفر الساعة العالمية طريقة سلسة لمتابعة الوقت في مختلف المدن والدول، مما يضمن أنك على اطلاع دائم باختلاف المناطق الزمنية.
+    </string>
+    <string name="timer_running_out">المؤقت يوشك على الانتهاء</string>
+    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
+        تتيح لك ميزة المؤقت ضبط عدٍّ تنازلي لفترات زمنية محددة، مما يساعدك على متابعة الوقت للمهام أو الأحداث.
+    </string>
+    <string name="get_premium_today">احصل على البريميوم اليوم</string>
+    <string name="get_access_to_all_features">احصل على الوصول لجميع الميزات</string>
+    <string name="ad_free_experience">تجربة بدون إعلانات</string>
+    <string name="daily_content_update">تحديث يومي للمحتوى</string>
+    <string name="_6_month">6 أشهر</string>
+    <string name="yearly">سنوي</string>
+    <string name="life_time">مدى الحياة</string>
+    <string name="cancel_anytime_on_google_play_store">يمكنك الإلغاء في أي وقت من متجر Google Play</string>
+    <string name="terms_of_services">شروط الخدمة</string>
+    <string name="privacy_policy">سياسة الخصوصية</string>
+    <string name="subscribed_successfully">تم الاشتراك بنجاح</string>
+    <string name="subscription_failed">فشل الاشتراك</string>
+    <string name="clock">الساعة</string>
+    <string name="alarm">المنبّه</string>
+    <string name="stopwatch">ساعة الإيقاف</string>
+    <string name="timer">المؤقت</string>
+    <string name="compass">البوصلة</string>
+    <string name="widgets">الويدجت</string>
+    <string name="search_city_or_region">ابحث عن مدينة أو منطقة</string>
+    <string name="hours_ahead">%1$s ساعات متقدمة</string>
+    <string name="hours_behind">%1$s ساعات متأخرة</string>
+    <string name="same_time">نفس الوقت</string>
+    <string name="add_city">إضافة مدينة</string>
+    <string name="no_alarm_created">لا توجد منبهات</string>
+    <string name="create_the_new_alarm_by_tapping_the_button">أنشئ منبّهًا جديدًا بالضغط على زر +</string>
+    <string name="permission">الإذن</string>
+    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
+        إذن التراكب مطلوب لعمل المنبّه بشكل صحيح على Android 10+، يرجى منحه.
+    </string>
+    <string name="allow">سماح</string>
+    <string name="cancel">إلغاء</string>
+    <string name="upcoming_alarm">المنبّه القادم</string>
+    <string name="save">حفظ</string>
+    <string name="alarm_sound">صوت المنبّه:</string>
+    <string name="label">الاسم:</string>
+    <string name="snooze">غفوة:</string>
+    <string name="vibrate">اهتزاز:</string>
+    <string name="once">مرة واحدة</string>
+    <string name="alarm_time_is_now">حان وقت المنبّه!</string>
+    <string name="no_active_alarms">لا توجد منبهات نشطة</string>
+    <string name="stop_watch">ساعة الإيقاف</string>
+    <string name="set">ضبط</string>
+    <string name="min">دقيقة</string>
+    <string name="sec">ثانية</string>
+    <string name="loading_sensors">جاري تحميل الحساسات…</string>
+    <string name="widget_clock">ساعة الويدجت</string>
+    <string name="add">إضافة</string>
+    <string name="no_widgets_created">لا توجد ويدجتات</string>
+    <string name="create_the_new_widget_by_clicking_the_add_button">أنشئ ويدجت جديدة بالضغط على زر إضافة</string>
+    <string name="delete_widget">حذف الويدجت</string>
+    <string name="are_you_sure_you_want_to_delete_this_widget">هل أنت متأكد أنك تريد حذف هذه الويدجت؟</string>
+    <string name="delete">حذف</string>
+    <string name="delete_clock">حذف الساعة</string>
+    <string name="are_you_sure_you_want_to_delete_this_clock">هل أنت متأكد أنك تريد حذف هذه الساعة؟</string>
+    <string name="settings1">الإعدادات</string>
+    <string name="terms_amp_conditions">الشروط والأحكام</string>
+    <string name="feedback">ملاحظات</string>
+    <string name="share_app">مشاركة التطبيق</string>
+    <string name="rate_us">قيّمنا</string>
+    <string name="more_apps">المزيد من التطبيقات</string>
+    <string name="fast_processing">أداء سريع</string>
+    <string name="get_npremium_access">احصل على\nالوصول المميز</string>
+    <string name="enjoy_access_to_all_premium_features">استمتع بالوصول إلى جميع الميزات المميزة</string>
+    <string name="purchase">شراء</string>
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+        قم بالترقية إلى البريميوم بدفع لمرة واحدة واستمتع بوصول مدى الحياة إلى الميزات الحصرية، والمحتوى بدون إعلانات، والدعم المميز.
+    </string>
+    <string name="continue_with_ads">المتابعة مع الإعلانات</string>
+    <string name="for_lifetime">لمدى الحياة</string>
+    <string name="continue1">متابعة</string>
+    <string name="get_premium">احصل على البريميوم</string>
+    <string name="unlock_all_features_and_remove_ads">افتح جميع الميزات وأزل الإعلانات</string>
+    <string name="new_alarm">منبّه جديد</string>
+    <string name="weekly">أسبوعي</string>
+    <string name="monthly">شهري</string>
+    <string name="when_you_subscribe_to_our_premium_content_your_subscription_will_renew_automatically_and_you_will_be_charged_at_start_of_each_billing_cycle_until_you_cancel_the_subscription">
+        عند اشتراكك في المحتوى المميز، سيتم تجديد الاشتراك تلقائيًا وسيتم الخصم في بداية كل دورة فوترية حتى تقوم بإلغاء الاشتراك.
+    </string>
+    <string name="access_to_all_premium_features">الوصول لجميع الميزات المميزة</string>
+    <string name="please_add_timer_to_start">يرجى إضافة مؤقت للبدء!</string>
+</resources>

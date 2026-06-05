@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Minute: original 38×37 diagonal dark bar
+       Redrawn vertical, longer than hour, starts at pivot (200,200) -->
+  <path
+      android:fillColor="#131026"
+      android:pathData="M197,200 L197,108 A3,3 0,0 1,200 105 L200,105 A3,3 0,0 1,203 108 L203,200 Z"/>
+
+</vector>

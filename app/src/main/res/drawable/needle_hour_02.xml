@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Hour hand 02 — same wide blade shape as needle_hour_01
+    but with WHITE → TRANSPARENT gradient (tip=white, tail=transparent)
+    matching the original gradient direction.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <path
+      android:pathData="
+            M200,130
+            C200,130 196,155 194,185
+            C193,193 193,200 193,200
+            L207,200
+            C207,200 207,193 206,185
+            C204,155 200,130 200,130
+            Z">
+    <aapt:attr name="android:fillColor">
+      <gradient
+          android:startX="200"
+          android:startY="130"
+          android:endX="200"
+          android:endY="200"
+          android:type="linear">
+        <item android:offset="0" android:color="#FFFFFFFF"/>
+        <item android:offset="1" android:color="#00FFFFFF"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+
+</vector>

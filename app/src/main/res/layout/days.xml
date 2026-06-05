@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/daySelectorLayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+
+        android:id="@+id/daySun"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="S" />
+
+    <TextView
+
+        android:id="@+id/dayMon"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="M" />
+
+    <TextView
+
+        android:id="@+id/dayTue"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="T" />
+
+    <TextView
+
+        android:id="@+id/dayWed"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="W" />
+
+    <TextView
+
+        android:id="@+id/dayThu"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="T" />
+
+    <TextView
+
+        android:id="@+id/dayFri"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="F" />
+
+    <TextView
+
+        android:id="@+id/daySat"
+        style="@style/DayChip"
+        android:layout_marginEnd="@dimen/_2sdp"
+        android:text="S" />
+
+</LinearLayout>

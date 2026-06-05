@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+    <!-- Hour: tip at Y=130, length = 200-130 = 70px, width 6px (shorter than minute) -->
+    <path
+        android:fillColor="#7441D0"
+        android:pathData="M197,200 L197,133 A3,3 0,0 1,200 130 L200,130 A3,3 0,0 1,203 133 L203,200 Z" />
+
+</vector>

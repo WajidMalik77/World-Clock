@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Hour: original 42×3 = horizontal dark bar
+       Rotated to vertical, starts at pivot (200,200), tip goes up -->
+  <path
+      android:fillColor="#131026"
+      android:pathData="M196,200 L196,130 A4,4 0,0 1,200 126 L200,126 A4,4 0,0 1,204 130 L204,200 Z"/>
+
+</vector>

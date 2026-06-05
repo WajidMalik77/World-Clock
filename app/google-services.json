@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "265003074066",
+    "project_id": "world-clock-16802",
+    "storage_bucket": "world-clock-16802.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265003074066:android:6732d3af34724672a34ecb",
+        "android_client_info": {
+          "package_name": "com.cw.worldclock.alram.clock.timer.widgets"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBu0I6x8gOrsct8LEttYGFtGF5PXKQfd2c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

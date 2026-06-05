@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!--
+      Strategy: forget the original path coordinates.
+      Draw a clean centred needle in 400×400 space,
+      preserving ONLY the shape (rounded both ends) and gradient.
+
+      Shape: rounded rectangle, tip at top, base at pivot (200,200)
+      Width: 12px, Length: 90px (tip Y=110 to base Y=200)
+  -->
+  <path
+      android:pathData="M194,200 L194,116 A6,6 0,0 1,200 110 L200,110 A6,6 0,0 1,206 116 L206,200 Z">
+    <aapt:attr name="android:fillColor">
+      <gradient
+          android:startX="200"
+          android:startY="110"
+          android:endX="200"
+          android:endY="200"
+          android:type="linear">
+        <item android:offset="0" android:color="#FFFFFFFF"/>
+        <item android:offset="1" android:color="#FFACACAC"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+
+</vector>

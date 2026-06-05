@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "545442715748",
+    "project_id": "test-clock-a960a",
+    "storage_bucket": "test-clock-a960a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:545442715748:android:ad78f5887acdc6aa8ee771",
+        "android_client_info": {
+          "package_name": "com.test.clock"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYTdEUc-tIdmQw9lF0t5q-wT8QjnTy8UE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

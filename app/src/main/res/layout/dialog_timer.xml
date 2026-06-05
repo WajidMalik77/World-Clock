@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_16sdp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/_10sdp"
+    app:cardElevation="@dimen/_4sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/_20sdp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_20sdp"
+            android:fontFamily="@font/poppins_semibold"
+            android:gravity="center"
+            android:text="Set Timer"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_18ssp" />
+
+        <!-- Pickers row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/_10sdp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Minutes picker -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/_8sdp"
+                    android:fontFamily="@font/poppins"
+                    android:text="Minutes"
+                    android:textColor="#606060"
+                    android:textSize="@dimen/_12ssp" />
+
+                <com.worldclock.app_themes.utils.GradientNumberPicker
+                    android:id="@+id/layout_add_timer_np_min"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <!-- Separator -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingHorizontal="@dimen/_8sdp"
+                android:text=":"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_28ssp" />
+
+            <!-- Seconds picker -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/_8sdp"
+                    android:fontFamily="@font/poppins"
+                    android:text="Seconds"
+                    android:textColor="#606060"
+                    android:textSize="@dimen/_12ssp" />
+
+                <com.worldclock.app_themes.utils.GradientNumberPicker
+                    android:id="@+id/layout_add_timer_np_sec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="@dimen/_12sdp"
+            android:background="#E0E0E0" />
+
+        <!-- ✅ Buttons with gap between them, no divider -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <!-- Cancel -->
+            <TextView
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="@dimen/_6sdp"
+                android:fontFamily="@font/poppins_semibold"
+                android:gravity="center"
+                android:background="@drawable/chip_selected"
+                android:backgroundTint="@color/grey_10"
+                android:padding="@dimen/_10sdp"
+                android:text="Cancel"
+                android:textColor="#606060"
+                android:textSize="@dimen/_14ssp" />
+
+            <!-- Set -->
+            <TextView
+                android:id="@+id/layout_add_timer_tv_set"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="@dimen/_6sdp"
+                android:fontFamily="@font/poppins_semibold"
+                android:gravity="center"
+                android:padding="@dimen/_10sdp"
+                android:text="Set"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14ssp"
+                android:background="@drawable/chip_selected" />
+
+        </LinearLayout>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

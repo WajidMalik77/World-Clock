@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Second needle — thin orange line with white circle pivot dot.
+    Original design: 3×35 viewport = thin vertical stick with circle in middle.
+    Redrawn on 400×400 canvas pointing straight UP.
+    Orange color #FF9600, white circle at pivot.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Main hand — thin orange stick pointing up -->
+  <path
+      android:pathData="M200,75 L200,200"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeColor="#FF9600"
+      android:strokeLineCap="round"/>
+
+  <!-- Tail below pivot -->
+  <path
+      android:pathData="M200,200 L200,255"
+      android:strokeWidth="3"
+      android:fillColor="#00000000"
+      android:strokeColor="#FF9600"
+      android:strokeLineCap="round"/>
+
+  <!-- Orange circle at pivot (from original design) -->
+  <path
+      android:fillColor="#FF9600"
+      android:pathData="M193,200 A7,7 0 1,0 207,200 A7,7 0 1,0 193,200 Z"/>
+
+  <!-- White inner dot at pivot -->
+  <path
+      android:fillColor="#FFFFFF"
+      android:pathData="M196,200 A4,4 0 1,0 204,200 A4,4 0 1,0 196,200 Z"/>
+
+</vector>

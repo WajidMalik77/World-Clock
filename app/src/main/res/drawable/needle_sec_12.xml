@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Main hand: tip moved from Y=80 → Y=95 (shorter by 15px) -->
+  <path
+      android:fillColor="#FF4F4F"
+      android:pathData="M198.5,200 L198.5,200 A1.5,1.5 0,0 1,200 198.5 L200,198.5 A1.5,1.5 0,0 1,201.5 200 L201.5,95 A1.5,1.5 0,0 1,200 96.5 L200,96.5 A1.5,1.5 0,0 1,198.5 95 Z"/>
+
+  <!-- Tail: shortened from Y=235 → Y=225 -->
+  <path
+      android:fillColor="#FF4F4F"
+      android:pathData="M198.5,200 L198.5,225 A1.5,1.5 0,0 1,200 226.5 L200,226.5 A1.5,1.5 0,0 1,201.5 225 L201.5,200 Z"/>
+
+  <!-- Circle dot — unchanged -->
+  <path
+      android:fillColor="#FF4F4F"
+      android:pathData="M194.5,200 A5.5,5.5 0,1,0 205.5,200 A5.5,5.5 0,1,0 194.5,200 Z"/>
+
+</vector>

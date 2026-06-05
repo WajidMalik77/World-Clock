@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="@dimen/_8sdp"
+    android:layout_marginVertical="@dimen/_5sdp"
+    app:cardBackgroundColor="#f5f5f5"
+    app:cardCornerRadius="@dimen/_16sdp"
+    app:cardElevation="0dp"
+    app:strokeColor="#dddddd"
+    app:strokeWidth="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_12sdp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvReminderTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="#606060"
+            android:textSize="@dimen/_10ssp"
+            app:layout_constraintEnd_toStartOf="@+id/switchEnabled"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Medicine Reminder" />
+
+        <!-- Time -->
+        <TextView
+            android:id="@+id/tvReminderTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:fontFamily="@font/poppins_semibold"
+            android:textColor="#202125"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintEnd_toStartOf="@+id/switchEnabled"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvReminderTitle"
+            tools:text="12:40 PM" />
+        <!-- Toggle -->
+        <ImageView
+            android:id="@+id/switchEnabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/alarm_unselected"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Day chips row -->
+        <LinearLayout
+            android:id="@+id/llDays"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_6sdp"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvReminderTime">
+
+            <TextView
+                android:id="@+id/dayMon"
+                style="@style/ReminderDayStyle"
+                android:text="M" />
+
+            <TextView
+                android:id="@+id/dayTue"
+                style="@style/ReminderDayStyle"
+                android:text="T" />
+
+            <TextView
+                android:id="@+id/dayWed"
+                style="@style/ReminderDayStyle"
+                android:text="W" />
+
+            <TextView
+                android:id="@+id/dayThu"
+                style="@style/ReminderDayStyle"
+                android:text="T" />
+
+            <TextView
+                android:id="@+id/dayFri"
+                style="@style/ReminderDayStyle"
+                android:text="F" />
+
+            <TextView
+                android:id="@+id/daySat"
+                style="@style/ReminderDayStyle"
+                android:text="S" />
+
+            <TextView
+                android:id="@+id/daySun"
+                style="@style/ReminderDayStyle"
+                android:text="S" />
+        </LinearLayout>
+
+        <!-- Alarm Sound -->
+        <TextView
+            android:id="@+id/tvAlarmSound"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_6sdp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_10ssp"
+            app:layout_constraintEnd_toStartOf="@+id/ivEdit"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/llDays"
+            tools:text="Alarm Sound: Digital Alarm" />
+
+        <!-- Edit icon -->
+        <ImageView
+            android:id="@+id/ivEdit"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:src="@drawable/ic_edit_reminder"
+            app:layout_constraintBottom_toBottomOf="@+id/tvAlarmSound"
+            app:layout_constraintEnd_toStartOf="@+id/ivDelete"
+            app:layout_constraintTop_toTopOf="@+id/tvAlarmSound"
+            tools:ignore="ContentDescription" />
+
+        <!-- Delete icon -->
+        <ImageView
+            android:id="@+id/ivDelete"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
+            android:src="@drawable/ic_delete"
+            app:layout_constraintBottom_toBottomOf="@+id/tvAlarmSound"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tvAlarmSound"
+            tools:ignore="ContentDescription" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

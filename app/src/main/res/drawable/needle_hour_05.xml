@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Hour needle — thin grey line, pointing straight UP, 400x400 canvas -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M200,240 L200,200"
+        android:strokeWidth="3"
+        android:strokeColor="#8E98A2"
+        android:strokeLineCap="round" />
+
+    <path
+        android:fillColor="#00000000"
+        android:pathData="M200,200 L200,120"
+        android:strokeWidth="3"
+        android:strokeColor="#8E98A2"
+        android:strokeLineCap="round" />
+
+</vector>

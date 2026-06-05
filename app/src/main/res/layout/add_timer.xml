@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="90dp"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/min"
+            android:textColor="@color/white"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/sec"
+            android:textColor="@color/white"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <NumberPicker
+            android:id="@+id/layout_add_timer_np_min"
+            android:layout_width="130dp"
+            android:layout_height="150dp"
+            android:layout_weight="2"
+            android:theme="@style/Picker" />
+
+        <TextView
+            android:layout_width="20dp"
+            android:layout_height="120dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text=":"
+            android:textColor="@color/white"
+            android:textSize="30sp" />
+
+        <NumberPicker
+            android:id="@+id/layout_add_timer_np_sec"
+            android:layout_width="130dp"
+            android:layout_height="150dp"
+            android:layout_weight="2"
+            android:theme="@style/Picker" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/layout_add_timer_tv_set"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="@string/set"
+        android:textColor="@color/white"
+        android:textSize="26sp"
+        android:textStyle="bold" />
+</LinearLayout>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+  <!-- Hour: original 42×5 = horizontal bar with gradient white→grey
+       Rotated to vertical, starts at pivot (200,200), tip goes up -->
+  <path
+      android:pathData="M196,200 L196,130 A4,4 0,0 1,200 126 L200,126 A4,4 0,0 1,204 130 L204,200 Z">
+    <aapt:attr name="android:fillColor">
+      <gradient
+          android:startX="200"
+          android:startY="126"
+          android:endX="200"
+          android:endY="200"
+          android:type="linear">
+        <item android:offset="0" android:color="#FFFFFFFF"/>
+        <item android:offset="1" android:color="#FFACACAC"/>
+      </gradient>
+    </aapt:attr>
+  </path>
+
+</vector>

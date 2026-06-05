@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">ワールドクロック</string>
+    <string name="this_process_may_contains_ads">このプロセスには広告が含まれる場合があります</string>
+    <string name="alarm_clock">アラーム時計</string>
+    <string name="language">言語</string>
+    <string name="next">次へ</string>
+    <string name="skip">スキップ</string>
+    <string name="finish">終了</string>
+    <string name="set_alarm_time">アラーム時間を設定</string>
+    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
+        計画に合わせて簡単にアラーム時間を設定できます。カスタマイズ可能なアラームオプションでスムーズなスケジューリングをお楽しみください。
+    </string>
+    <string name="global_watch">グローバルウォッチ</string>
+    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
+        グローバルウォッチは、さまざまな都市や国の時間をシームレスに追跡でき、異なるタイムゾーンを常に把握できます。
+    </string>
+    <string name="timer_running_out">タイマーが終了間近です</string>
+    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
+        タイマーフィーチャーを使うと、特定の時間のカウントダウンを設定でき、タスクやイベントの時間を追跡するのに役立ちます。
+    </string>
+    <string name="get_premium_today">今日プレミアムを取得</string>
+    <string name="get_access_to_all_features">すべての機能にアクセス</string>
+    <string name="ad_free_experience">広告なし体験</string>
+    <string name="daily_content_update">毎日のコンテンツ更新</string>
+    <string name="_6_month">6か月</string>
+    <string name="yearly">年間</string>
+    <string name="life_time">ライフタイム</string>
+    <string name="cancel_anytime_on_google_play_store">Google Play ストアでいつでもキャンセル可能</string>
+    <string name="terms_of_services">利用規約</string>
+    <string name="privacy_policy">プライバシーポリシー</string>
+    <string name="subscribed_successfully">購読に成功しました</string>
+    <string name="subscription_failed">購読に失敗しました</string>
+    <string name="clock">時計</string>
+    <string name="alarm">アラーム</string>
+    <string name="stopwatch">ストップウォッチ</string>
+    <string name="timer">タイマー</string>
+    <string name="compass">コンパス</string>
+    <string name="widgets">ウィジェット</string>
+    <string name="search_city_or_region">都市または地域を検索</string>
+    <string name="hours_ahead">%1$s時間先</string>
+    <string name="hours_behind">%1$s時間遅れ</string>
+    <string name="same_time">同じ時間</string>
+    <string name="add_city">都市を追加</string>
+    <string name="no_alarm_created">アラームが作成されていません</string>
+    <string name="create_the_new_alarm_by_tapping_the_button">+ ボタンをタップして新しいアラームを作成</string>
+    <string name="permission">権限</string>
+    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
+        Android 10以上でアラームを正しく動作させるには、オーバーレイ権限が必要です。有効にしてください。
+    </string>
+    <string name="allow">許可</string>
+    <string name="cancel">キャンセル</string>
+    <string name="upcoming_alarm">次のアラーム</string>
+    <string name="save">保存</string>
+    <string name="alarm_sound">アラーム音:</string>
+    <string name="label">ラベル:</string>
+    <string name="snooze">スヌーズ:</string>
+    <string name="vibrate">バイブレーション:</string>
+    <string name="once">1回</string>
+    <string name="alarm_time_is_now">アラーム時間です！</string>
+    <string name="no_active_alarms">アクティブなアラームはありません</string>
+    <string name="stop_watch">ストップウォッチ</string>
+    <string name="set">設定</string>
+    <string name="min">分</string>
+    <string name="sec">秒</string>
+    <string name="loading_sensors">センサー読み込み中…</string>
+    <string name="widget_clock">ウィジェット時計</string>
+    <string name="add">追加</string>
+    <string name="no_widgets_created">ウィジェットが作成されていません</string>
+    <string name="create_the_new_widget_by_clicking_the_add_button">追加ボタンをクリックして新しいウィジェットを作成</string>
+    <string name="delete_widget">ウィジェット削除</string>
+    <string name="are_you_sure_you_want_to_delete_this_widget">本当にこのウィジェットを削除しますか？</string>
+    <string name="delete">削除</string>
+    <string name="delete_clock">時計削除</string>
+    <string name="are_you_sure_you_want_to_delete_this_clock">本当にこの時計を削除しますか？</string>
+    <string name="settings1">設定</string>
+    <string name="terms_amp_conditions">利用規約</string>
+    <string name="feedback">フィードバック</string>
+    <string name="share_app">アプリを共有</string>
+    <string name="rate_us">評価する</string>
+    <string name="more_apps">その他のアプリ</string>
+    <string name="fast_processing">高速処理</string>
+    <string name="get_npremium_access">プレミアム\nアクセス取得</string>
+    <string name="enjoy_access_to_all_premium_features">すべてのプレミアム機能を利用可能</string>
+    <string name="purchase">購入</string>
+    <string name="upgrade_to_premium_with_a_one_time_payment_and_enjoy_lifetime_access_to_exclusive_features_ad_free_content_and_priority_support">
+        一度の支払いでプレミアムにアップグレードし、限定機能、広告なしコンテンツ、優先サポートをライフタイムで利用できます。
+    </string>
+    <string name="continue_with_ads">広告ありで続行</string>
+    <string name="for_lifetime">ライフタイム</string>
+    <string name="continue1">続行</string>
+    <string name="get_premium">プレミアム取得</string>
+    <string name="unlock_all_features_and_remove_ads">すべての機能をアンロックし広告を削除</string>
+    <string name="new_alarm">新しいアラーム</string>
+    <string name="weekly">毎週</string>
+    <string name="monthly">毎月</string>
+    <string name="when_you_subscribe_to_our_premium_content_your_subscription_will_renew_automatically_and_you_will_be_charged_at_start_of_each_billing_cycle_until_you_cancel_the_subscription">
+        プレミアムコンテンツを購読すると、購読は自動的に更新され、キャンセルするまで各請求サイクルの開始時に料金が請求されます。
+    </string>
+    <string name="access_to_all_premium_features">すべてのプレミアム機能にアクセス</string>
+    <string name="please_add_timer_to_start">開始するにはタイマーを追加してください！</string>
+</resources>

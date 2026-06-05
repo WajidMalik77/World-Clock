@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    Minute hand 02 — same wide blade shape as needle_min_01
+    but with WHITE → TRANSPARENT gradient (tip=white, tail=transparent)
+    matching the original gradient direction.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+
+    <path android:pathData="
+            M200,110
+            C200,110 197,138 196,170
+            C195,185 195,200 195,200
+            L205,200
+            C205,200 205,185 204,170
+            C203,138 200,110 200,110
+            Z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:endX="200"
+                android:endY="200"
+                android:startX="200"
+                android:startY="110"
+                android:type="linear">
+                <item
+                    android:color="#FFFFFFFF"
+                    android:offset="0" />
+                <item
+                    android:color="#00FFFFFF"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+</vector>
