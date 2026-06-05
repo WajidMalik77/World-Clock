@@ -16,7 +16,7 @@ android {
         targetSdk = 35
         versionCode = 3
         versionName = "1.0.3"
-        setProperty("archivesBaseName",  "World_Clock-v" + versionCode + "(" + versionName + ")")
+        setProperty("archivesBaseName", "World_Clock-v$versionCode($versionName)")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -35,7 +35,8 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -45,6 +46,7 @@ android {
 
         debug {
             isMinifyEnabled = false
+            versionNameSuffix = "-debug"
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
