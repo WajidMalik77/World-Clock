@@ -9,10 +9,20 @@
     tools:context=".activities.StopWatchActivity">
 
     <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        android:id="@+id/banner_container"
+        layout="@layout/layout_top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <com.worldclock.app_themes.utils.GradientCircularSeekBar
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
+
+    <com.worldclock.app_themes.core.utils.GradientCircularSeekBar
         android:id="@+id/progressBar"
         android:layout_width="@dimen/_200sdp"
         android:layout_height="@dimen/_200sdp"
@@ -113,7 +123,7 @@
         android:layout_marginBottom="26dp"
         android:src="@drawable/play_btn"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:ignore="ContentDescription" />
@@ -129,5 +139,12 @@
         app:layout_constraintStart_toEndOf="@id/start_btn"
         app:layout_constraintTop_toTopOf="@id/start_btn"
         tools:ignore="ContentDescription" />
+
+    <include
+        android:id="@+id/ads_container"
+        layout="@layout/layout_bottom_native"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

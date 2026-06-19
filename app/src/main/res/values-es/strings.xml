@@ -99,4 +99,18 @@
     </string>
     <string name="access_to_all_premium_features">Acceso a todas las funciones premium</string>
     <string name="please_add_timer_to_start">Por favor agrega un temporizador para comenzar</string>
+    <string name="set_your_alarm_with_ease_using_customizable_options_for_effortless_scheduling">Configura tu alarma fácilmente usando opciones\npersonalizables para una programación sin esfuerzo.</string>
+    <string name="global_watch_provides_a_streamlined_solution_for_monitoring_global_time_zones">El Reloj Mundial ofrece una solución optimizada\npara monitorear las zonas horarias globales.</string>
+    <string name="the_timer_feature_enables_countdowns_for_specific_tasks_or_events">El temporizador permite realizar cuentas regresivas para\ntareas o eventos específicos.</string>
+    <string name="radar_default"><u>Predeterminado</u></string>
+    <string name="voice_reminder">Recordatorio de voz</string>
+    <string name="sleep_sound">Sonido para dormir</string>
+    <string name="all_reminders">Todos los recordatorios</string>
+    <string name="no_reminders_yet">Aún no hay recordatorios</string>
+    <string name="create_new_reminder_by_tappingn_nthe_button">Crea un nuevo recordatorio tocando\nel botón \"+\"</string>
+    <string name="create_reminder_for">Crea un nuevo recordatorio de \"%1$s\" tocando el botón \"+\"</string>
+    <string name="format_time">%1$02d:%2$02d %3$s</string>
+    <string name="label_am">AM</string>
+    <string name="label_pm">PM</string>
+    <string name="loading">Cargando…</string>
 </resources>

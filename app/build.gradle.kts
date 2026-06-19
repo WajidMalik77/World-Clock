@@ -1,9 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt")
+    alias(libs.plugins.ksp)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.firebase.perf)
 }
 
 android {
@@ -14,24 +17,24 @@ android {
         applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
         minSdk = 26
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.3"
+        versionCode = 4
+        versionName = "1.0.4"
         setProperty("archivesBaseName", "World_Clock-v$versionCode($versionName)")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    flavorDimensions.add("version")
-    productFlavors {
-        create("production") {
-            dimension = "version"
-            applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
-        }
-        create("dev") {
-            dimension = "version"
-            applicationId = "com.test.clock"
-        }
-    }
+//    flavorDimensions.add("version")
+//    productFlavors {
+//        create("production") {
+//            dimension = "version"
+//            applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
+//        }
+//        create("dev") {
+//            dimension = "version"
+//            applicationId = "com.test.clock"
+//        }
+//    }
 
     buildTypes {
         release {
@@ -52,21 +55,14 @@ android {
                 "proguard-rules.pro"
             )
             resValue("string", "admobSDKKey", "ca-app-pub-3940256099942544~3347511713")
-            resValue("string", "admob_banner_id", "ca-app-pub-3940256099942544/9214589741")
-            resValue("string", "admob_native_id", "ca-app-pub-3940256099942544/2247696110")
-            resValue("string", "admob_interstitial_id", "ca-app-pub-3940256099942544/1033173712")
-            resValue("string", "admobRewardAd", "ca-app-pub-3940256099942544/5224354917")
-            resValue("string", "admobRewardAdsInitialID", "ca-app-pub-3940256099942544/5354046379")
-            resValue("string", "admob_openAd_id", "ca-app-pub-3940256099942544/9257395921")
-            resValue("string", "admobOnboardingNativeAd", "ca-app-pub-3940256099942544/2247696110")
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "21"
     }
     bundle {
         language {
@@ -76,7 +72,6 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
-
     }
 }
 
@@ -93,19 +88,29 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation ("com.zeugmasolutions.localehelper:locale-helper-android:1.5.1")
-    implementation ("com.intuit.sdp:sdp-android:1.0.6")
-    implementation ("com.intuit.ssp:ssp-android:1.0.6")
-    implementation ("com.android.billingclient:billing:7.1.1")
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
-    kapt ("com.github.bumptech.glide:compiler:4.16.0")
-    implementation ("androidx.room:room-runtime:2.6.1")
-    kapt( "androidx.room:room-compiler:2.6.1")
-    implementation( "androidx.room:room-ktx:2.6.1")
-    implementation ("me.tankery.lib:circularSeekBar:1.4.1")
-    implementation ("com.google.android.gms:play-services-ads:24.5.0")  //Admob
-//    implementation(project(":Roozi"))
-    implementation("androidx.lifecycle:lifecycle-process:2.9.2")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-
+    implementation(libs.locale.helper)
+    implementation(libs.sdp)
+    implementation(libs.ssp)
+    implementation(libs.billing)
+    implementation(libs.glide)
+    ksp(libs.glide.compiler)
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
+    implementation(libs.circular.seek.bar)
+    implementation(libs.play.services.ads)
+    implementation(libs.lifecycle.process)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.shimmer)
+    implementation(libs.lottie)
+    implementation(libs.timber)
+    implementation(libs.ump)
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.firebase.messaging)
+    implementation(libs.play.app.update)
+    implementation(libs.play.app.update.ktx)
+    implementation(libs.firebase.perf)
 }

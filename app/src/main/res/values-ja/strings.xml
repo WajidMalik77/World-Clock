@@ -99,4 +99,18 @@
     </string>
     <string name="access_to_all_premium_features">すべてのプレミアム機能にアクセス</string>
     <string name="please_add_timer_to_start">開始するにはタイマーを追加してください！</string>
+    <string name="set_your_alarm_with_ease_using_customizable_options_for_effortless_scheduling">カスタマイズ可能なオプションで\nアラームを簡単に設定し、スケジュール管理をスムーズに。</string>
+    <string name="global_watch_provides_a_streamlined_solution_for_monitoring_global_time_zones">世界時計は、世界各地のタイムゾーンを\n監視するための合理的なソリューションを提供します。</string>
+    <string name="the_timer_feature_enables_countdowns_for_specific_tasks_or_events">タイマー機能により、特定のタスクや\nイベントのカウントダウンが可能になります。</string>
+    <string name="radar_default"><u>デフォルト</u></string>
+    <string name="voice_reminder">ボイスリマインダー</string>
+    <string name="sleep_sound">睡眠サウンド</string>
+    <string name="all_reminders">すべてのリマインダー</string>
+    <string name="no_reminders_yet">リマインダーはまだありません</string>
+    <string name="create_new_reminder_by_tappingn_nthe_button">「+」ボタンをタップして\n新しいリマインダーを作成します</string>
+    <string name="create_reminder_for">「+」ボタンをタップして新しい「%1$s」リマインダーを作成します</string>
+    <string name="format_time">%1$02d:%2$02d %3$s</string>
+    <string name="label_am">午前</string>
+    <string name="label_pm">午後</string>
+    <string name="loading">読み込み中…</string>
 </resources>

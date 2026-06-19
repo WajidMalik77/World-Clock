@@ -99,4 +99,18 @@
     </string>
     <string name="access_to_all_premium_features">الوصول لجميع الميزات المميزة</string>
     <string name="please_add_timer_to_start">يرجى إضافة مؤقت للبدء!</string>
+    <string name="set_your_alarm_with_ease_using_customizable_options_for_effortless_scheduling">اضبط المنبه الخاص بك بسهولة باستخدام خيارات\nقابلة للتخصيص لجدولة خالية من الجهد.</string>
+    <string name="global_watch_provides_a_streamlined_solution_for_monitoring_global_time_zones">توفر الساعة العالمية حلاً مبسطًا\nلمراقبة المناطق الزمنية العالمية.</string>
+    <string name="the_timer_feature_enables_countdowns_for_specific_tasks_or_events">تتيح ميزة المؤقت العد التنازلي لمهام\nأو أحداث معينة.</string>
+    <string name="radar_default"><u>الافتراضي</u></string>
+    <string name="voice_reminder">تذكير صوتي</string>
+    <string name="sleep_sound">صوت النوم</string>
+    <string name="all_reminders">كل التذكيرات</string>
+    <string name="no_reminders_yet">لا توجد تذكيرات بعد</string>
+    <string name="create_new_reminder_by_tappingn_nthe_button">أنشئ تذكيرًا جديدًا بالضغط\nعلى زر \"+\"</string>
+    <string name="create_reminder_for">أنشئ تذكيرًا جديدًا لـ \"%1$s\" بالضغط على زر \"+\"</string>
+    <string name="format_time">%1$02d:%2$02d %3$s</string>
+    <string name="label_am">ص</string>
+    <string name="label_pm">م</string>
+    <string name="loading">جاري التحميل…</string>
 </resources>

@@ -9,20 +9,75 @@
     tools:context=".activities.CompassActivity">
 
     <include
+        android:id="@+id/banner_container"
+        layout="@layout/layout_top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
+
+    <!-- Sensor info -->
+    <TextView
+        android:id="@+id/degreeDirection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="0°"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/_20ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <TextView
+        android:id="@+id/degreeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="@dimen/_10sdp"
+        android:fontFamily="@font/poppins_semibold"
+        android:text="0°"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/_20ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/degreeDirection" />
+
+    <TextView
+        android:id="@+id/sensorStatusTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:text="@string/loading_sensors"
+        android:textColor="@android:color/black"
+        android:textSize="@dimen/_8ssp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/degreeText" />
+
     <!-- Dial image -->
     <ImageView
         android:id="@+id/dialImage"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_250sdp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@drawable/dialor"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="@dimen/_250sdp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sensorStatusTv"
+        app:layout_constraintWidth_max="@dimen/_250sdp"
         tools:ignore="ContentDescription" />
 
     <!-- Needle image -->
@@ -43,45 +98,11 @@
         app:layout_constraintTop_toTopOf="@+id/dialImage"
         tools:ignore="ContentDescription" />
 
-    <!-- Sensor info -->
-    <TextView
-        android:id="@+id/sensorStatusTv"
-        android:layout_width="wrap_content"
+    <include
+        android:id="@+id/ads_container"
+        layout="@layout/layout_bottom_native"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:text="@string/loading_sensors"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_8ssp"
-        app:layout_constraintBottom_toTopOf="@+id/degreeDirection"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <TextView
-        android:id="@+id/degreeText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_margin="@dimen/_10sdp"
-        android:fontFamily="@font/poppins_semibold"
-        android:text="0°"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_20ssp"
-        app:layout_constraintBottom_toTopOf="@+id/dialImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/degreeDirection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-
-        android:fontFamily="@font/poppins_semibold"
-        android:text="0°"
-        android:textColor="@android:color/black"
-        android:textSize="@dimen/_20ssp"
-        app:layout_constraintBottom_toTopOf="@+id/degreeText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

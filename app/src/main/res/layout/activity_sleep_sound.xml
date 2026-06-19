@@ -7,8 +7,18 @@
     android:background="@color/white">
 
     <include
+        android:id="@+id/banner_container"
+        layout="@layout/layout_top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
 
     <!-- Search bar -->
     <com.google.android.material.textfield.TextInputLayout
@@ -21,7 +31,8 @@
         app:boxCornerRadiusBottomStart="@dimen/_24sdp"
         app:boxCornerRadiusTopEnd="@dimen/_24sdp"
         app:boxCornerRadiusTopStart="@dimen/_24sdp"
-        app:boxStrokeColor="#7441D0"
+        app:boxStrokeColor="@color/black"
+        app:hintTextColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
@@ -34,6 +45,8 @@
             android:hint="Search sleep sounds..."
             android:imeOptions="actionSearch"
             android:inputType="text"
+            android:textColor="@color/black"
+            android:textColorHint="#666666"
             android:textSize="@dimen/_12ssp" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -70,7 +83,7 @@
         android:background="@drawable/bg_gradient_button"
         android:paddingHorizontal="@dimen/_16sdp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -99,5 +112,12 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/ads_container"
+        layout="@layout/layout_bottom_native"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

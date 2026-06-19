@@ -99,4 +99,18 @@
     </string>
     <string name="access_to_all_premium_features">Zugriff auf alle Premium-Funktionen</string>
     <string name="please_add_timer_to_start">Bitte Timer hinzufügen, um zu starten!</string>
+    <string name="set_your_alarm_with_ease_using_customizable_options_for_effortless_scheduling">Stellen Sie Ihren Wecker ganz einfach mit anpassbaren\nOptionen für eine mühelose Planung ein.</string>
+    <string name="global_watch_provides_a_streamlined_solution_for_monitoring_global_time_zones">Die Weltuhr bietet eine optimierte Lösung\nzur Überwachung globaler Zeitzonen.</string>
+    <string name="the_timer_feature_enables_countdowns_for_specific_tasks_or_events">Die Timer-Funktion ermöglicht Countdowns für\nbestimmte Aufgaben oder Ereignisse.</string>
+    <string name="radar_default"><u>Standard</u></string>
+    <string name="voice_reminder">Spracherinnerung</string>
+    <string name="sleep_sound">Schlafton</string>
+    <string name="all_reminders">Alle Erinnerungen</string>
+    <string name="no_reminders_yet">Noch keine Erinnerungen</string>
+    <string name="create_new_reminder_by_tappingn_nthe_button">Erstellen Sie eine neue Erinnerung, indem Sie\nauf die Schaltfläche „+“ tippen</string>
+    <string name="create_reminder_for">Erstellen Sie eine neue „%1$s“-Erinnerung, indem Sie auf die Schaltfläche „+“ tippen</string>
+    <string name="format_time">%1$02d:%2$02d %3$s</string>
+    <string name="label_am">AM</string>
+    <string name="label_pm">PM</string>
+    <string name="loading">Laden…</string>
 </resources>

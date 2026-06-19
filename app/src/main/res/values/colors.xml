@@ -29,4 +29,7 @@
     <color name="item_lavender">#f1e9ff</color>
     <color name="item_light_blue">#e7f9ff</color>
 
+    <color name="orange">#FA702C</color>
+    <color name="menu_card">#F6F6F6</color>
+    <color name="blue">#007AFF</color>
 </resources>

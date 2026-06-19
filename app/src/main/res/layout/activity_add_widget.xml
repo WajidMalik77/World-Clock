@@ -9,8 +9,19 @@
     tools:context=".activities.AddWidgetActivity">
 
     <include
+        android:id="@+id/banner_container"
+        layout="@layout/layout_top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar" />
+
+    <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
 
     <EditText
         android:id="@+id/searchBar"
@@ -23,7 +34,7 @@
         android:inputType="text"
         android:paddingHorizontal="@dimen/_10sdp"
         android:textColor="@color/black"
-        android:textColorHint="@color/grey"
+        android:textColorHint="#666666"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:layout_constraintEnd_toStartOf="@+id/searchIcon"
@@ -40,7 +51,8 @@
         android:padding="@dimen/_6sdp"
         android:src="@drawable/search"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
         app:tint="@android:color/black"
         tools:ignore="ContentDescription" />
 
@@ -50,8 +62,16 @@
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/_10sdp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container"
         app:layout_constraintTop_toBottomOf="@+id/searchIcon"
         tools:itemCount="6"
         tools:listitem="@layout/item_add_clock" />
+
+    <include
+        android:id="@+id/ads_container"
+        layout="@layout/layout_bottom_native"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

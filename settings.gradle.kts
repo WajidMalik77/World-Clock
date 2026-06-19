@@ -21,5 +21,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "World Clock"
 include(":app")
-//include(":Roozi")
-//project(":Roozi").projectDir = file("Roozi")

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/_8sdp"
+    android:paddingTop="0dp"
+    android:paddingEnd="@dimen/_8sdp"
+    android:paddingBottom="0dp">
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/banner_ad_shimmer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/_50sdp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:background="@drawable/shimmer_placeholder"
+            android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:text="Ad is Loading..."
+            android:textColor="@color/black"
+            android:textSize="@dimen/_10ssp" />
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <FrameLayout
+        android:id="@+id/admob_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/_50sdp"
+        android:visibility="gone"
+        tools:background="@color/grey" />
+
+</LinearLayout>

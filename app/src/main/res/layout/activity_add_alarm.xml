@@ -9,8 +9,18 @@
     tools:context=".activities.AddAlarmActivity">
 
     <include
+        android:id="@+id/banner_container"
+        layout="@layout/layout_top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
         android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
 
     <LinearLayout
         android:id="@+id/timePickerContainer"
@@ -23,10 +33,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <com.worldclock.app_themes.utils.GradientNumberPicker
+        <com.worldclock.app_themes.core.utils.GradientNumberPicker
             android:id="@+id/hourPicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="@dimen/_86sdp"
+            android:layout_height="@dimen/_118sdp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -36,10 +46,10 @@
             android:textColor="@color/black"
             android:textSize="@dimen/_24ssp" />
 
-        <com.worldclock.app_themes.utils.GradientNumberPicker
+        <com.worldclock.app_themes.core.utils.GradientNumberPicker
             android:id="@+id/minutePicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_width="@dimen/_86sdp"
+            android:layout_height="@dimen/_118sdp" />
 
     </LinearLayout>
 
@@ -121,17 +131,25 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/mid"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_margin="@dimen/_8sdp"
         android:layout_marginTop="@dimen/_5sdp"
         app:cardBackgroundColor="#F5F5F5"
         app:cardCornerRadius="@dimen/_16sdp"
         app:cardElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/formatContainer"
         app:strokeColor="#E0E0E0"
         app:strokeWidth="1dp">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:fillViewport="false"
+            android:overScrollMode="ifContentScrolls">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -287,7 +305,7 @@
                     android:fontFamily="@font/poppins_medium"
                     android:hint="@string/alarm"
                     android:textColor="@color/black"
-                    android:textColorHint="@color/grey"
+                    android:textColorHint="#666666"
                     android:textSize="@dimen/_14ssp" />
             </LinearLayout>
 
@@ -393,6 +411,7 @@
             </LinearLayout>
 
         </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Bottom cancel/save buttons — unchanged -->
@@ -400,7 +419,7 @@
         android:id="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -431,5 +450,12 @@
             app:layout_constraintStart_toEndOf="@+id/cancel" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/ads_container"
+        layout="@layout/layout_bottom_native"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

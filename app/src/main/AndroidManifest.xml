@@ -13,16 +13,16 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
     <application
-        android:name=".activities.MyApplication"
+        android:name=".presentation.activities.MyApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -33,75 +33,93 @@
         android:theme="@style/Theme.WorldClock"
         tools:targetApi="31">
         <activity
-            android:name=".activities.ExitActivity"
+            android:name=".presentation.activities.ExitActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.PlaySoundActivity"
+            android:name=".presentation.activities.PlaySoundActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.SleepSoundActivity"
+            android:name=".presentation.activities.SleepSoundActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.AddReminderActiviity"
+            android:name=".presentation.activities.AddReminderActiviity"
             android:exported="false" />
         <activity
-            android:name=".activities.AddAllRemindersActivity"
+            android:name=".presentation.activities.AddAllRemindersActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.AllRemindersActivity"
+            android:name=".presentation.activities.AllRemindersActivity"
             android:exported="false" />
 
         <service
-            android:name=".utils.AlarmService"
+            android:name=".core.utils.AlarmService"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+
+        <service
+            android:name=".core.fcm.FcmService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admobSDKKey" />
 
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.NATIVE_AD_DEBUGGER_ENABLED"
+            android:value="false" />
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_INITIALIZATION"
+            android:value="true" />
+        <meta-data
+            android:name="com.google.android.gms.ads.flag.OPTIMIZE_AD_LOADING"
+            android:value="true" />
+
         <activity
-            android:name=".activities.PremiumActivity"
+            android:name=".presentation.activities.PremiumActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.AddWidgetActivity"
+            android:name=".presentation.activities.AddWidgetActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.WidgetActivity"
+            android:name=".presentation.activities.WidgetActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.CompassActivity"
+            android:name=".presentation.activities.CompassActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.TimerActivity"
+            android:name=".presentation.activities.TimerActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.StopWatchActivity"
+            android:name=".presentation.activities.StopWatchActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.AddAlarmActivity"
+            android:name=".presentation.activities.AddAlarmActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
 
         <service
-            android:name=".widgets.ListWidgetService"
+            android:name=".core.widgets.ListWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
         <receiver
-            android:name=".widgets.WorldClockWidgetProvider"
+            android:name=".core.widgets.WorldClockWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -112,10 +130,10 @@
                 android:resource="@xml/clock_widget_multiple_zones" />
         </receiver>
         <receiver
-            android:name=".utils.AlarmReceiver"
+            android:name=".core.utils.AlarmReceiver"
             android:exported="false" />
         <receiver
-            android:name=".utils.BootReceiver"
+            android:name=".core.utils.BootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -123,7 +141,7 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".utils.ClockThemeWidgetProvider"
+            android:name=".core.utils.ClockThemeWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -136,56 +154,60 @@
         </receiver>
 
         <activity
-            android:name=".activities.AlarmActivity"
+            android:name=".presentation.activities.AlarmActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.AddClockActivity"
+            android:name=".presentation.activities.AddClockActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.ClockActivity"
+            android:name=".presentation.activities.ClockActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.MenuActivity"
+            android:name=".presentation.activities.MenuActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.OnBoardingActivity"
+            android:name=".presentation.activities.OnBoardingActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.ActivityPurchase"
+            android:name=".presentation.activities.ActivityPurchase"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.LanguagesActivity"
+            android:name=".presentation.activities.LanguagesActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".presentation.activities.MainActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity" />
         <activity
-            android:name=".activities.Splash"
+            android:name=".presentation.activities.Splash"
             android:exported="true"
             android:screenOrientation="portrait"
             tools:ignore="DiscouragedApi,LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.google.android.gms.ads.AdActivity"
+            android:theme="@style/AdTheme"
+            tools:replace="android:theme" />
     </application>
 
 </manifest>

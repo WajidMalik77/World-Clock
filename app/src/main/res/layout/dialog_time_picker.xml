@@ -73,13 +73,13 @@
         android:paddingEnd="@dimen/_24sdp"
         android:weightSum="2">
 
-        <com.worldclock.app_themes.utils.GradientNumberPicker
+        <com.worldclock.app_themes.core.utils.GradientNumberPicker
             android:id="@+id/npHour"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
 
-        <com.worldclock.app_themes.utils.GradientNumberPicker
+        <com.worldclock.app_themes.core.utils.GradientNumberPicker
             android:id="@+id/npMinute"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
