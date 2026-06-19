@@ -53,7 +53,8 @@ class FcmService : FirebaseMessagingService() {
     private fun ensureChannel(): String {
         val channelId = CHANNEL_ID
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+            val manager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
+                ?: return channelId
             val existing = manager.getNotificationChannel(channelId)
             if (existing == null) {
                 val channel = NotificationChannel(

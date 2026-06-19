@@ -24,12 +24,23 @@ class LapTimeAdaptor(
         holder.binding.lapTimeTv.text = lapTimeList[position]
 
         holder.binding.deleteImg.setOnClickListener {
-            counterList.removeAt(position)
-            lapTimeList.removeAt(position)
-            notifyItemRemoved(position)
-            notifyItemRangeChanged(position, itemCount)
+            val currentPosition = holder.bindingAdapterPosition
+            if (currentPosition == RecyclerView.NO_POSITION ||
+                currentPosition !in counterList.indices ||
+                currentPosition !in lapTimeList.indices
+            ) {
+                return@setOnClickListener
+            }
+
+            counterList.removeAt(currentPosition)
+            lapTimeList.removeAt(currentPosition)
+            notifyItemRemoved(currentPosition)
+            val changedCount = itemCount - currentPosition
+            if (changedCount > 0) {
+                notifyItemRangeChanged(currentPosition, changedCount)
+            }
         }
     }
 
-    override fun getItemCount() = counterList.size
+    override fun getItemCount() = minOf(counterList.size, lapTimeList.size)
 }

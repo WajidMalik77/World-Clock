@@ -9,12 +9,15 @@ import dagger.hilt.android.scopes.ActivityScoped
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.ads.config.models.NativeAdColorConfig
 import com.worldclock.app_themes.ads.di.ActivityNative
+import com.worldclock.app_themes.ads.helpers.models.AdNetwork
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import com.worldclock.app_themes.ads.helpers.models.NativeAdEvent
 import com.worldclock.app_themes.ads.helpers.usecases.AdConfigRepository
 import com.worldclock.app_themes.ads.helpers.usecases.CheckAdEligibilityUseCase
 import com.worldclock.app_themes.ads.helpers.usecases.NativeAdRepository
 import com.worldclock.app_themes.ads.managers.AdmobNativeManager
+import com.worldclock.app_themes.ads.managers.facebook.FbAdInitializer
+import com.worldclock.app_themes.ads.managers.facebook.FbNativeAdManager
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.collections.all
@@ -24,8 +27,17 @@ class NativeAdOrchestrator @Inject constructor(
     private val nativeAdRepository: NativeAdRepository,
     private val adConfigRepository: AdConfigRepository,
     @param:ActivityNative private val admobNativeManager: AdmobNativeManager,
+    @param:ActivityNative private val fbNativeAdManager: FbNativeAdManager,
     private val checkEligibility: CheckAdEligibilityUseCase
 ) {
+
+    private fun networkFromValue(value: Int): AdNetwork = when (value) {
+        2 -> AdNetwork.FACEBOOK
+        else -> AdNetwork.ADMOB
+    }
+
+    private fun otherNetwork(network: AdNetwork): AdNetwork =
+        if (network == AdNetwork.FACEBOOK) AdNetwork.ADMOB else AdNetwork.FACEBOOK
 
     suspend fun loadNativeAds(
         context: Context,
@@ -65,6 +77,10 @@ class NativeAdOrchestrator @Inject constructor(
         screen: String,
         position: String
     ) {
+        if (position.equals("top", ignoreCase = true) && !screen.equals("SplashScreen", ignoreCase = true)) {
+            Timber.d("[$screen][$position] Top native preload disabled")
+            return
+        }
         val eligibility = checkEligibility(context)
         if (!eligibility.canShowAds) {
             Timber.w("[$screen][$position] ${eligibility.reason} — skipping native preload")
@@ -95,6 +111,12 @@ class NativeAdOrchestrator @Inject constructor(
         onEvent: ((NativeAdEvent) -> Unit)?
     ) {
         val position = config.position
+        if (position.equals("top", ignoreCase = true) && !screen.equals("SplashScreen", ignoreCase = true)) {
+            Timber.d("[$screen][$position] Top native disabled")
+            hideNativeSlot(config)
+            onEvent?.invoke(NativeAdEvent.Off(position))
+            return
+        }
         val visible = nativeAdRepository.getNativeVisibility(screen, position)
 
         if (!visible) {
@@ -107,8 +129,21 @@ class NativeAdOrchestrator @Inject constructor(
         val size = nativeAdRepository.getNativeAdSize(screen, position)
         val rawTheme = nativeAdRepository.getNativeAdColorConfig(screen, position)
         val theme = rawTheme?.resolveForCurrentTheme(config.container.context)
-        val adUnitId = adConfigRepository.getNativeAdUnitId(screen, position)
         val shouldPreload = nativeAdRepository.shouldNativePreload(screen, position)
+
+        val networkValue = adConfigRepository.getNativeAdNetwork(screen, position)
+        if (networkValue == 0) {
+            Timber.d("[$screen][$position] Native ad network off from config")
+            hideNativeSlot(config)
+            onEvent?.invoke(NativeAdEvent.Off(position))
+            return
+        }
+        val primaryNetwork = networkFromValue(networkValue)
+        val fallbackNetwork = if (adConfigRepository.isNativeWaterfallEnabled()) otherNetwork(primaryNetwork) else null
+        if (primaryNetwork == AdNetwork.FACEBOOK || fallbackNetwork == AdNetwork.FACEBOOK) {
+            FbAdInitializer.initialize(config.container.context.applicationContext)
+        }
+        val adUnitId = adConfigRepository.getNativeAdUnitId(screen, position, primaryNetwork)
 
         Timber.d("Should Native Preload: $screen : $position : $shouldPreload")
         loadNativeAdBySize(
@@ -116,6 +151,8 @@ class NativeAdOrchestrator @Inject constructor(
             position = position,
             size = size,
             adUnitId = adUnitId,
+            network = primaryNetwork,
+            fallbackNetwork = fallbackNetwork,
             theme = theme,
             container = config.container,
             shimmer = config.shimmer,
@@ -131,6 +168,8 @@ class NativeAdOrchestrator @Inject constructor(
         position: String,
         size: Int,
         adUnitId: String,
+        network: AdNetwork,
+        fallbackNetwork: AdNetwork?,
         theme: NativeAdColorConfig?,
         container: FrameLayout,
         shimmer: FrameLayout,
@@ -139,62 +178,146 @@ class NativeAdOrchestrator @Inject constructor(
         onImpression: () -> Unit,
         onFailed: (LoadAdError) -> Unit
     ) {
+        fun dispatch(
+            net: AdNetwork,
+            unitId: String,
+            isFallback: Boolean,
+            admobCall: (String, (LoadAdError) -> Unit) -> Unit,
+            fbCall: (String, (String) -> Unit) -> Unit
+        ) {
+            val failHandler: (String) -> Unit = { message ->
+                if (!isFallback && fallbackNetwork != null) {
+                    Timber.d("[$screen][$position] Native network=$net failed ($message), trying fallback=$fallbackNetwork")
+                    val fallbackId = adConfigRepository.getNativeAdUnitId(screen, position, fallbackNetwork)
+                    dispatch(fallbackNetwork, fallbackId, true, admobCall, fbCall)
+                } else {
+                    onFailed(LoadAdError(0, message, "FbAdError", null, null))
+                }
+            }
+            when (net) {
+                AdNetwork.FACEBOOK -> fbCall(unitId, failHandler)
+                else -> admobCall(unitId) { failHandler(it.message) }
+            }
+        }
+
         if (size == 1) {
             val isIntroFullScreen = (screen == "IntroScreen" ||
                     screen == "OnBoardingScreen" ||
                     screen == "IntroFullScreen") &&
                     (position.equals("fullScreen", ignoreCase = true) || position.startsWith("full_screen", ignoreCase = true))
             if (isIntroFullScreen) {
-                admobNativeManager.loadNativeFullScreenIntroAd(
-                    adContainer = container,
-                    adUnitId = adUnitId,
-                    shimmerContainer = shimmer,
-                    colorConfig = theme,
-                    shouldPreloadNext = shouldPreload,
-                    onLoaded = {
-                        Timber.i("Fullscreen intro native ad loaded")
-                        onLoaded()
+                dispatch(
+                    net = network,
+                    unitId = adUnitId,
+                    isFallback = false,
+                    admobCall = { unitId, onFail ->
+                        admobNativeManager.loadNativeFullScreenIntroAd(
+                            adContainer = container,
+                            adUnitId = unitId,
+                            shimmerContainer = shimmer,
+                            colorConfig = theme,
+                            shouldPreloadNext = shouldPreload,
+                            onLoaded = {
+                                Timber.i("Fullscreen intro native ad loaded")
+                                onLoaded()
+                            },
+                            onImpression = onImpression,
+                            onFailed = { error ->
+                                Timber.e("Fullscreen intro native ad failed: ${error.message}")
+                                onFail(error)
+                            }
+                        )
                     },
-                    onImpression = onImpression,
-                    onFailed = { error ->
-                        Timber.e("Fullscreen intro native ad failed: ${error.message}")
-                        onFailed(error)
+                    fbCall = { unitId, onFail ->
+                        fbNativeAdManager.loadNativeFullScreenIntroAd(
+                            adContainer = container,
+                            adUnitId = unitId,
+                            shimmerContainer = shimmer,
+                            colorConfig = theme,
+                            onLoaded = {
+                                Timber.i("FB fullscreen intro native ad loaded")
+                                onLoaded()
+                            },
+                            onImpression = onImpression,
+                            onFailed = onFail
+                        )
                     }
                 )
                 return
             }
-            admobNativeManager.loadNativeSmallAd(
-                container, adUnitId, shimmer, R.layout.native_ad_shimmer_small, theme, shouldPreload,
-                onLoaded = {
-                    Timber.i("Small native ad loaded")
-                    onLoaded()
+            dispatch(
+                net = network,
+                unitId = adUnitId,
+                isFallback = false,
+                admobCall = { unitId, onFail ->
+                    admobNativeManager.loadNativeSmallAd(
+                        container, unitId, shimmer, R.layout.native_ad_shimmer_small, theme, shouldPreload,
+                        onLoaded = {
+                            Timber.i("Small native ad loaded")
+                            onLoaded()
+                        },
+                        onImpression = onImpression,
+                        onFailed = { error ->
+                            Timber.e("Small native ad failed: ${error.message}")
+                            onFail(error)
+                        }
+                    )
                 },
-                onImpression = onImpression,
-                onFailed = { error ->
-                    Timber.e("Small native ad failed: ${error.message}")
-                    onFailed(error)
+                fbCall = { unitId, onFail ->
+                    fbNativeAdManager.loadNativeSmallAd(
+                        container, unitId, shimmer, R.layout.native_ad_shimmer_small, theme,
+                        onLoaded = {
+                            Timber.i("FB small native ad loaded")
+                            onLoaded()
+                        },
+                        onImpression = onImpression,
+                        onFailed = onFail
+                    )
                 }
             )
         } else {
             val layoutRes = layoutResForSize(screen, position, size)
             val shimmerRes = shimmerLayoutResForSize(size)
 
-            admobNativeManager.loadNativeCustomAd(
-                adContainer = container,
-                adUnitId = adUnitId,
-                layoutRes = layoutRes,
-                shimmerContainer = shimmer,
-                shimmerLayout = shimmerRes,
-                shouldPreloadNext = shouldPreload,
-                colorConfig = theme,
-                onLoaded = {
-                    Timber.i("Native ad loaded for size=$size (layout=$layoutRes)")
-                    onLoaded()
+            dispatch(
+                net = network,
+                unitId = adUnitId,
+                isFallback = false,
+                admobCall = { unitId, onFail ->
+                    admobNativeManager.loadNativeCustomAd(
+                        adContainer = container,
+                        adUnitId = unitId,
+                        layoutRes = layoutRes,
+                        shimmerContainer = shimmer,
+                        shimmerLayout = shimmerRes,
+                        shouldPreloadNext = shouldPreload,
+                        colorConfig = theme,
+                        onLoaded = {
+                            Timber.i("Native ad loaded for size=$size (layout=$layoutRes)")
+                            onLoaded()
+                        },
+                        onImpression = onImpression,
+                        onFailed = { error ->
+                            Timber.e("Native ad failed for size=$size: ${error.message}")
+                            onFail(error)
+                        }
+                    )
                 },
-                onImpression = onImpression,
-                onFailed = { error ->
-                    Timber.e("Native ad failed for size=$size: ${error.message}")
-                    onFailed(error)
+                fbCall = { unitId, onFail ->
+                    fbNativeAdManager.loadNativeCustomAd(
+                        adContainer = container,
+                        adUnitId = unitId,
+                        layoutRes = layoutRes,
+                        shimmerContainer = shimmer,
+                        shimmerLayout = shimmerRes,
+                        colorConfig = theme,
+                        onLoaded = {
+                            Timber.i("FB native ad loaded for size=$size (layout=$layoutRes)")
+                            onLoaded()
+                        },
+                        onImpression = onImpression,
+                        onFailed = onFail
+                    )
                 }
             )
         }
@@ -213,6 +336,7 @@ class NativeAdOrchestrator @Inject constructor(
             size == 4 -> R.layout.native_medium_side_media
             size == 5 -> R.layout.native_medium_compact
             size == 6 -> R.layout.native_large_center
+            size == 7 -> R.layout.native_full_media
             else -> R.layout.native_medium
         }
     }
@@ -221,12 +345,13 @@ class NativeAdOrchestrator @Inject constructor(
         return when (size) {
             // placement_values:
             // 0=off, 1=small, 2=medium, 3=medium_top_cta,
-            // 4=medium_side_media, 5=medium_compact, 6=large_center
+            // 4=medium_side_media, 5=medium_compact, 6=large_center, 7=full_media
             2 -> R.layout.native_loading_medium
             3 -> R.layout.native_loading_medium_top_cta
             4 -> R.layout.native_loading_medium_side_media
             5 -> R.layout.native_loading_medium_compact
             6 -> R.layout.native_loading_large_center
+            7 -> R.layout.native_loading_full_media
             else -> R.layout.native_loading_medium
         }
     }
@@ -311,5 +436,6 @@ class NativeAdOrchestrator @Inject constructor(
 
     fun destroy() {
         admobNativeManager.cleanup()
+        fbNativeAdManager.cleanup()
     }
 }

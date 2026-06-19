@@ -141,7 +141,7 @@ class SleepSoundActivity : BaseActivity() {
                 super.onScrolled(recyclerView, dx, dy)
                 if (dy <= 0) return
 
-                val layoutManager = recyclerView.layoutManager as GridLayoutManager
+                val layoutManager = recyclerView.layoutManager as? GridLayoutManager ?: return
                 val totalItems = layoutManager.itemCount
                 val lastVisible = layoutManager.findLastVisibleItemPosition()
 

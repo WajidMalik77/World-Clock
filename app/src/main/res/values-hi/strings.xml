@@ -5,27 +5,14 @@
     <string name="alarm_clock">अलार्म घड़ी</string>
     <string name="language">भाषा</string>
     <string name="next">आगे</string>
-    <string name="skip">स्किप</string>
     <string name="finish">समाप्त</string>
     <string name="set_alarm_time">अलार्म समय सेट करें</string>
-    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
-        अपने अलार्म समय को आसानी से सेट करें ताकि यह आपकी योजनाओं के साथ पूरी तरह मेल खाए। अनुकूलन योग्य अलार्म विकल्पों के साथ निर्बाध शेड्यूलिंग का आनंद लें।
-    </string>
     <string name="global_watch">ग्लोबल वॉच</string>
-    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
-        ग्लोबल वॉच आपको विभिन्न शहरों और देशों का समय ट्रैक करने का एक सहज तरीका प्रदान करता है, जिससे आप हमेशा विभिन्न समय क्षेत्रों से अवगत रहते हैं।
-    </string>
     <string name="timer_running_out">टाइमर समाप्त हो रहा है</string>
-    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
-        टाइमर फीचर आपको निर्धारित समयावधि के लिए काउंटडाउन सेट करने देता है, जो कार्यों या घटनाओं के लिए समय ट्रैक करने में मदद करता है।
-    </string>
     <string name="get_premium_today">आज ही प्रीमियम प्राप्त करें</string>
-    <string name="get_access_to_all_features">सभी फीचर्स तक पहुँच प्राप्त करें</string>
     <string name="ad_free_experience">विज्ञापन मुक्त अनुभव</string>
     <string name="daily_content_update">दैनिक सामग्री अपडेट</string>
-    <string name="_6_month">6 माह</string>
     <string name="yearly">वार्षिक</string>
-    <string name="life_time">लाइफ़ टाइम</string>
     <string name="cancel_anytime_on_google_play_store">गूगल प्ले स्टोर पर कभी भी रद्द करें</string>
     <string name="terms_of_services">सेवा की शर्तें</string>
     <string name="privacy_policy">गोपनीयता नीति</string>
@@ -44,32 +31,17 @@
     <string name="add_city">शहर जोड़ें</string>
     <string name="no_alarm_created">कोई अलार्म नहीं बनाया गया</string>
     <string name="create_the_new_alarm_by_tapping_the_button">+ बटन टैप करके नया अलार्म बनाएं</string>
-    <string name="permission">अनुमति</string>
-    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
-        एंड्रॉयड 10+ पर अलार्म को सही से काम करने के लिए ओवरले अनुमति की आवश्यकता होती है, कृपया इसे अनुमति दें।
-    </string>
-    <string name="allow">अनुमति दें</string>
     <string name="cancel">रद्द करें</string>
     <string name="upcoming_alarm">आगामी अलार्म</string>
     <string name="save">सेव करें</string>
-    <string name="alarm_sound">अलार्म ध्वनि:</string>
     <string name="label">लेबल:</string>
-    <string name="snooze">स्नूज़:</string>
     <string name="vibrate">वाइब्रेट:</string>
     <string name="once">एक बार</string>
     <string name="alarm_time_is_now">अलार्म का समय हो गया है!</string>
     <string name="no_active_alarms">कोई सक्रिय अलार्म नहीं</string>
     <string name="stop_watch">स्टॉप वॉच</string>
-    <string name="set">सेट</string>
-    <string name="min">मिन</string>
-    <string name="sec">सेक</string>
     <string name="loading_sensors">सेंसर लोड हो रहे हैं…</string>
     <string name="widget_clock">विजेट घड़ी</string>
-    <string name="add">जोड़ें</string>
-    <string name="no_widgets_created">कोई विजेट नहीं बनाया गया</string>
-    <string name="create_the_new_widget_by_clicking_the_add_button">Add बटन क्लिक करके नया विजेट बनाएं</string>
-    <string name="delete_widget">विजेट हटाएं</string>
-    <string name="are_you_sure_you_want_to_delete_this_widget">क्या आप वाकई इस विजेट को हटाना चाहते हैं?</string>
     <string name="delete">हटाएं</string>
     <string name="delete_clock">घड़ी हटाएं</string>
     <string name="are_you_sure_you_want_to_delete_this_clock">क्या आप वाकई इस घड़ी को हटाना चाहते हैं?</string>
@@ -78,8 +50,6 @@
     <string name="feedback">फीडबैक</string>
     <string name="share_app">ऐप साझा करें</string>
     <string name="rate_us">हमें रेट करें</string>
-    <string name="more_apps">और ऐप्स</string>
-    <string name="fast_processing">तेज़ प्रोसेसिंग</string>
     <string name="get_npremium_access">प्रीमियम\nएक्सेस प्राप्त करें</string>
     <string name="enjoy_access_to_all_premium_features">सभी प्रीमियम फीचर्स का आनंद लें</string>
     <string name="purchase">खरीदें</string>
@@ -113,4 +83,5 @@
     <string name="label_am">AM</string>
     <string name="label_pm">PM</string>
     <string name="loading">लोड हो रहा है…</string>
+    <string name="please_select_a_language">कृपया कोई भाषा चुनें</string>
 </resources>

@@ -69,7 +69,8 @@ class SleepSoundAdapter(
                     }
                 }
 
-                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
+                    ?: throw IllegalStateException("Download service is unavailable")
                 dm.enqueue(request)
 
                 Toast.makeText(context, "Downloading: ${sound.name}", Toast.LENGTH_SHORT).show()

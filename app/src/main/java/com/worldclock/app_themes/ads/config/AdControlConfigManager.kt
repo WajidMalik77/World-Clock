@@ -7,6 +7,9 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.worldclock.app_themes.BuildConfig
 import com.worldclock.app_themes.ads.config.models.AdControlConfig
+import com.worldclock.app_themes.ads.helpers.models.AdNetwork
+import com.worldclock.app_themes.ads.helpers.models.AdWaterfallPlan
+import com.worldclock.app_themes.ads.utils.ADS
 import com.worldclock.app_themes.core.utils.AdsConstants
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.presentation.activities.LanguagesActivity
@@ -18,7 +21,7 @@ import kotlinx.serialization.json.Json
 
 class AdControlConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig
-) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v4") {
+) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v6") {
 
     companion object {
         private const val TAG_CFG = "ConfigTrace"
@@ -74,9 +77,18 @@ class AdControlConfigManager(
     private fun remoteInterstitialIds(): Map<String, String> = configData?.adIds?.interstitial.orEmpty()
     private fun remoteBannerIds(): Map<String, String> = configData?.adIds?.banner.orEmpty()
     private fun remoteNativeIds(): Map<String, String> = configData?.adIds?.nativeIds.orEmpty()
+    private fun remoteFbAppOpenIds(): Map<String, String> = configData?.fbAdIds?.appOpen.orEmpty()
+    private fun remoteFbInterstitialIds(): Map<String, String> = configData?.fbAdIds?.interstitial.orEmpty()
+    private fun remoteFbBannerIds(): Map<String, String> = configData?.fbAdIds?.banner.orEmpty()
+    private fun remoteFbNativeIds(): Map<String, String> = configData?.fbAdIds?.nativeIds.orEmpty()
 
     private fun resolveProdAdId(configuredId: String?, fallbackProdId: String): String {
         if (BuildConfig.DEBUG) return fallbackProdId
+        val candidate = configuredId?.trim().orEmpty()
+        return candidate.ifEmpty { fallbackProdId }
+    }
+
+    private fun resolveProdFbAdId(configuredId: String?, fallbackProdId: String): String {
         val candidate = configuredId?.trim().orEmpty()
         return candidate.ifEmpty { fallbackProdId }
     }
@@ -180,21 +192,22 @@ class AdControlConfigManager(
 
     fun shouldShowAppOpen(): Boolean {
         val app = configData?.app ?: return false
-        return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.resume == 1)
+        return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.resume in 1..2)
     }
     fun shouldShowAppOpenSplash(): Boolean {
         val app = configData?.app ?: return false
-        return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.splash == 1)
+        return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.splash in 1..2)
     }
     fun shouldShowAppOpenResume(): Boolean {
         val app = configData?.app ?: return false
-        return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.resume == 1)
+        return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.resume in 1..2)
     }
     fun getResumeMinBackgroundSeconds(): Int =
         configData?.app?.appOpen?.resumeMinBackgroundSeconds
             ?: 0
 
     fun isBannerVisible(activityName: String, position: String): Boolean {
+        if (position.equals("bottom", ignoreCase = true)) return false
         if (!areAdsEnabled()) return false
 
         val v2 = resolveBannerPlacementValue(activityName, position)
@@ -202,14 +215,8 @@ class AdControlConfigManager(
     }
 
     fun getBannerType(activityName: String, position: String): String {
-        val v2 = resolveBannerPlacementValue(activityName, position)
-        val typeInt = v2 ?: 0
-        return when (typeInt) {
-            1 -> "a"
-            2 -> "c"
-            3 -> "r"
-            else -> "a"
-        }
+        if (position.equals("bottom", ignoreCase = true)) return "a"
+        return "a"
     }
 
     fun isInterstitialEnabledForTrigger(screen: String, trigger: String): Boolean {
@@ -219,7 +226,7 @@ class AdControlConfigManager(
         }
         val v2 = resolveInterstitialPlacementValue(screen, trigger)
         if (v2 != null) {
-            val enabled = isInterstitialEnabled() && v2 == 1
+            val enabled = isInterstitialEnabled() && v2 in 1..2
             Timber.tag(TAG_CFG).d("Interstitial gate v2 screen=$screen trigger=$trigger placement=$v2 enabled=$enabled")
             return enabled
         }
@@ -311,7 +318,7 @@ class AdControlConfigManager(
         val allowedKeys = setOf(
             "languages_top", "languages_bottom",
             "intro_top", "intro_bottom", "intro_full_screen",
-            "home_top", "home_bottom",
+            "home_top", "home_center", "home_bottom",
             "exit_top", "exit_bottom",
             "menu_top", "menu_bottom", "settings_bottom",
             "splash_top", "splash_bottom",
@@ -344,17 +351,7 @@ class AdControlConfigManager(
 
         when (screen) {
             "SplashScreen" -> out += "splash"
-            "LanguagesScreen" -> {
-                if (normalizedTrigger == "done") {
-                    out += "language_first_done"
-                    out += "language_second_done"
-                    out += "done"
-                } else if (normalizedTrigger == "language_first_done") {
-                    out += "done"
-                } else if (normalizedTrigger == "language_second_done") {
-                    out += "done"
-                }
-            }
+            "LanguagesScreen" -> Unit
             "IntroScreen", "OnBoardingScreen" -> {
                 if (normalizedTrigger == "finish") out += "intro_finish"
             }
@@ -374,7 +371,6 @@ class AdControlConfigManager(
             "splash",
             "language_first_done",
             "language_second_done",
-            "done",
             "intro_finish",
             "premium_close",
             "purchase_continue_with_ads",
@@ -452,6 +448,93 @@ class AdControlConfigManager(
             .replace("-", "_")
             .replace(" ", "_")
             .lowercase()
+    }
+
+    private fun adNetworkFromValue(value: Int): AdNetwork = when (value) {
+        1 -> AdNetwork.ADMOB
+        2 -> AdNetwork.FACEBOOK
+        else -> AdNetwork.NONE
+    }
+
+    private fun resolveWaterfallPlan(value: Int, waterfallFlag: Int): AdWaterfallPlan? {
+        val primary = adNetworkFromValue(value)
+        if (primary == AdNetwork.NONE) return null
+        val fallback = if (waterfallFlag == 1) {
+            if (primary == AdNetwork.ADMOB) AdNetwork.FACEBOOK else AdNetwork.ADMOB
+        } else {
+            null
+        }
+        return AdWaterfallPlan(primary = primary, fallback = fallback)
+    }
+
+    fun getBannerWaterfallPlan(screen: String, position: String): AdWaterfallPlan? {
+        if (position.equals("bottom", ignoreCase = true)) return null
+        val value = resolveBannerPlacementValue(screen, position) ?: return null
+        return resolveWaterfallPlan(value, configData?.banner?.waterfall ?: 0)
+    }
+
+    fun getInterstitialWaterfallPlan(screen: String, trigger: String): AdWaterfallPlan? {
+        val value = resolveInterstitialPlacementValue(screen, trigger) ?: return null
+        return resolveWaterfallPlan(value, configData?.interstitial?.waterfall ?: 0)
+    }
+
+    fun getAppOpenWaterfallPlan(type: String): AdWaterfallPlan? {
+        val appOpen = configData?.app?.appOpen ?: return null
+        val value = when (type) {
+            "splash" -> appOpen.splash
+            "resume" -> appOpen.resume
+            else -> return null
+        }
+        return resolveWaterfallPlan(value, appOpen.waterfall)
+    }
+
+    fun getProdFbBannerAdUnitId(screen: String, position: String): String {
+        return resolveProdFbAdId(
+            configuredId = resolveAdIdFromMap(
+                ids = remoteFbBannerIds(),
+                primaryCandidates = placementCandidatesForScreenPosition(screen, position),
+                fallbackCandidates = legacyBannerAdIdCandidates(screen)
+            ),
+            fallbackProdId = ADS.PROD_FB_BANNER_AD_ID
+        )
+    }
+
+    fun getProdFbInterstitialAdUnitId(screen: String, trigger: String): String {
+        return resolveProdFbAdId(
+            configuredId = resolveAdIdFromMap(
+                ids = remoteFbInterstitialIds(),
+                primaryCandidates = placementCandidatesForScreenTrigger(screen, trigger),
+                fallbackCandidates = legacyInterstitialAdIdCandidates(screen)
+            ),
+            fallbackProdId = ADS.PROD_FB_INTERSTITIAL_AD_ID
+        )
+    }
+
+    fun getProdFbNativeAdUnitId(screen: String, position: String): String {
+        return resolveProdFbAdId(
+            configuredId = resolveAdIdFromMap(
+                ids = remoteFbNativeIds(),
+                primaryCandidates = placementCandidatesForScreenPosition(screen, position),
+                fallbackCandidates = legacyNativeAdIdCandidates(screen)
+            ),
+            fallbackProdId = ADS.PROD_FB_NATIVE_AD_ID
+        )
+    }
+
+    fun getProdFbAppOpenSplashAdUnitId(): String {
+        val ids = remoteFbAppOpenIds()
+        return resolveProdFbAdId(
+            configuredId = ids["splash"].orEmpty().ifEmpty { ids["default"].orEmpty() },
+            fallbackProdId = ADS.PROD_FB_APP_OPEN_AD_ID
+        )
+    }
+
+    fun getProdFbAppOpenResumeAdUnitId(): String {
+        val ids = remoteFbAppOpenIds()
+        return resolveProdFbAdId(
+            configuredId = ids["resume"].orEmpty().ifEmpty { ids["default"].orEmpty() },
+            fallbackProdId = ADS.PROD_FB_APP_OPEN_AD_ID
+        )
     }
 
     fun getNextScreenIntent(context: Context, currentScreen: String): Intent {

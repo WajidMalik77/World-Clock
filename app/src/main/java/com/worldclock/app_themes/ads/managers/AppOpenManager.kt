@@ -79,9 +79,13 @@ class AppOpenManager private constructor(context: Context) {
         val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeAppOpen(adUnitId, fallbackAdUnitId)
         Timber.tag(TAG_AO).d("load requested id=$resolvedAdUnitId")
         if (isAdAvailable()) {
-            Timber.tag(TAG_AO).d("load skipped: ad already available")
-            onAdLoaded()
-            return
+            if (lastAdUnitId == resolvedAdUnitId) {
+                Timber.tag(TAG_AO).d("load skipped: ad already available for requested id")
+                onAdLoaded()
+                return
+            }
+            Timber.tag(TAG_AO).d("dropping cached app-open for previous id=$lastAdUnitId before loading id=$resolvedAdUnitId")
+            appOpenAdRef.getAndSet(null)?.fullScreenContentCallback = null
         }
 
         if (isAdLoading.getAndSet(true)) {
@@ -359,6 +363,11 @@ class AppOpenManager private constructor(context: Context) {
 
     fun hasUsableAd(): Boolean {
         return isAdAvailable()
+    }
+
+    fun hasUsableAd(adUnitId: String, fallbackAdUnitId: String = com.worldclock.app_themes.ads.utils.ADS.PROD_ADMOB_APP_OPEN_ID): Boolean {
+        val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeAppOpen(adUnitId, fallbackAdUnitId)
+        return isAdAvailable() && lastAdUnitId == resolvedAdUnitId
     }
 
     fun isShowingOrShowingSoon(): Boolean {

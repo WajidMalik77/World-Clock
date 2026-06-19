@@ -30,6 +30,15 @@ class ShouldShowInterstitialUseCaseImpl @Inject constructor(
             return true
         }
 
+        // Home first-click behavior gate. Pre-home screens bypass above, so this
+        // only applies to the first Home click after reaching the app.
+        if (isHomeScreen(screen) && prefsManager.isFirstHomeInterstitialClickPending()) {
+            prefsManager.markFirstHomeInterstitialClickConsumed()
+            val allowed = adControlConfigManager.isInterFirstCountEnabledForHome()
+            Timber.tag(TAG_INTER).d("home first-click gate screen=$screen trigger=$trigger allowed=$allowed")
+            if (allowed) return true
+        }
+
         val cooldownSeconds = adControlConfigManager.getInterstitialCooldownSeconds()
         if (cooldownSeconds > 0) {
             val lastShownAt = prefsManager.getLastInterstitialShownAtMillis()
@@ -42,16 +51,6 @@ class ShouldShowInterstitialUseCaseImpl @Inject constructor(
             }
         }
 
-        // Home first-click behavior gate.
-        if (screen == "HomeFragmentScreen" || screen == "DashboardFragmentScreen" || screen == "MainScreen") {
-            if (prefsManager.isFirstHomeInterstitialClickPending()) {
-                prefsManager.markFirstHomeInterstitialClickConsumed()
-                val allowed = adControlConfigManager.isInterFirstCountEnabledForHome()
-                Timber.tag(TAG_INTER).d("home first-click gate allowed=$allowed")
-                return allowed
-            }
-        }
-
         val currentCounter = prefsManager.getAdCounter()
         val nextCounter = currentCounter + 1
 
@@ -59,5 +58,12 @@ class ShouldShowInterstitialUseCaseImpl @Inject constructor(
         val allowedByThreshold = adControlConfigManager.isInterstitialThresholdReached(nextCounter)
         Timber.tag(TAG_INTER).d("counter gate current=$currentCounter next=$nextCounter allowed=$allowedByThreshold")
         return allowedByThreshold
+    }
+
+    private fun isHomeScreen(screen: String): Boolean {
+        return screen == "HomeScreen" ||
+            screen == "HomeFragmentScreen" ||
+            screen == "DashboardFragmentScreen" ||
+            screen == "MainScreen"
     }
 }

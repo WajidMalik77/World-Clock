@@ -12,7 +12,8 @@ import java.util.Calendar
 object AlarmScheduler {
 
     fun scheduleAlarm(context: Context, hour: Int, minute: Int, label: String) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            ?: return
 
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("label", label)
@@ -65,7 +66,8 @@ object AlarmScheduler {
     }
 
     fun cancelAlarm(context: Context, label: String) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            ?: return
         val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(
             context, label.hashCode(), intent,

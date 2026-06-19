@@ -18,8 +18,8 @@ import timber.log.Timber
 
 class NativeAdConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig = FirebaseRemoteConfig.getInstance()
-) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v4") {
-    private val configKey = "Config_v4"
+) : BaseRemoteConfigManager<RemoteNativeConfigWrapper>(firebaseRemoteConfig, "Config_v6") {
+    private val configKey = "Config_v6"
     companion object {
         private val jsonParser by lazy {
             Json {
@@ -64,6 +64,7 @@ class NativeAdConfigManager(
     }
 
     fun isNativeVisible(target: String, position: String): Boolean {
+        if (position.equals("top", ignoreCase = true) && !isSplashScreen(target)) return false
         val config = getResolvedNativeConfig() ?: return false
         val placementUnit = config.resolvePlacementUnit(target, position) ?: return false
         val unit = config.default_config.mergeWith(placementUnit)
@@ -73,11 +74,13 @@ class NativeAdConfigManager(
     }
 
     fun shouldNativePreload(target: String, position: String): Boolean {
+        if (position.equals("top", ignoreCase = true) && !isSplashScreen(target)) return false
         val config = getResolvedNativeConfig() ?: return false
         return config.preload == 1 && config.resolveUnit(target, position).preload == 1
     }
 
     fun getNativeAdSize(target: String, position: String): Int {
+        if (position.equals("top", ignoreCase = true) && !isSplashScreen(target)) return 0
         if (isIntroScreen(target) && (position.equals("fullScreen", ignoreCase = true) || position.startsWith("full_screen", ignoreCase = true))) {
             return 1
         }
@@ -103,6 +106,15 @@ class NativeAdConfigManager(
     fun getNativeAdLimit(target: String, position: String): Int {
         val config = getResolvedNativeConfig() ?: return 2
         return config.resolveUnit(target, position).nativeLimit ?: 2
+    }
+
+    fun getNativeAdNetwork(target: String, position: String): Int {
+        val config = getResolvedNativeConfig() ?: return 1
+        return config.resolveUnit(target, position).network ?: 1
+    }
+
+    fun isNativeWaterfallEnabled(): Boolean {
+        return getResolvedNativeConfig()?.waterfall == 1
     }
 
     private fun getResolvedNativeConfig(): NativeAdSettingsConfig? {
@@ -139,7 +151,11 @@ class NativeAdConfigManager(
             else -> null
         } ?: placement?.value
         return unitValue?.let {
-            NativeAdUnitConfig(enabled = if (it > 0) 1 else 0, size = if (it > 0) it else null)
+            NativeAdUnitConfig(
+                enabled = if (it > 0) 1 else 0,
+                size = if (it > 0) it else null,
+                network = placement?.network
+            )
         }?.copy(color_config = placement?.style?.normalized())
     }
 
@@ -197,6 +213,12 @@ class NativeAdConfigManager(
         }
     }
 
+    private fun isSplashScreen(screenName: String): Boolean {
+        return screenCandidates(screenName).any { candidate ->
+            candidate == RemoteScreens.SPLASH_SCREEN || candidate == "SplashScreen"
+        }
+    }
+
     private fun normalizeKey(value: String): String {
         return value
             .replace(Regex("([a-z0-9])([A-Z])"), "$1_$2")
@@ -210,6 +232,7 @@ class NativeAdConfigManager(
         return NativeAdUnitConfig(
             enabled = override.enabled ?: this?.enabled,
             size = override.size ?: this?.size,
+            network = override.network ?: this?.network,
             showAfter = override.showAfter ?: this?.showAfter,
             nativeLimit = override.nativeLimit ?: this?.nativeLimit,
             color_config = this?.color_config.mergeWith(override.color_config)

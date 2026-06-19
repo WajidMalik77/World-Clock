@@ -37,7 +37,7 @@ class ClockWidgetAdapter(
                     handler.postDelayed(this, 1_000L)
                 }
             }
-            handler.postDelayed(ticker!!, 1_000L)
+            ticker?.let { handler.postDelayed(it, 1_000L) }
 
             // Pass full widget — dialog needs needles for preview
             container.setOnClickListener {

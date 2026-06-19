@@ -20,6 +20,8 @@ import com.worldclock.app_themes.ads.helpers.usecases.ShouldShowInterstitialUseC
 import com.worldclock.app_themes.ads.helpers.usecases.ShouldShowInterstitialUseCaseImpl
 import com.worldclock.app_themes.ads.managers.AdmobNativeManager
 import com.worldclock.app_themes.ads.managers.BannerAdsManager
+import com.worldclock.app_themes.ads.managers.facebook.FbBannerAdsManager
+import com.worldclock.app_themes.ads.managers.facebook.FbNativeAdManager
 import com.worldclock.app_themes.ads.utils.AdsPref
 import dagger.Binds
 import dagger.Module
@@ -106,12 +108,14 @@ object AdsPresentationModule {
         bannerAdRepository: BannerAdRepository,
         adConfigRepository: AdConfigRepository,
         @ActivityBanner bannerAdsManager: BannerAdsManager,
+        @ActivityBanner fbBannerAdsManager: FbBannerAdsManager,
         checkEligibility: CheckAdEligibilityUseCase
     ): BannerAdOrchestrator {
         return BannerAdOrchestrator(
             bannerAdRepository,
             adConfigRepository,
             bannerAdsManager,
+            fbBannerAdsManager,
             checkEligibility
         )
     }
@@ -122,12 +126,14 @@ object AdsPresentationModule {
         nativeAdRepository: NativeAdRepository,
         adConfigRepository: AdConfigRepository,
         @ActivityNative admobNativeManager: AdmobNativeManager,
+        @ActivityNative fbNativeAdManager: FbNativeAdManager,
         checkEligibility: CheckAdEligibilityUseCase
     ): NativeAdOrchestrator {
         return NativeAdOrchestrator(
             nativeAdRepository,
             adConfigRepository,
             admobNativeManager,
+            fbNativeAdManager,
             checkEligibility
         )
     }

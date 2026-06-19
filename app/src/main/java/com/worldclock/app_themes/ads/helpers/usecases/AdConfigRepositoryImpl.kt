@@ -2,15 +2,19 @@ package com.worldclock.app_themes.ads.helpers.usecases
 
 import com.worldclock.app_themes.BuildConfig
 import com.worldclock.app_themes.ads.config.AdControlConfigManager
+import com.worldclock.app_themes.ads.config.NativeAdConfigManager
 import com.worldclock.app_themes.ads.config.RemoteScreens
 import com.worldclock.app_themes.ads.helpers.AdConfigInitializer
+import com.worldclock.app_themes.ads.helpers.models.AdNetwork
+import com.worldclock.app_themes.ads.helpers.models.AdWaterfallPlan
 import com.worldclock.app_themes.ads.utils.ADS
 import timber.log.Timber
 import javax.inject.Inject
 
 class AdConfigRepositoryImpl @Inject constructor(
     private val adConfigInitializer: AdConfigInitializer,
-    private val adControlConfigManager: AdControlConfigManager
+    private val adControlConfigManager: AdControlConfigManager,
+    private val nativeAdConfigManager: NativeAdConfigManager
 ) : AdConfigRepository {
 
     @Volatile
@@ -74,6 +78,67 @@ class AdConfigRepositoryImpl @Inject constructor(
             position,
             fallbackNativeId(screen, position)
         )
+    }
+
+    override fun getInterstitialAdUnitId(screen: String, trigger: String, network: AdNetwork): String {
+        if (network == AdNetwork.FACEBOOK) {
+            if (BuildConfig.DEBUG) return ADS.TEST_FB_INTERSTITIAL_AD_ID
+            return adControlConfigManager.getProdFbInterstitialAdUnitId(screen, trigger)
+        }
+        return getInterstitialAdUnitId(screen, trigger)
+    }
+
+    override fun getBannerAdUnitId(screen: String, position: String, network: AdNetwork): String {
+        if (network == AdNetwork.FACEBOOK) {
+            if (BuildConfig.DEBUG) return ADS.TEST_FB_BANNER_AD_ID
+            return adControlConfigManager.getProdFbBannerAdUnitId(screen, position)
+        }
+        return getBannerAdUnitId(screen, position)
+    }
+
+    override fun getNativeAdUnitId(screen: String, position: String, network: AdNetwork): String {
+        if (network == AdNetwork.FACEBOOK) {
+            if (BuildConfig.DEBUG) return ADS.TEST_FB_NATIVE_AD_ID
+            return adControlConfigManager.getProdFbNativeAdUnitId(screen, position)
+        }
+        return getNativeAdUnitId(screen, position)
+    }
+
+    override fun getAppOpenAdUnitId(type: String, network: AdNetwork): String {
+        if (network == AdNetwork.FACEBOOK) {
+            if (BuildConfig.DEBUG) return ADS.TEST_FB_APP_OPEN_AD_ID
+            return when (type) {
+                "splash" -> adControlConfigManager.getProdFbAppOpenSplashAdUnitId()
+                else -> adControlConfigManager.getProdFbAppOpenResumeAdUnitId()
+            }
+        }
+        if (BuildConfig.DEBUG) {
+            return if (type == "splash") ADS.TEST_ADMOB_APP_OPEN_SPLASH_ID else ADS.TEST_ADMOB_APP_OPEN_ID
+        }
+        return when (type) {
+            "splash" -> adControlConfigManager.getProdAppOpenSplashAdUnitId(ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID)
+            else -> adControlConfigManager.getProdAppOpenResumeAdUnitId(ADS.PROD_ADMOB_APP_OPEN_ID)
+        }
+    }
+
+    override fun getInterstitialWaterfallPlan(screen: String, trigger: String): AdWaterfallPlan? {
+        return adControlConfigManager.getInterstitialWaterfallPlan(screen, trigger)
+    }
+
+    override fun getBannerWaterfallPlan(screen: String, position: String): AdWaterfallPlan? {
+        return adControlConfigManager.getBannerWaterfallPlan(screen, position)
+    }
+
+    override fun getAppOpenWaterfallPlan(type: String): AdWaterfallPlan? {
+        return adControlConfigManager.getAppOpenWaterfallPlan(type)
+    }
+
+    override fun getNativeAdNetwork(screen: String, position: String): Int {
+        return nativeAdConfigManager.getNativeAdNetwork(screen, position)
+    }
+
+    override fun isNativeWaterfallEnabled(): Boolean {
+        return nativeAdConfigManager.isNativeWaterfallEnabled()
     }
 
     private fun fallbackInterstitialId(screen: String, trigger: String): String {

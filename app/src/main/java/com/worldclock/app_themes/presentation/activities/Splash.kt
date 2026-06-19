@@ -39,6 +39,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
@@ -61,8 +62,11 @@ class Splash : BaseActivity() {
     private var splashNativeLoaded = false
     private var splashNativeEnabled = false
     private var splashNativeExpected = false
+    private var splashNativeExpectedPositions: Set<String> = emptySet()
 
     private var getStartedConsumed = false
+    private var splashAppOpenWarmupStarted = false
+    private var splashAppOpenHandledBeforeCta = false
 
     private lateinit var appUpdateManager: AppUpdateManager
 
@@ -161,12 +165,23 @@ class Splash : BaseActivity() {
                 return@launch
             }
 
-            // Phase 4: Ad preloading with 15-second budget
-            withTimeoutOrNull(15_000) {
-                val appOpenDeferred = async { preloadSplashAppOpenAdSuspending() }
-                val nativeDeferred  = async { preloadSplashNativeAdSuspending() }
-                appOpenDeferred.await()
-                nativeDeferred.await()
+            // Phase 4: Ad request strategy. If native splash is enabled, render/native-impress
+            // and app-open load in parallel. Native impression is the trigger to show app-open,
+            // and the CTA is revealed only after app-open finishes or is unavailable.
+            if (splashNativeEnabled) {
+                Timber.tag(TAG_SPLASH_ADS).d("parallel load start: splash native + splash app-open")
+                startSplashAppOpenWarmupForCta()
+                val completed = withTimeoutOrNull(SPLASH_AD_SEQUENCE_TIMEOUT_MS) {
+                    loadSplashNativeThenShowAppOpenSuspending()
+                }
+                if (completed == null) {
+                    Timber.tag(TAG_SPLASH_ADS).w("splash ad sequence timed out; showing CTA")
+                    showGetStartedCta()
+                }
+            } else {
+                withTimeoutOrNull(15_000) {
+                    preloadSplashAppOpenAdSuspending()
+                }
             }
 
             // Phase 5: Show CTA or auto-navigate
@@ -198,15 +213,28 @@ class Splash : BaseActivity() {
 
     private suspend fun preloadSplashNativeAdSuspending() = suspendCancellableCoroutine<Unit> { cont ->
         if (!splashNativeEnabled) {
+            loadBottomNative(
+                screen = "SplashScreen",
+                topNativeLayout = binding.adsContainerTop.root,
+                bottomLayout = binding.adsContainerBottom.root,
+                loadBannerAds = false
+            )
             if (cont.isActive) cont.resume(Unit)
             return@suspendCancellableCoroutine
         }
 
         var resolved = false
+        val pendingPositions = splashNativeExpectedPositions.toMutableSet()
         fun resumeOnce() {
             if (!resolved && cont.isActive) {
                 resolved = true
                 cont.resume(Unit)
+            }
+        }
+        fun markPositionResolved(position: String) {
+            pendingPositions.remove(position.lowercase())
+            if (pendingPositions.isEmpty()) {
+                resumeOnce()
             }
         }
 
@@ -219,12 +247,78 @@ class Splash : BaseActivity() {
                 when (event) {
                     is NativeAdEvent.Loaded -> {
                         splashNativeLoaded = true
-                        resumeOnce()
+                        startSplashAppOpenWarmupForCta()
+                        lifecycleScope.launch {
+                            delay(SPLASH_NATIVE_IMPRESSION_GRACE_MS)
+                            markPositionResolved(event.position)
+                        }
                     }
-                    is NativeAdEvent.Impression -> Unit
+                    is NativeAdEvent.Impression -> {
+                        markPositionResolved(event.position)
+                    }
+                    is NativeAdEvent.Failed -> markPositionResolved(event.position)
+                    is NativeAdEvent.Off -> markPositionResolved(event.position)
+                    NativeAdEvent.AllOffFromConfig -> resumeOnce()
+                }
+            }
+        )
+    }
+
+    private suspend fun loadSplashNativeThenShowAppOpenSuspending() = suspendCancellableCoroutine<Unit> { cont ->
+        if (!splashNativeEnabled) {
+            if (cont.isActive) cont.resume(Unit)
+            return@suspendCancellableCoroutine
+        }
+
+        var appOpenFlowStarted = false
+        var resolved = false
+
+        cont.invokeOnCancellation {
+            resolved = true
+        }
+
+        fun finishOnce() {
+            if (resolved) return
+            resolved = true
+            if (!isFinishing && !isDestroyed) {
+                showGetStartedCta()
+            }
+            if (cont.isActive) cont.resume(Unit)
+        }
+
+        fun showAppOpenOnce() {
+            if (appOpenFlowStarted) return
+            appOpenFlowStarted = true
+            Timber.tag(TAG_SPLASH_ADS).d("splash app-open show requested after native signal")
+            showSplashAppOpenThen { finishOnce() }
+        }
+
+        loadBottomNative(
+            screen = "SplashScreen",
+            topNativeLayout = binding.adsContainerTop.root,
+            bottomLayout = binding.adsContainerBottom.root,
+            loadBannerAds = false,
+            onEvent = { event ->
+                when (event) {
+                    is NativeAdEvent.Loaded -> {
+                        splashNativeLoaded = true
+                        Timber.tag(TAG_SPLASH_ADS).d("splash native loaded position=${event.position}; waiting for impression")
+                        lifecycleScope.launch {
+                            delay(SPLASH_NATIVE_IMPRESSION_GRACE_MS)
+                            Timber.tag(TAG_SPLASH_ADS).d("splash native impression grace elapsed position=${event.position}; requesting app-open")
+                            showAppOpenOnce()
+                        }
+                    }
+                    is NativeAdEvent.Impression -> {
+                        Timber.tag(TAG_SPLASH_ADS).d("splash native impression position=${event.position}; requesting app-open")
+                        showAppOpenOnce()
+                    }
                     is NativeAdEvent.Failed,
                     is NativeAdEvent.Off,
-                    NativeAdEvent.AllOffFromConfig -> resumeOnce()
+                    NativeAdEvent.AllOffFromConfig -> {
+                        Timber.tag(TAG_SPLASH_ADS).d("splash native unavailable event=${event::class.java.simpleName}; requesting app-open")
+                        showAppOpenOnce()
+                    }
                 }
             }
         )
@@ -236,9 +330,16 @@ class Splash : BaseActivity() {
             AdConfigEntryPoint::class.java
         ).nativeAdConfigManager()
 
+        if (nativeConfigManager.getConfig() == null) {
+            splashNativeExpected = false
+            splashNativeEnabled = false
+            return
+        }
+
         val expectedPositions = listOf("top", "bottom").filter { position ->
             nativeConfigManager.isNativeVisible("SplashScreen", position)
         }
+        splashNativeExpectedPositions = expectedPositions.map { it.lowercase() }.toSet()
         splashNativeExpected = expectedPositions.isNotEmpty()
         splashNativeEnabled  = splashNativeExpected
     }
@@ -255,6 +356,21 @@ class Splash : BaseActivity() {
         binding.getStarted.visibility     = View.VISIBLE
     }
 
+    private fun startSplashAppOpenWarmupForCta() {
+        if (splashAppOpenWarmupStarted) return
+        splashAppOpenWarmupStarted = true
+
+        lifecycleScope.launch {
+            if (
+                splashNativeEnabled &&
+                !getStartedConsumed &&
+                lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+            ) {
+                preloadSplashAppOpenAdSuspending()
+            }
+        }
+    }
+
     private fun showLoadingAfterGetStartedClick() {
         binding.getStarted.isEnabled      = false
         binding.getStarted.visibility     = View.GONE
@@ -264,6 +380,16 @@ class Splash : BaseActivity() {
     }
 
     private fun continueAfterAds() {
+        if (splashNativeEnabled && splashAppOpenHandledBeforeCta) {
+            startMainActivity(showInterstitial = false)
+            return
+        }
+        showSplashAppOpenThen { appOpenAdShown ->
+            startMainActivity(showInterstitial = !appOpenAdShown)
+        }
+    }
+
+    private fun showSplashAppOpenThen(afterAd: (appOpenAdShown: Boolean) -> Unit) {
         val appOpenManager = EntryPointAccessors.fromActivity(
             this,
             AppOpenEntryPoint::class.java
@@ -272,9 +398,16 @@ class Splash : BaseActivity() {
         var appOpenAdShown = false
 
         appOpenManager.showSplashAppOpenIfAvailable(
-            onAdShown = { appOpenAdShown = true }
+            onAdShown = {
+                appOpenAdShown = true
+                Timber.tag(TAG_SPLASH_ADS).d("splash app-open shown")
+            }
         ) {
-            startMainActivity(showInterstitial = !appOpenAdShown)
+            if (splashNativeEnabled) {
+                splashAppOpenHandledBeforeCta = true
+            }
+            Timber.tag(TAG_SPLASH_ADS).d("splash app-open finished shown=$appOpenAdShown")
+            afterAd(appOpenAdShown)
         }
     }
 
@@ -347,5 +480,11 @@ class Splash : BaseActivity() {
     override fun onDestroy() {
         AppEventLogger.trackScreenDestroy(this, "Splash")
         super.onDestroy()
+    }
+
+    companion object {
+        private const val TAG_SPLASH_ADS = "SplashAdSequence"
+        private const val SPLASH_NATIVE_IMPRESSION_GRACE_MS = 1200L
+        private const val SPLASH_AD_SEQUENCE_TIMEOUT_MS = 24_000L
     }
 }

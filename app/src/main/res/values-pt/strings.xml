@@ -5,27 +5,14 @@
     <string name="alarm_clock">Despertador</string>
     <string name="language">Idioma</string>
     <string name="next">Próximo</string>
-    <string name="skip">Pular</string>
     <string name="finish">Concluir</string>
     <string name="set_alarm_time">Definir Hora do Alarme</string>
-    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
-        Defina o horário do seu alarme com facilidade para alinhar perfeitamente aos seus planos. Aproveite o agendamento sem esforço com opções de alarme personalizáveis.
-    </string>
     <string name="global_watch">Relógio Global</string>
-    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
-        O Relógio Global oferece uma forma contínua de acompanhar o tempo em várias cidades e países, garantindo que você esteja sempre ciente dos diferentes fusos horários.
-    </string>
     <string name="timer_running_out">Tempo do Timer Está Acabando</string>
-    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
-        O recurso de timer permite definir uma contagem regressiva para durações específicas, ajudando você a acompanhar o tempo para tarefas ou eventos.
-    </string>
     <string name="get_premium_today">Obtenha Premium Hoje</string>
-    <string name="get_access_to_all_features">Acesse Todos os Recursos</string>
     <string name="ad_free_experience">Experiência Sem Anúncios</string>
     <string name="daily_content_update">Atualização Diária de Conteúdo</string>
-    <string name="_6_month">6 Meses</string>
     <string name="yearly">Anual</string>
-    <string name="life_time">Vitalício</string>
     <string name="cancel_anytime_on_google_play_store">Cancele a Qualquer Momento na Google Play Store</string>
     <string name="terms_of_services">Termos de Serviço</string>
     <string name="privacy_policy">Política de Privacidade</string>
@@ -44,32 +31,17 @@
     <string name="add_city">Adicionar Cidade</string>
     <string name="no_alarm_created">Nenhum Alarme Criado</string>
     <string name="create_the_new_alarm_by_tapping_the_button">Crie um novo alarme tocando no botão +</string>
-    <string name="permission">Permissão</string>
-    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
-        Permissão de sobreposição é necessária para que o alarme funcione corretamente no Android 10+. Por favor, conceda.
-    </string>
-    <string name="allow">Permitir</string>
     <string name="cancel">Cancelar</string>
     <string name="upcoming_alarm">Próximo Alarme</string>
     <string name="save">Salvar</string>
-    <string name="alarm_sound">Som do Alarme:</string>
     <string name="label">Etiqueta:</string>
-    <string name="snooze">Soneca:</string>
     <string name="vibrate">Vibrar:</string>
     <string name="once">Uma Vez</string>
     <string name="alarm_time_is_now">É hora do alarme!</string>
     <string name="no_active_alarms">Nenhum alarme ativo</string>
     <string name="stop_watch">Cronômetro</string>
-    <string name="set">DEFINIR</string>
-    <string name="min">MIN</string>
-    <string name="sec">SEG</string>
     <string name="loading_sensors">Carregando sensores…</string>
     <string name="widget_clock">Widget de Relógio</string>
-    <string name="add">Adicionar</string>
-    <string name="no_widgets_created">Nenhum widget criado</string>
-    <string name="create_the_new_widget_by_clicking_the_add_button">Crie um novo widget clicando no botão Adicionar</string>
-    <string name="delete_widget">Excluir Widget</string>
-    <string name="are_you_sure_you_want_to_delete_this_widget">Tem certeza de que deseja excluir este widget?</string>
     <string name="delete">Excluir</string>
     <string name="delete_clock">Excluir Relógio</string>
     <string name="are_you_sure_you_want_to_delete_this_clock">Tem certeza de que deseja excluir este relógio?</string>
@@ -78,8 +50,6 @@
     <string name="feedback">Feedback</string>
     <string name="share_app">Compartilhar App</string>
     <string name="rate_us">Avalie-nos</string>
-    <string name="more_apps">Mais Apps</string>
-    <string name="fast_processing">Processamento Rápido</string>
     <string name="get_npremium_access">OBTER\nACESSO PREMIUM</string>
     <string name="enjoy_access_to_all_premium_features">Aproveite o acesso a todos os recursos premium</string>
     <string name="purchase">Comprar</string>
@@ -113,4 +83,5 @@
     <string name="label_am">AM</string>
     <string name="label_pm">PM</string>
     <string name="loading">Carregando…</string>
+    <string name="please_select_a_language">Selecione um idioma</string>
 </resources>

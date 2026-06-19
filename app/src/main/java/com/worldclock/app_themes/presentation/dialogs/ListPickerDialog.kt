@@ -25,7 +25,11 @@ class ListPickerDialog(
 
     private var _binding: DialogListPickerBinding? = null
     private val binding get() = _binding!!
-    private var currentSelected = selectedIndex
+    private var currentSelected = if (options.isNotEmpty()) {
+        selectedIndex.coerceIn(0, options.lastIndex)
+    } else {
+        -1
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,7 +52,8 @@ class ListPickerDialog(
         )
 
         binding.tvSave.setOnClickListener {
-            onSave(currentSelected, options[currentSelected])
+            val selectedOption = options.getOrNull(currentSelected) ?: return@setOnClickListener
+            onSave(currentSelected, selectedOption)
             dismiss()
         }
         binding.ivClose.setOnClickListener { dismiss() }

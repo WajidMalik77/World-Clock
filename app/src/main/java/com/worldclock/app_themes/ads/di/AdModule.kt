@@ -5,6 +5,8 @@ import android.content.Context
 import com.worldclock.app_themes.ads.managers.AdmobNativeManager
 import com.worldclock.app_themes.ads.managers.BannerAdsManager
 import com.worldclock.app_themes.ads.managers.NativeAdCache
+import com.worldclock.app_themes.ads.managers.facebook.FbBannerAdsManager
+import com.worldclock.app_themes.ads.managers.facebook.FbNativeAdManager
 import com.worldclock.app_themes.ads.utils.AdsPref
 import dagger.Module
 import dagger.Provides
@@ -49,6 +51,20 @@ object AdModule {
         adsPref: AdsPref,
         nativeAdCache: NativeAdCache
     ): AdmobNativeManager = AdmobNativeManager(context as Activity, adsPref, nativeAdCache)
+
+    @Provides
+    @FragmentBanner
+    fun provideFbBannerAdsManager(
+        @ActivityContext context: Context,
+        adsPref: AdsPref
+    ): FbBannerAdsManager = FbBannerAdsManager(context as Activity, adsPref)
+
+    @Provides
+    @FragmentNative
+    fun provideFbNativeAdManager(
+        @ActivityContext context: Context,
+        adsPref: AdsPref
+    ): FbNativeAdManager = FbNativeAdManager(context as Activity, adsPref)
 }
 
 @Module
@@ -71,4 +87,20 @@ object ActivityAdModule {
         adsPref: AdsPref,
         nativeAdCache: NativeAdCache
     ): AdmobNativeManager = AdmobNativeManager(context as Activity, adsPref, nativeAdCache)
+
+    @Provides
+    @ActivityScoped
+    @ActivityBanner
+    fun provideActivityFbBannerAdsManager(
+        @ActivityContext context: Context,
+        adsPref: AdsPref
+    ): FbBannerAdsManager = FbBannerAdsManager(context as Activity, adsPref)
+
+    @Provides
+    @ActivityScoped
+    @ActivityNative
+    fun provideActivityFbNativeAdManager(
+        @ActivityContext context: Context,
+        adsPref: AdsPref
+    ): FbNativeAdManager = FbNativeAdManager(context as Activity, adsPref)
 }

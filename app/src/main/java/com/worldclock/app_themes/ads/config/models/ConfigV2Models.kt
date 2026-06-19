@@ -16,7 +16,8 @@ data class AppOpenV2Config(
     val splash: Int = 1,
     val resume: Int = 1,
     @SerialName("resume_min_background_seconds")
-    val resumeMinBackgroundSeconds: Int = 2
+    val resumeMinBackgroundSeconds: Int = 2,
+    val waterfall: Int = 1
 )
 
 @Serializable
@@ -33,6 +34,7 @@ data class ScreensV2(
 @Serializable
 data class BannerV2Config(
     val enabled: Int = 1,
+    val waterfall: Int = 1,
     val placements: Map<String, Int> = mapOf(
         "languages_top" to 0,
         "languages_bottom" to 0,
@@ -81,6 +83,7 @@ data class BannerV2Config(
 @Serializable
 data class InterstitialV2Config(
     val enabled: Int = 1,
+    val waterfall: Int = 1,
     @SerialName("click_interval")
     val clickInterval: Int = 2,
     @SerialName("isInterFirstCount")
@@ -91,17 +94,43 @@ data class InterstitialV2Config(
         "splash" to 0,
         "language_first_done" to 1,
         "language_second_done" to 1,
-        "done" to 1,
         "intro_finish" to 1,
         "premium_close" to 1,
         "purchase_continue_with_ads" to 1,
         "purchase_close" to 1,
-        "home_back" to 1
+        "home_back" to 1,
+        "home_clock" to 1,
+        "home_alarm" to 1,
+        "home_stopwatch" to 1,
+        "home_timer" to 1,
+        "home_compass" to 1,
+        "home_widget" to 1,
+        "home_reminders" to 1,
+        "home_sleep_sound" to 1,
+        "clock_add_clock" to 1,
+        "add_clock_save" to 1,
+        "alarm_add_alarm" to 1,
+        "alarm_edit_alarm" to 1,
+        "add_alarm_save" to 1,
+        "all_reminders_category" to 1,
+        "add_all_reminders_add" to 1,
+        "add_all_reminders_edit" to 1,
+        "add_reminder_save" to 1,
+        "sleep_sound_play" to 1
     )
 )
 
 @Serializable
 data class RemoteAdIdsConfig(
+    val appOpen: Map<String, String> = emptyMap(),
+    val interstitial: Map<String, String> = emptyMap(),
+    val banner: Map<String, String> = emptyMap(),
+    @SerialName("native")
+    val nativeIds: Map<String, String> = emptyMap()
+)
+
+@Serializable
+data class FbAdIdsConfig(
     val appOpen: Map<String, String> = emptyMap(),
     val interstitial: Map<String, String> = emptyMap(),
     val banner: Map<String, String> = emptyMap(),

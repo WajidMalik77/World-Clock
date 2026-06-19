@@ -16,10 +16,12 @@ data class RemoteNativeConfigWrapper(
 data class NativeAdSettingsConfig(
     val enabled: Int = 1,
     val preload: Int = 0,
+    val waterfall: Int = 1,
     @SerialName("default_style")
     val default_config: NativeAdUnitConfig = NativeAdUnitConfig(
         enabled = 1,
         size = 1,
+        network = 1,
         color_config = NativeAdColorConfig(
             backgroundColorHex = "#FFF4F8FF",
             cornerRadiusDp = 12,
@@ -35,28 +37,28 @@ data class NativeAdSettingsConfig(
     ),
     val placements: Map<String, NativePlacement> = mapOf(
         "splash_top" to NativePlacement(value = 0),
-        "splash_bottom" to NativePlacement(value = 3),
-        "languages_bottom" to NativePlacement(value = 2),
-        "intro_bottom" to NativePlacement(value = 4),
-        "intro_full_screen" to NativePlacement(value = 1),
-        "home_center" to NativePlacement(value = 5),
+        "splash_bottom" to NativePlacement(value = 3, network = 1),
+        "languages_bottom" to NativePlacement(value = 2, network = 1),
+        "intro_bottom" to NativePlacement(value = 4, network = 1),
+        "intro_full_screen" to NativePlacement(value = 1, network = 1),
+        "home_center" to NativePlacement(value = 5, network = 1),
         "home_bottom" to NativePlacement(value = 0),
-        "exit_bottom" to NativePlacement(value = 0),
-        "settings_bottom" to NativePlacement(value = 1),
-        "clock_bottom" to NativePlacement(value = 1),
-        "add_clock_bottom" to NativePlacement(value = 1),
-        "alarm_bottom" to NativePlacement(value = 1),
-        "add_alarm_bottom" to NativePlacement(value = 1),
-        "stopwatch_bottom" to NativePlacement(value = 1),
-        "timer_bottom" to NativePlacement(value = 1),
-        "compass_bottom" to NativePlacement(value = 1),
-        "widget_bottom" to NativePlacement(value = 1),
-        "add_widget_bottom" to NativePlacement(value = 1),
-        "all_reminders_bottom" to NativePlacement(value = 1),
-        "add_reminder_bottom" to NativePlacement(value = 1),
-        "sleep_sound_bottom" to NativePlacement(value = 1),
-        "play_sound_bottom" to NativePlacement(value = 1),
-        "add_all_reminders_bottom" to NativePlacement(value = 1)
+        "exit_bottom" to NativePlacement(value = 1, network = 1),
+        "settings_bottom" to NativePlacement(value = 1, network = 1),
+        "clock_bottom" to NativePlacement(value = 1, network = 1),
+        "add_clock_bottom" to NativePlacement(value = 1, network = 1),
+        "alarm_bottom" to NativePlacement(value = 1, network = 1),
+        "add_alarm_bottom" to NativePlacement(value = 1, network = 1),
+        "stopwatch_bottom" to NativePlacement(value = 1, network = 1),
+        "timer_bottom" to NativePlacement(value = 1, network = 1),
+        "compass_bottom" to NativePlacement(value = 1, network = 1),
+        "widget_bottom" to NativePlacement(value = 1, network = 1),
+        "add_widget_bottom" to NativePlacement(value = 1, network = 1),
+        "all_reminders_bottom" to NativePlacement(value = 1, network = 1),
+        "add_reminder_bottom" to NativePlacement(value = 1, network = 1),
+        "sleep_sound_bottom" to NativePlacement(value = 1, network = 1),
+        "play_sound_bottom" to NativePlacement(value = 1, network = 1),
+        "add_all_reminders_bottom" to NativePlacement(value = 1, network = 1)
     )
 )
 
@@ -64,6 +66,7 @@ data class NativeAdSettingsConfig(
 @Serializable
 data class NativePlacement(
     val value: Int? = null,
+    val network: Int? = null,
     val top: Int? = null,
     var bottom: Int? = null,
     val center: Int? = null,
@@ -79,6 +82,7 @@ data class NativeAdUnitConfig(
     val enabled: Int? = null,
     val preload: Int? = null,
     val size: Int? = null,
+    val network: Int? = null,
     @SerialName("show_after")
     val showAfter: Int? = null,
     @SerialName("native_limit")

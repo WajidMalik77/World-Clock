@@ -195,8 +195,7 @@ class AddReminderActiviity : BaseActivity() {
 
     private fun loadDeviceSounds() {
         try {
-            val rm = RingtoneManager(this).apply { setType(RingtoneManager.TYPE_ALARM) }
-            val cursor = rm.cursor
+            val rm = RingtoneManager(applicationContext).apply { setType(RingtoneManager.TYPE_ALARM) }
             soundTitles.clear()
             soundUris.clear()
 
@@ -204,11 +203,16 @@ class AddReminderActiviity : BaseActivity() {
             soundTitles.add("Default")
             soundUris.add(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString())
 
-            while (cursor.moveToNext()) {
-                soundTitles.add(cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX))
-                soundUris.add(rm.getRingtoneUri(cursor.position).toString())
+            rm.cursor?.use { cursor ->
+                while (cursor.moveToNext()) {
+                    val title = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                    val uri = rm.getRingtoneUri(cursor.position)
+                    if (title != null && uri != null) {
+                        soundTitles.add(title)
+                        soundUris.add(uri.toString())
+                    }
+                }
             }
-            cursor.close()
 
             // Set default selection
             selectedSoundUri = soundUris.first()

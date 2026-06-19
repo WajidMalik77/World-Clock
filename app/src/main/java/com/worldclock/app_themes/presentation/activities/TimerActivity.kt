@@ -171,7 +171,9 @@ class TimerActivity : BaseActivity() {
 
         mTimerRunning = false
         mAddTimer = false
-        mCountDownTimer.cancel()
+        if (this::mCountDownTimer.isInitialized) {
+            mCountDownTimer.cancel()
+        }
         binding.startBtn.setImageResource(R.drawable.play_btn)
     }
 
@@ -211,35 +213,38 @@ class TimerActivity : BaseActivity() {
         val dialog = Dialog(this@TimerActivity)
         this.addTimerDialog = dialog
         dialog.setContentView(R.layout.dialog_timer)
-        this.addTimerDialog!!.window?.setBackgroundDrawable(ColorDrawable(0))
+        dialog.window?.setBackgroundDrawable(ColorDrawable(0))
 
 
-        this.addTimerDialog!!.window?.setLayout(
+        dialog.window?.setLayout(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        this.tvDialogSet = dialog.findViewById(R.id.layout_add_timer_tv_set)
-        this.npMin = dialog.findViewById(R.id.layout_add_timer_np_min)
-        this.npSec = dialog.findViewById(R.id.layout_add_timer_np_sec)
+        val dialogSet = dialog.findViewById<TextView>(R.id.layout_add_timer_tv_set) ?: return
+        val minPicker = dialog.findViewById<NumberPicker>(R.id.layout_add_timer_np_min) ?: return
+        val secPicker = dialog.findViewById<NumberPicker>(R.id.layout_add_timer_np_sec) ?: return
+        this.tvDialogSet = dialogSet
+        this.npMin = minPicker
+        this.npSec = secPicker
 
 
-        this.npMin!!.maxValue = 60
-        this.npMin!!.minValue = 0
-        this.npSec!!.minValue = 0
-        this.npSec!!.maxValue = 59
+        minPicker.maxValue = 60
+        minPicker.minValue = 0
+        secPicker.minValue = 0
+        secPicker.maxValue = 59
 
         // Cancel button
         dialog.findViewById<TextView>(R.id.btnCancel).setOnClickListener {
             dialog.dismiss()
         }
 
-        this.addTimerDialog!!.setCancelable(true)
-        this.addTimerDialog!!.show()
+        dialog.setCancelable(true)
+        dialog.show()
 
-        this.tvDialogSet!!.setOnClickListener {
-            val min: Int = this@TimerActivity.npMin!!.value
-            val sec: Int = this@TimerActivity.npSec!!.value
+        dialogSet.setOnClickListener {
+            val min: Int = minPicker.value
+            val sec: Int = secPicker.value
 
             START_TIME_IN_MILLIS = ((min * 60 + sec) * 1000).toLong()
 
@@ -249,7 +254,7 @@ class TimerActivity : BaseActivity() {
                 binding.progressBar.progress = 0F
                 mTimeLeftInMillis = START_TIME_IN_MILLIS
                 updateCountDownText()
-                this.addTimerDialog!!.dismiss()
+                dialog.dismiss()
             } else {
                 Toast.makeText(
                     applicationContext,
@@ -266,5 +271,7 @@ class TimerActivity : BaseActivity() {
         if (::mCountDownTimer.isInitialized) {
             mCountDownTimer.cancel()
         }
+        addTimerDialog?.dismiss()
+        addTimerDialog = null
     }
 }

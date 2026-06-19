@@ -271,11 +271,12 @@ class AdmobNativeManager(
             && nativeAd != null && sanitizedParams.adContainer.childCount == 0
             && lastLoadParams?.layoutRes == sanitizedParams.layoutRes
         ) {
+            val reusableAd = nativeAd ?: return
             lastLoadParams = sanitizedParams
-            nativeAdCache.setImpressionCallback(nativeAd, sanitizedParams.onImpression)
+            nativeAdCache.setImpressionCallback(reusableAd, sanitizedParams.onImpression)
             scope.launch(Dispatchers.Main.immediate) {
                 try {
-                    val adView = inflateAndPopulateAdView(nativeAd!!, sanitizedParams)
+                    val adView = inflateAndPopulateAdView(reusableAd, sanitizedParams)
                     displayAd(adView, sanitizedParams)
                     sanitizedParams.onLoaded?.invoke()
                 } catch (e: Exception) {
@@ -296,7 +297,7 @@ class AdmobNativeManager(
             && nativeAd != null && sanitizedParams.adContainer.childCount == 0
             && nativeAdCache.isAvailable(nativeAd)
         ) {
-            val reusableAd = nativeAd!!
+            val reusableAd = nativeAd ?: return
             lastLoadParams = sanitizedParams
             nativeAdCache.setImpressionCallback(reusableAd, sanitizedParams.onImpression)
             scope.launch(Dispatchers.Main.immediate) {

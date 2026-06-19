@@ -13,7 +13,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.perf.FirebasePerformance
+import com.worldclock.app_themes.ads.managers.facebook.FbAdInitializer
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.core.utils.BillingUtilsIAP
 import com.worldclock.app_themes.core.utils.PrefUtil
@@ -56,15 +58,36 @@ class MyApplication : LocaleAwareApplication(), LifecycleObserver,
     override fun onCreate() {
         super<LocaleAwareApplication>.onCreate()
         FirebaseApp.initializeApp(this)
-        FirebasePerformance.getInstance().isPerformanceCollectionEnabled = true
         SubscriptionBilling(this)
         mContext = this
 
         BillingUtilsIAP(this)
+
+        runCatching {
+            FirebasePerformance.getInstance().isPerformanceCollectionEnabled = true
+        }.onFailure {
+            Log.w("MyApplication", "Firebase Performance init failed", it)
+        }
+
+        runCatching {
+            FirebaseMessaging.getInstance().isAutoInitEnabled = true
+        }.onFailure {
+            Log.w("MyApplication", "Firebase Messaging auto-init failed", it)
+        }
         
         runCatching {
             appInitializer.initialize()
             appOpenAdLifecycleManager.attachToAppLifecycle(this)
+        }
+
+        runCatching {
+            val isPremium = PrefUtil(this).getBool("is_premium", false)
+                || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
+            if (!isPremium) {
+                FbAdInitializer.initialize(this)
+            }
+        }.onFailure {
+            Log.w("MyApplication", "Facebook Audience Network warmup failed", it)
         }
 
         registerActivityLifecycleCallbacks(this)

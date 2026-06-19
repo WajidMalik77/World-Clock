@@ -5,10 +5,13 @@ import android.view.View
 import android.widget.FrameLayout
 import dagger.hilt.android.scopes.ActivityScoped
 import com.worldclock.app_themes.ads.di.ActivityBanner
+import com.worldclock.app_themes.ads.helpers.models.AdNetwork
 import com.worldclock.app_themes.ads.helpers.usecases.AdConfigRepository
 import com.worldclock.app_themes.ads.helpers.usecases.BannerAdRepository
 import com.worldclock.app_themes.ads.helpers.usecases.CheckAdEligibilityUseCase
 import com.worldclock.app_themes.ads.managers.BannerAdsManager
+import com.worldclock.app_themes.ads.managers.facebook.FbAdInitializer
+import com.worldclock.app_themes.ads.managers.facebook.FbBannerAdsManager
 import javax.inject.Inject
 
 @ActivityScoped
@@ -16,6 +19,7 @@ class BannerAdOrchestrator @Inject constructor(
     private val bannerAdRepository: BannerAdRepository,
     private val adConfigRepository: AdConfigRepository,
     @param:ActivityBanner private val bannerAdsManager: BannerAdsManager,
+    @param:ActivityBanner private val fbBannerAdsManager: FbBannerAdsManager,
     private val checkEligibility: CheckAdEligibilityUseCase
 ) {
 
@@ -27,11 +31,16 @@ class BannerAdOrchestrator @Inject constructor(
         shimmer: View,
         adId: String? = null
     ) {
+        if (position.equals("bottom", ignoreCase = true)) {
+            shimmer.visibility = View.GONE
+            container.visibility = View.GONE
+            return
+        }
+
         // Check eligibility
         val eligibility = checkEligibility(context)
         if (!eligibility.canShowAds) {
             shimmer.visibility = View.GONE
-            (shimmer as? com.facebook.shimmer.ShimmerFrameLayout)?.stopShimmer()
             container.visibility = View.GONE
             return
         }
@@ -39,21 +48,33 @@ class BannerAdOrchestrator @Inject constructor(
         // Get configuration
         val visible = bannerAdRepository.getBannerVisibility(screen, position)
         val type = bannerAdRepository.getBannerType(screen, position)
-        val bannerId = adId ?: adConfigRepository.getBannerAdUnitId(screen, position)
 
         // Handle visibility
-        if (visible) {
-            shimmer.visibility = View.VISIBLE
-            (shimmer as? com.facebook.shimmer.ShimmerFrameLayout)?.startShimmer()
-        } else {
-            shimmer.visibility = View.GONE
-            (shimmer as? com.facebook.shimmer.ShimmerFrameLayout)?.stopShimmer()
+        shimmer.visibility = if (visible) View.VISIBLE else View.GONE
+        if (!visible) {
             container.visibility = View.GONE
             return
         }
 
-        // Load appropriate banner type
-        loadBannerByType(type, position, container, bannerId, shimmer)
+        val plan = adConfigRepository.getBannerWaterfallPlan(screen, position)
+        if (plan?.fallback == AdNetwork.FACEBOOK || plan?.primary == AdNetwork.FACEBOOK) {
+            FbAdInitializer.initialize(context.applicationContext)
+        }
+        val primary = plan?.primary ?: AdNetwork.ADMOB
+        val fallback = plan?.fallback
+
+        val bannerId = adId ?: adConfigRepository.getBannerAdUnitId(screen, position, primary)
+
+        loadBannerByType(type, position, container, bannerId, shimmer, primary) { failedMessage ->
+            if (fallback != null) {
+                val fallbackId = adId ?: adConfigRepository.getBannerAdUnitId(screen, position, fallback)
+                loadBannerByType(type, position, container, fallbackId, shimmer, fallback) {
+                    shimmer.visibility = View.GONE
+                }
+            } else {
+                shimmer.visibility = View.GONE
+            }
+        }
     }
 
     private fun loadBannerByType(
@@ -61,32 +82,27 @@ class BannerAdOrchestrator @Inject constructor(
         position: String,
         container: FrameLayout,
         bannerId: String,
-        shimmer: View
+        shimmer: View,
+        network: AdNetwork,
+        onFailed: (String) -> Unit
     ) {
-        val onLoaded: () -> Unit = {
-            shimmer.visibility = View.GONE
-            (shimmer as? com.facebook.shimmer.ShimmerFrameLayout)?.stopShimmer()
-        }
-        val onFailed: () -> Unit = {
-            shimmer.visibility = View.VISIBLE
-            (shimmer as? com.facebook.shimmer.ShimmerFrameLayout)?.startShimmer()
-        }
+        val onLoaded = { shimmer.visibility = View.GONE }
 
         when (type) {
-            "a" -> bannerAdsManager.loadAdaptiveBanner(
-                container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed() }
-            )
-
-            "r" -> bannerAdsManager.loadRectangleAd(
-                container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed() }
-            )
-
-            "c" -> loadCollapsibleBanner(position, container, bannerId, onLoaded, onFailed)
-            else -> {
-                shimmer.visibility = View.GONE
-                (shimmer as? com.facebook.shimmer.ShimmerFrameLayout)?.stopShimmer()
-                container.visibility = View.GONE
+            "a" -> if (network == AdNetwork.FACEBOOK) {
+                fbBannerAdsManager.loadAdaptiveBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = onFailed)
+            } else {
+                bannerAdsManager.loadAdaptiveBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed(it.message) })
             }
+
+            "r" -> if (network == AdNetwork.FACEBOOK) {
+                fbBannerAdsManager.loadRectangleAd(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = onFailed)
+            } else {
+                bannerAdsManager.loadRectangleAd(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed(it.message) })
+            }
+
+            "c" -> loadCollapsibleBanner(position, container, bannerId, onLoaded, network, onFailed)
+            else -> container.visibility = View.GONE
         }
     }
 
@@ -95,16 +111,15 @@ class BannerAdOrchestrator @Inject constructor(
         container: FrameLayout,
         bannerId: String,
         onLoaded: () -> Unit,
-        onFailed: () -> Unit
+        network: AdNetwork,
+        onFailed: (String) -> Unit
     ) {
         when (position) {
-            "top" -> bannerAdsManager.loadCollapsibleTopBanner(
-                container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed() }
-            )
-
-            "bottom" -> bannerAdsManager.loadCollapsibleBottomBanner(
-                container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed() }
-            )
+            "top" -> if (network == AdNetwork.FACEBOOK) {
+                fbBannerAdsManager.loadCollapsibleTopBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = onFailed)
+            } else {
+                bannerAdsManager.loadCollapsibleTopBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed(it.message) })
+            }
 
             else -> container.visibility = View.GONE
         }
@@ -112,5 +127,6 @@ class BannerAdOrchestrator @Inject constructor(
 
     fun destroyAllBanners() {
         bannerAdsManager.destroyAllBanners()
+        fbBannerAdsManager.destroyAllBanners()
     }
 }

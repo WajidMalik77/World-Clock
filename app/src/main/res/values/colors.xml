@@ -4,11 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="bg">#131313</color>
     <color name="txt_color">#038B74</color>
-    <color name="light_color">#202125</color>
     <color name="grey">#B1B1B1</color>
     <color name="grey_10">#19B1B1B1</color>
-    <color name="light_green">#20302D</color>
-    <color name="divider_color">#494A4E</color>
 
     <color name="item_purple">#eaeafe</color>
     <color name="item_green">#eaf7f1</color>

@@ -10,6 +10,8 @@ data class AdControlConfig(
     val interstitial: InterstitialV2Config = InterstitialV2Config(),
     @SerialName("AdIds")
     val adIds: RemoteAdIdsConfig = RemoteAdIdsConfig(),
+    @SerialName("FbAdIds")
+    val fbAdIds: FbAdIdsConfig = FbAdIdsConfig(),
     @SerialName("native")
     val nativeV2: NativeAdSettingsConfig = NativeAdSettingsConfig()
 )

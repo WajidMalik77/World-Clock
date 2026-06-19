@@ -2,9 +2,7 @@ package com.worldclock.app_themes.presentation.adapter
 
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.databinding.ItemLangBinding
@@ -19,11 +17,13 @@ class LangAdapter(
     private val callBack: (String, Int) -> Unit
 ) : RecyclerView.Adapter<LangAdapter.CourseViewHolder>() {
 
-    private var lastCheckedPosition = 0
+    private var lastCheckedPosition = RecyclerView.NO_POSITION
 
     fun setPos(pos: Int) {
         lastCheckedPosition = pos
     }
+
+    fun getSelectedPos(): Int = lastCheckedPosition
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -49,12 +49,16 @@ class LangAdapter(
         holder.binding.imgLang.setImageResource(courseList[position].res)
         holder.binding.tvLang.text = (courseList[position].name)
         holder.binding.root.setOnClickListener {
-            callBack.invoke(courseList[position].name, position)
+            val currentPosition = holder.bindingAdapterPosition
+            if (currentPosition == RecyclerView.NO_POSITION) return@setOnClickListener
 
+            callBack.invoke(courseList[currentPosition].name, currentPosition)
 
             val copyOfLastCheckedPosition: Int = lastCheckedPosition
-            lastCheckedPosition = holder.adapterPosition
-            notifyItemChanged(copyOfLastCheckedPosition)
+            lastCheckedPosition = currentPosition
+            if (copyOfLastCheckedPosition != RecyclerView.NO_POSITION) {
+                notifyItemChanged(copyOfLastCheckedPosition)
+            }
             notifyItemChanged(lastCheckedPosition)
         }
     }

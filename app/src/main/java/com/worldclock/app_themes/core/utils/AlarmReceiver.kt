@@ -19,43 +19,49 @@ class AlarmReceiver : BroadcastReceiver() {
         val label = intent.getStringExtra("label") ?: "Alarm"
         val vibrate = intent.getBooleanExtra("vibrate", false)
 
-        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val pm = context.getSystemService(Context.POWER_SERVICE) as? PowerManager
+            ?: return
         val wakeLock = pm.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK, "WorldClock:AlarmWakeLock"
         )
         wakeLock.acquire(20_000L)
 
-        val serviceIntent = Intent(context, AlarmService::class.java).apply {
-            putExtra("label", label)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(serviceIntent)
-        } else {
-            context.startService(serviceIntent)
-        }
-
-        if (vibrate) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                val vibratorManager = context.getSystemService(
-                    Context.VIBRATOR_MANAGER_SERVICE
-                ) as VibratorManager
-                vibratorManager.defaultVibrator.vibrate(
-                    VibrationEffect.createOneShot(2000, VibrationEffect.DEFAULT_AMPLITUDE)
-                )
+        try {
+            val serviceIntent = Intent(context, AlarmService::class.java).apply {
+                putExtra("label", label)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
             } else {
-                @Suppress("DEPRECATION")
-                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    vibrator.vibrate(
+                context.startService(serviceIntent)
+            }
+
+            if (vibrate) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val vibratorManager = context.getSystemService(
+                        Context.VIBRATOR_MANAGER_SERVICE
+                    ) as? VibratorManager
+                    vibratorManager?.defaultVibrator?.vibrate(
                         VibrationEffect.createOneShot(2000, VibrationEffect.DEFAULT_AMPLITUDE)
                     )
                 } else {
                     @Suppress("DEPRECATION")
-                    vibrator.vibrate(2000)
+                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        vibrator?.vibrate(
+                            VibrationEffect.createOneShot(2000, VibrationEffect.DEFAULT_AMPLITUDE)
+                        )
+                    } else {
+                        @Suppress("DEPRECATION")
+                        vibrator?.vibrate(2000)
+                    }
                 }
             }
+        } finally {
+            if (wakeLock.isHeld) {
+                wakeLock.release()
+            }
         }
-        wakeLock.release()
     }
 }
 

@@ -1,31 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Reloj Mundial</string>
     <string name="this_process_may_contains_ads">Este proceso puede contener anuncios</string>
     <string name="alarm_clock">Alarma</string>
     <string name="language">Idioma</string>
     <string name="next">Siguiente</string>
-    <string name="skip">Saltar</string>
     <string name="finish">Finalizar</string>
     <string name="set_alarm_time">Establecer hora de la alarma</string>
-    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
-        Configure su alarma fácilmente para que se adapte perfectamente a sus planes. Disfrute de una programación sencilla con opciones de alarma personalizables.
-    </string>
     <string name="global_watch">Reloj Global</string>
-    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
-        El Reloj Global ofrece una forma intuitiva de seguir la hora en varias ciudades y países, asegurando que siempre esté al tanto de las distintas zonas horarias.
-    </string>
     <string name="timer_running_out">El temporizador está por terminar</string>
-    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
-        La función de temporizador le permite configurar una cuenta regresiva para períodos específicos, ayudándole a controlar el tiempo para tareas o eventos.
-    </string>
     <string name="get_premium_today">Obtén Premium Hoy</string>
-    <string name="get_access_to_all_features">Accede a todas las funciones</string>
     <string name="ad_free_experience">Experiencia sin anuncios</string>
     <string name="daily_content_update">Actualización de contenido diario</string>
-    <string name="_6_month">6 Meses</string>
     <string name="yearly">Anual</string>
-    <string name="life_time">De por vida</string>
     <string name="cancel_anytime_on_google_play_store">Cancela en cualquier momento en Google Play Store</string>
     <string name="terms_of_services">Términos del Servicio</string>
     <string name="privacy_policy">Política de Privacidad</string>
@@ -44,32 +30,17 @@
     <string name="add_city">Agregar ciudad</string>
     <string name="no_alarm_created">No se ha creado ninguna alarma</string>
     <string name="create_the_new_alarm_by_tapping_the_button">Crea una nueva alarma tocando el botón +</string>
-    <string name="permission">Permiso</string>
-    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
-        Se necesita permiso de superposición para que la alarma funcione correctamente en Android 10+. Por favor, concédelo.
-    </string>
-    <string name="allow">Permitir</string>
     <string name="cancel">Cancelar</string>
     <string name="upcoming_alarm">Próxima alarma</string>
     <string name="save">Guardar</string>
-    <string name="alarm_sound">Tono de alarma:</string>
     <string name="label">Etiqueta:</string>
-    <string name="snooze">Repetir:</string>
     <string name="vibrate">Vibrar:</string>
     <string name="once">Una vez</string>
     <string name="alarm_time_is_now">¡Es la hora de la alarma!</string>
     <string name="no_active_alarms">No hay alarmas activas</string>
     <string name="stop_watch">Cronómetro</string>
-    <string name="set">AJUSTAR</string>
-    <string name="min">MIN</string>
-    <string name="sec">SEG</string>
     <string name="loading_sensors">Cargando sensores…</string>
     <string name="widget_clock">Reloj Widget</string>
-    <string name="add">Agregar</string>
-    <string name="no_widgets_created">No se han creado widgets</string>
-    <string name="create_the_new_widget_by_clicking_the_add_button">Crea un nuevo widget haciendo clic en el botón Agregar</string>
-    <string name="delete_widget">Eliminar widget</string>
-    <string name="are_you_sure_you_want_to_delete_this_widget">¿Estas seguro de que deseas eliminar este widget?</string>
     <string name="delete">Eliminar</string>
     <string name="delete_clock">Eliminar reloj</string>
     <string name="are_you_sure_you_want_to_delete_this_clock">¿Estás seguro de que deseas eliminar este reloj?</string>
@@ -78,8 +49,6 @@
     <string name="feedback">Comentarios</string>
     <string name="share_app">Compartir aplicación</string>
     <string name="rate_us">Califícanos</string>
-    <string name="more_apps">Más aplicaciones</string>
-    <string name="fast_processing">Procesamiento rápido</string>
     <string name="get_npremium_access">OBTÉN\nACCESO PREMIUM</string>
     <string name="enjoy_access_to_all_premium_features">Disfruta acceso a todas las funciones premium</string>
     <string name="purchase">Comprar</string>
@@ -113,4 +82,5 @@
     <string name="label_am">AM</string>
     <string name="label_pm">PM</string>
     <string name="loading">Cargando…</string>
+    <string name="please_select_a_language">Selecciona un idioma</string>
 </resources>

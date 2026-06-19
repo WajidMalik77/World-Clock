@@ -38,14 +38,15 @@ class WorldClockWidgetProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
 
         Log.e("TAG", "onReceive: ")
+        val safeContext = context ?: return
 
 
         if (intent?.action == AppWidgetManager.ACTION_APPWIDGET_UPDATE) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
+            val appWidgetManager = AppWidgetManager.getInstance(safeContext)
             val appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)
 
             if (appWidgetIds != null) {
-                onUpdate(context!!, appWidgetManager, appWidgetIds)
+                onUpdate(safeContext, appWidgetManager, appWidgetIds)
             }
         }
 

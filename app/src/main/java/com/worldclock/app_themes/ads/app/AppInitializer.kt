@@ -45,7 +45,7 @@ class AppInitializer @Inject constructor(
             firebaseInitializer.initialize()
             Timber.tag(TAG_INIT).d("firebaseInitializer.initialize() success")
         } catch (e: Exception) {
-            Timber.tag(TAG_INIT).e("firebaseInitializer.initialize() failed", e)
+            Timber.tag(TAG_INIT).e(e, "firebaseInitializer.initialize() failed")
             Timber.e(e, "Firebase initialization failed")
         }
 
@@ -57,7 +57,7 @@ class AppInitializer @Inject constructor(
                     billingManager.initialize()
                     Timber.tag(TAG_INIT).d("billingManager.initialize() success")
                 }.onFailure {
-                    Timber.tag(TAG_INIT).e("billingManager.initialize() failed", it)
+                    Timber.tag(TAG_INIT).e(it, "billingManager.initialize() failed")
                     Timber.e(it, "Billing initialization failed")
                 }
 
@@ -65,7 +65,7 @@ class AppInitializer @Inject constructor(
                     appOpenAdLifecycleManager.initialize()
                     Timber.tag(TAG_INIT).d("appOpenAdLifecycleManager.initialize() success")
                 }.onFailure {
-                    Timber.tag(TAG_INIT).e("appOpenAdLifecycleManager.initialize() failed", it)
+                    Timber.tag(TAG_INIT).e(it, "appOpenAdLifecycleManager.initialize() failed")
                     Timber.e(it, "App open lifecycle manager initialization failed")
                 }
 

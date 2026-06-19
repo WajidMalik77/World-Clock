@@ -145,8 +145,8 @@ class AddClockActivity : BaseActivity() {
                             .withEndAction {
                                 binding.searchBar.requestFocus()
                                 val imm =
-                                    getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                                imm.showSoftInput(binding.searchBar, InputMethodManager.SHOW_IMPLICIT)
+                                    getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                                imm?.showSoftInput(binding.searchBar, InputMethodManager.SHOW_IMPLICIT)
                             }
                             .start()
                     } else {

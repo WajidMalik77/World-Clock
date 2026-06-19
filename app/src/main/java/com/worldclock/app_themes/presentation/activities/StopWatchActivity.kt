@@ -110,7 +110,7 @@ class StopWatchActivity : BaseActivity() {
                 binding.lapsBtn.visibility = View.VISIBLE
                 binding.resetBtn.visibility = View.INVISIBLE
                 timer = Timer()
-                timer!!.schedule(object : TimerTask() {
+                timer?.schedule(object : TimerTask() {
                     override fun run() {
                         runOnUiThread(Runnable {
                             currentTime += 1
@@ -150,12 +150,14 @@ class StopWatchActivity : BaseActivity() {
         binding.resetBtn.visibility = View.VISIBLE
         binding.lapsBtn.visibility = View.INVISIBLE
         isButtonStartPressed = false
-        timer!!.cancel()
+        timer?.cancel()
+        timer = null
     }
 
     fun onSWatchReset() {
         if (isStarted) {
-            timer!!.cancel()
+            timer?.cancel()
+            timer = null
 
             currentTime = 0
             lapTime = 0

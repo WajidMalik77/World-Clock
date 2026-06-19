@@ -131,9 +131,6 @@ fun Fragment.loadBannerAds(
             if (topContainer != null && topShimmer != null) {
                 add(BannerConfig("top", topContainer, topShimmer))
             }
-            if (bottomContainer != null && bottomShimmer != null) {
-                add(BannerConfig("bottom", bottomContainer, bottomShimmer))
-            }
         }
 
         if (configs.isNotEmpty()) {
@@ -164,9 +161,6 @@ fun Fragment.loadNativeAds(
 
     viewLifecycleOwner.lifecycleScope.launch {
         val configs = buildList {
-            if (topContainer != null && topShimmer != null) {
-                add(NativeAdConfig("top", topContainer, topShimmer))
-            }
             if (centerContainer != null && centerShimmer != null) {
                 add(NativeAdConfig("center", centerContainer, centerShimmer))
             }

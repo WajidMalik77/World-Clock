@@ -144,31 +144,30 @@ class SubscriptionBilling(private val context: Context) {
         var productsDetailsList: MutableList<ProductDetails>? = null
 
         fun launchPurchaseFlow(plan: Int, activity: Activity) {
-            productsDetailsList?.size?.let {
-                if (it > 0) {
-                    val offerToken =
-                        productsDetailsList?.get(plan)?.subscriptionOfferDetails?.get(0)?.offerToken
-                    val productDetailsParamsList =
-                        listOf(
-                            BillingFlowParams.ProductDetailsParams.newBuilder()
-                                .setProductDetails(productsDetailsList!![plan])
-                                .setOfferToken(offerToken!!)
-                                .build()
-                        )
-                    val billingFlowParams =
-                        BillingFlowParams.newBuilder()
-                            .setProductDetailsParamsList(productDetailsParamsList)
-                            .build()
+            val productDetails = productsDetailsList?.getOrNull(plan) ?: return
+            val offerToken = productDetails.subscriptionOfferDetails
+                ?.firstOrNull()
+                ?.offerToken
+                ?: return
+            val productDetailsParamsList =
+                listOf(
+                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                        .setProductDetails(productDetails)
+                        .setOfferToken(offerToken)
+                        .build()
+                )
+            val billingFlowParams =
+                BillingFlowParams.newBuilder()
+                    .setProductDetailsParamsList(productDetailsParamsList)
+                    .build()
 
-                    billingClient?.launchBillingFlow(activity, billingFlowParams)
-                }
-            }
+            billingClient?.launchBillingFlow(activity, billingFlowParams)
 
 
         }
 
         fun verifySubPurchase(context: Context) {
-            billingClient!!.queryPurchasesAsync(
+            billingClient?.queryPurchasesAsync(
                 QueryPurchasesParams.newBuilder().setProductType(ProductType.SUBS)
                     .build()
             ) { billingResult: BillingResult, list: List<Purchase> ->

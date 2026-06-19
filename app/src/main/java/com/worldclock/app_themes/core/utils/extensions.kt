@@ -623,7 +623,8 @@ private fun daysUntilNext(
 
 fun canScheduleExactAlarms(context: Context): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+            ?: return false
         alarmManager.canScheduleExactAlarms()
     } else {
         true
@@ -632,9 +633,19 @@ fun canScheduleExactAlarms(context: Context): Boolean {
 
 fun requestExactAlarmPermission(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-        intent.data = Uri.parse("package:${context.packageName}")
-        context.startActivity(intent)
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+            data = Uri.parse("package:${context.packageName}")
+            if (context !is Activity) {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+        try {
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Log.w("AlarmScheduler", "Exact alarm permission screen unavailable", e)
+        } catch (e: RuntimeException) {
+            Log.w("AlarmScheduler", "Unable to open exact alarm permission screen", e)
+        }
     }
 }
 
@@ -677,7 +688,8 @@ fun Activity.showNotificationPermissionSettings() {
 
 @SuppressLint("ScheduleExactAlarm")
 fun setAlarm(context: Context, alarm: AlarmEntity) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        ?: return
     val days = alarm.repeatDays
         .split(",")
         .map { it.trim() }
@@ -785,7 +797,8 @@ fun setAlarm(context: Context, alarm: AlarmEntity) {
 }
 
 fun cancelAlarm(context: Context, alarm: AlarmEntity) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        ?: return
     val days = alarm.repeatDays.split(",").map { it.trim() }.filter { it.isNotEmpty() }
 
     if (days.isEmpty()) {

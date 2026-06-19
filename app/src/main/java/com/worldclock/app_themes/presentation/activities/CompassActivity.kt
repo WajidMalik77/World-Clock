@@ -45,7 +45,7 @@ class CompassActivity : BaseActivity(), SensorEventListener {
 
     @Inject
     lateinit var nativeAdOrchestrator: NativeAdOrchestrator
-    private lateinit var sensorManager: SensorManager
+    private var sensorManager: SensorManager? = null
     private var rotationVector: Sensor? = null
     private var accel: Sensor? = null
     private var mag: Sensor? = null
@@ -94,10 +94,15 @@ class CompassActivity : BaseActivity(), SensorEventListener {
         }
 
 
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        rotationVector = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
-        accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        mag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as? SensorManager
+        val manager = sensorManager
+        if (manager == null) {
+            binding.sensorStatusTv.text = "Sensor service unavailable"
+            return
+        }
+        rotationVector = manager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)
+        accel = manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        mag = manager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
         val available = buildString {
             append("RotationVector: ${rotationVector != null}\n")
@@ -109,17 +114,18 @@ class CompassActivity : BaseActivity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        val manager = sensorManager ?: return
         rotationVector?.let {
-            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
+            manager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME)
         } ?: run {
-            accel?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
-            mag?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+            accel?.let { manager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+            mag?.let { manager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
         }
     }
 
     override fun onPause() {
         super.onPause()
-        sensorManager.unregisterListener(this)
+        sensorManager?.unregisterListener(this)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit

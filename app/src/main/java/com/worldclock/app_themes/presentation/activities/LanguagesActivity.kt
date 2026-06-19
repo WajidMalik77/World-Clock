@@ -5,11 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.edit
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.presentation.adapter.LangAdapter
@@ -17,13 +13,13 @@ import com.worldclock.app_themes.databinding.ActivityLanguagesBinding
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.core.utils.AdsConstants.PrefsName
 import com.worldclock.app_themes.core.utils.AdsConstants.isFirstTime
-import com.worldclock.app_themes.core.utils.Constants
 import com.worldclock.app_themes.core.utils.PrefUtil
-import com.worldclock.app_themes.core.utils.SharePref
 import com.worldclock.app_themes.core.utils.getLangData
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +30,7 @@ import com.worldclock.app_themes.ads.helpers.models.NativeAdEvent
 
 import com.worldclock.app_themes.ads.helpers.ui.BannerAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.zeugmasolutions.localehelper.LocaleHelper
 import dagger.hilt.android.EntryPointAccessors
 import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
 
@@ -42,8 +39,10 @@ class LanguagesActivity : BaseActivity() {
     private val binding by lazy {
         ActivityLanguagesBinding.inflate(layoutInflater)
     }
-    var pos = 0
+    var pos = -1
     private var isSplash = false
+    private var toastJob: Job? = null
+    private var doneConsumed = false
 
     @Inject
     lateinit var nativeAdOrchestrator: NativeAdOrchestrator
@@ -92,9 +91,16 @@ class LanguagesActivity : BaseActivity() {
             } ?: showDoneIcon()
         }
 
-        pos = getSharedPreferences("MySharedPref", MODE_PRIVATE).getInt("lang", 0)
-
         isSplash = intent.getBooleanExtra("isSplash", false)
+        val languages = getLangData()
+        val sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE)
+        val hasSavedLang = sharedPreferences.contains("lang")
+        val initialPos = if (hasSavedLang && !isSplash) {
+            sharedPreferences.getInt("lang", -1).coerceIn(0, languages.lastIndex)
+        } else {
+            -1
+        }
+        pos = initialPos
 
         if (!isSplash)
             binding.back.visibility = View.VISIBLE
@@ -104,23 +110,34 @@ class LanguagesActivity : BaseActivity() {
             finish()
         }
         binding.recycler.layoutManager = LinearLayoutManager(this)
-        val adapter = LangAdapter(getLangData()) { it, it1 ->
+        val adapter = LangAdapter(languages) { it, it1 ->
             pos = it1
 
         }
         binding.recycler.adapter = adapter
-        adapter.setPos(getSharedPreferences("MySharedPref", MODE_PRIVATE).getInt("lang", 0))
+        adapter.setPos(initialPos)
 
         binding.done.setOnClickListener {
+            if (doneConsumed) return@setOnClickListener
             AppEventLogger.trackButtonClick("LanguagesScreen", "done", "confirm", "languages_flow")
-            getSharedPreferences("MySharedPref", MODE_PRIVATE).edit { putInt("lang", pos) }
-            Log.d("TAG", "onCreate: ${getLangData()[pos].locale}")
+            val selectedPos = adapter.getSelectedPos()
+            if (selectedPos == -1) {
+                showCustomToast(getString(R.string.please_select_a_language))
+                return@setOnClickListener
+            }
+            doneConsumed = true
+            binding.done.isEnabled = false
+            pos = selectedPos
+            getSharedPreferences("MySharedPref", MODE_PRIVATE).edit { putInt("lang", selectedPos) }
+            Log.d("TAG", "onCreate: ${languages[selectedPos].locale}")
 
             val isPremium = PrefUtil(this).getBool("is_premium", false)
                 || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
 
             val onCompleted = {
-                updateLocale(getLangData()[pos].locale)
+                if (selectedPos != initialPos) {
+                    LocaleHelper.setLocale(this@LanguagesActivity, languages[selectedPos].locale)
+                }
                 goNext()
             }
 
@@ -188,7 +205,33 @@ class LanguagesActivity : BaseActivity() {
         binding.done.visibility = View.VISIBLE
     }
 
+    private fun showCustomToast(message: String) {
+        toastJob?.cancel()
+        binding.customToastText.text = message
+        binding.customToast.alpha = 0f
+        binding.customToast.visibility = View.VISIBLE
+        binding.customToast.animate()
+            .alpha(1f)
+            .setDuration(300)
+            .setListener(null)
+            .start()
+
+        toastJob = lifecycleScope.launch {
+            delay(2000)
+            binding.customToast.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .setListener(object : android.animation.AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: android.animation.Animator) {
+                        binding.customToast.visibility = View.GONE
+                    }
+                })
+                .start()
+        }
+    }
+
     override fun onDestroy() {
+        toastJob?.cancel()
         AppEventLogger.trackScreenDestroy(this, "LanguagesScreen")
         super.onDestroy()
     }

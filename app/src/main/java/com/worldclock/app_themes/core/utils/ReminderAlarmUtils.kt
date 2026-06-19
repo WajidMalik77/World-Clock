@@ -10,7 +10,8 @@ import com.worldclock.app_themes.data.database.ReminderEntity
 import java.util.Calendar
 
 fun setReminder(context: Context, reminder: ReminderEntity) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        ?: return
 
     val intent = Intent(context, AlarmReceiver::class.java).apply {
         putExtra("label", reminder.title)
@@ -82,7 +83,8 @@ fun setReminder(context: Context, reminder: ReminderEntity) {
 }
 
 fun cancelReminder(context: Context, reminder: ReminderEntity) {
-    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        ?: return
     val intent = Intent(context, AlarmReceiver::class.java)
     val pendingIntent = PendingIntent.getBroadcast(
         context,

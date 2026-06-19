@@ -5,27 +5,14 @@
     <string name="alarm_clock">Wecker</string>
     <string name="language">Sprache</string>
     <string name="next">Weiter</string>
-    <string name="skip">Überspringen</string>
     <string name="finish">Fertig</string>
     <string name="set_alarm_time">Alarmzeit einstellen</string>
-    <string name="set_your_alarm_time_with_ease_to_align_perfectly_with_your_plans_enjoy_effortless_scheduling_with_customizable_alarm_options">
-        Stellen Sie Ihre Alarmzeit ganz einfach ein, um sie perfekt mit Ihren Plänen abzustimmen. Genießen Sie müheloses Planen mit anpassbaren Alarmoptionen.
-    </string>
     <string name="global_watch">Weltanzeige</string>
-    <string name="global_watch_offers_a_seamless_way_to_track_time_across_various_cities_and_countries_ensuring_you_re_always_aware_of_different_time_zones">
-        Die Weltanzeige bietet eine nahtlose Möglichkeit, die Uhrzeit in verschiedenen Städten und Ländern zu verfolgen, sodass Sie immer über unterschiedliche Zeitzonen informiert sind.
-    </string>
     <string name="timer_running_out">Timer läuft ab</string>
-    <string name="the_timer_feature_allows_you_to_set_a_countdown_for_specific_durations_helping_you_track_time_for_tasks_or_events">
-        Die Timer-Funktion ermöglicht es Ihnen, einen Countdown für bestimmte Zeiträume festzulegen, sodass Sie die Zeit für Aufgaben oder Ereignisse im Blick behalten.
-    </string>
     <string name="get_premium_today">Heute Premium holen</string>
-    <string name="get_access_to_all_features">Zugriff auf alle Funktionen erhalten</string>
     <string name="ad_free_experience">Werbefreie Erfahrung</string>
     <string name="daily_content_update">Tägliche Inhaltsaktualisierung</string>
-    <string name="_6_month">6 Monate</string>
     <string name="yearly">Jährlich</string>
-    <string name="life_time">Lebenslang</string>
     <string name="cancel_anytime_on_google_play_store">Jederzeit im Google Play Store kündbar</string>
     <string name="terms_of_services">Nutzungsbedingungen</string>
     <string name="privacy_policy">Datenschutzrichtlinie</string>
@@ -44,32 +31,17 @@
     <string name="add_city">Stadt hinzufügen</string>
     <string name="no_alarm_created">Kein Alarm erstellt</string>
     <string name="create_the_new_alarm_by_tapping_the_button">Erstellen Sie einen neuen Alarm, indem Sie auf die + Taste tippen</string>
-    <string name="permission">Berechtigung</string>
-    <string name="overlay_permission_is_needed_to_work_alarm_properly_on_android_10_please_grant_it">
-        Überlagerungsberechtigung wird benötigt, damit der Alarm unter Android 10+ richtig funktioniert. Bitte gewähren Sie diese.
-    </string>
-    <string name="allow">Erlauben</string>
     <string name="cancel">Abbrechen</string>
     <string name="upcoming_alarm">Bevorstehender Alarm</string>
     <string name="save">Speichern</string>
-    <string name="alarm_sound">Alarmton:</string>
     <string name="label">Label:</string>
-    <string name="snooze">Schlummern:</string>
     <string name="vibrate">Vibrieren:</string>
     <string name="once">Einmal</string>
     <string name="alarm_time_is_now">Die Alarmzeit ist jetzt!</string>
     <string name="no_active_alarms">Keine aktiven Alarme</string>
     <string name="stop_watch">Stoppuhr</string>
-    <string name="set">SET</string>
-    <string name="min">MIN</string>
-    <string name="sec">SEK</string>
     <string name="loading_sensors">Sensoren werden geladen…</string>
     <string name="widget_clock">Widget-Uhr</string>
-    <string name="add">Hinzufügen</string>
-    <string name="no_widgets_created">Keine Widgets erstellt</string>
-    <string name="create_the_new_widget_by_clicking_the_add_button">Erstellen Sie ein neues Widget, indem Sie auf die Hinzufügen-Taste klicken</string>
-    <string name="delete_widget">Widget löschen</string>
-    <string name="are_you_sure_you_want_to_delete_this_widget">Möchten Sie dieses Widget wirklich löschen?</string>
     <string name="delete">Löschen</string>
     <string name="delete_clock">Uhr löschen</string>
     <string name="are_you_sure_you_want_to_delete_this_clock">Möchten Sie diese Uhr wirklich löschen?</string>
@@ -78,8 +50,6 @@
     <string name="feedback">Feedback</string>
     <string name="share_app">App teilen</string>
     <string name="rate_us">Bewerten Sie uns</string>
-    <string name="more_apps">Mehr Apps</string>
-    <string name="fast_processing">Schnelle Verarbeitung</string>
     <string name="get_npremium_access">HOLEN SIE SICH\nPREMIUM-ZUGANG</string>
     <string name="enjoy_access_to_all_premium_features">Genießen Sie Zugriff auf alle Premium-Funktionen</string>
     <string name="purchase">Kaufen</string>
@@ -113,4 +83,5 @@
     <string name="label_am">AM</string>
     <string name="label_pm">PM</string>
     <string name="loading">Laden…</string>
+    <string name="please_select_a_language">Bitte wählen Sie eine Sprache</string>
 </resources>

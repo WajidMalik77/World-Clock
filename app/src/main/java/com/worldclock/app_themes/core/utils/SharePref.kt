@@ -35,7 +35,7 @@ class SharePref {
         fun getString(key: String , default: String): String {
             if (!Companion::pref.isInitialized)
                 initPref()
-            return pref.getString(key, default)!!
+            return pref.getString(key, default) ?: default
         }
 
         fun getBoolean(key: String , default: Boolean): Boolean {

@@ -17,10 +17,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import com.worldclock.app_themes.BuildConfig
 import com.worldclock.app_themes.ads.config.AdControlConfigManager
 import com.worldclock.app_themes.ads.dialogs.LoadingDialog
+import com.worldclock.app_themes.ads.helpers.models.AdNetwork
+import com.worldclock.app_themes.ads.helpers.models.AdWaterfallPlan
 import com.worldclock.app_themes.ads.managers.AppOpenManager
+import com.worldclock.app_themes.ads.managers.facebook.FbAdInitializer
+import com.worldclock.app_themes.ads.managers.facebook.FbAppOpenManager
 import com.worldclock.app_themes.ads.utils.ADS
 import com.worldclock.app_themes.ads.utils.ADS.TEST_ADMOB_APP_OPEN_ID
 import com.worldclock.app_themes.ads.utils.ADS.TEST_ADMOB_APP_OPEN_SPLASH_ID
+import com.worldclock.app_themes.ads.utils.ADS.TEST_FB_APP_OPEN_AD_ID
 import com.worldclock.app_themes.ads.utils.AdShowCallback
 import com.worldclock.app_themes.ads.utils.AdStateManager
 import com.worldclock.app_themes.ads.utils.AdsPref
@@ -37,16 +42,20 @@ class AppOpenAdLifecycleManager @Inject constructor(
 ) : DefaultLifecycleObserver, Application.ActivityLifecycleCallbacks {
     companion object {
         private const val TAG_AO = "AppOpenTrace"
+        private const val RESUME_APP_OPEN_WAIT_TIMEOUT_MS = 8000L
+        private const val SPLASH_APP_OPEN_WAIT_TIMEOUT_MS = 12_000L
     }
 
     private var currentActivity: Activity? = null
     private lateinit var appOpenManager: AppOpenManager
+    private val fbAppOpenManager: FbAppOpenManager by lazy { FbAppOpenManager.getInstance(adsPref) }
     private var backgroundedAtMillis: Long = 0L
     private var suppressResumeUntilMillis: Long = 0L
     private val resumeFlowInProgress = AtomicBoolean(false)
     private val lifecycleAttached = AtomicBoolean(false)
     private var resumeLoadingDialog: LoadingDialog? = null
     private val resumeDialogHandler = Handler(Looper.getMainLooper())
+    private var resumeLoadingTimeoutRunnable: Runnable? = null
 
     fun suppressResumeAppOpenFor(durationMillis: Long) {
         suppressResumeUntilMillis = System.currentTimeMillis() + durationMillis.coerceAtLeast(0L)
@@ -69,6 +78,61 @@ class AppOpenAdLifecycleManager @Inject constructor(
         preloadSplashAdInternal(allowRetry = true, onPrepared = onPrepared)
     }
 
+    private fun resolveAdUnitId(network: AdNetwork, type: String): String = when (network) {
+        AdNetwork.FACEBOOK -> if (BuildConfig.DEBUG) {
+            TEST_FB_APP_OPEN_AD_ID
+        } else if (type == "splash") {
+            adControlConfigManager.getProdFbAppOpenSplashAdUnitId()
+        } else {
+            adControlConfigManager.getProdFbAppOpenResumeAdUnitId()
+        }
+        else -> if (BuildConfig.DEBUG) {
+            if (type == "splash") TEST_ADMOB_APP_OPEN_SPLASH_ID else TEST_ADMOB_APP_OPEN_ID
+        } else if (type == "splash") {
+            adControlConfigManager.getProdAppOpenSplashAdUnitId(ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID)
+        } else {
+            adControlConfigManager.getProdAppOpenResumeAdUnitId(ADS.PROD_ADMOB_APP_OPEN_ID)
+        }
+    }
+
+    private fun hasUsableAd(network: AdNetwork, type: String): Boolean = when (network) {
+        AdNetwork.FACEBOOK -> fbAppOpenManager.hasUsableAd(resolveAdUnitId(network, type))
+        else -> appOpenManager.hasUsableAd(
+            adUnitId = resolveAdUnitId(network, type),
+            fallbackAdUnitId = if (type == "splash") ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID else ADS.PROD_ADMOB_APP_OPEN_ID
+        )
+    }
+
+    private fun isAdLoading(network: AdNetwork): Boolean = when (network) {
+        AdNetwork.FACEBOOK -> fbAppOpenManager.isAdLoading()
+        else -> appOpenManager.isAdLoading()
+    }
+
+    private fun hasUsableAd(plan: AdWaterfallPlan, type: String): Boolean =
+        plan.networksInOrder().any { hasUsableAd(it, type) }
+
+    private fun loadOn(
+        network: AdNetwork,
+        adUnitId: String,
+        fallbackAdUnitId: String,
+        onLoaded: () -> Unit,
+        onFailed: (String) -> Unit
+    ) {
+        when (network) {
+            AdNetwork.FACEBOOK -> {
+                FbAdInitializer.initialize(appContext)
+                fbAppOpenManager.loadAppOpenAd(appContext, adUnitId, onLoaded, onFailed)
+            }
+            else -> appOpenManager.loadAppOpenAd(
+                adUnitId = adUnitId,
+                adsPref = adsPref,
+                fallbackAdUnitId = fallbackAdUnitId,
+                onAdLoaded = { onLoaded() },
+                onAdFailed = { error -> onFailed(error.message) }
+            )
+        }
+    }
+
     private fun preloadSplashAdInternal(
         allowRetry: Boolean,
         onPrepared: ((Boolean) -> Unit)? = null
@@ -79,31 +143,45 @@ class AppOpenAdLifecycleManager @Inject constructor(
                 onPrepared?.invoke(false)
                 return
             }
-            val adId = if (BuildConfig.DEBUG) {
-                TEST_ADMOB_APP_OPEN_SPLASH_ID
-            } else {
-                adControlConfigManager.getProdAppOpenSplashAdUnitId(ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID)
+            val plan = adControlConfigManager.getAppOpenWaterfallPlan("splash")
+            if (plan == null) {
+                onPrepared?.invoke(false)
+                return
             }
+            val adId = resolveAdUnitId(plan.primary, "splash")
             if (adId.isBlank()) {
                 onPrepared?.invoke(false)
                 return
             }
             initializeAppOpenManager()
-            if (appOpenManager.hasUsableAd()) {
+            if (hasUsableAd(plan, "splash")) {
                 onPrepared?.invoke(true)
                 return
             }
-            if (appOpenManager.isAdLoading()) {
+            if (isAdLoading(plan.primary)) {
                 onPrepared?.invoke(true)
                 return
             }
-            appOpenManager.loadAppOpenAd(
+            loadOn(
+                network = plan.primary,
                 adUnitId = adId,
-                adsPref = adsPref,
                 fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID,
-                onAdLoaded = { onPrepared?.invoke(true) },
-                onAdFailed = { error ->
-                    handleSplashLoadFailure(error, allowRetry, onPrepared)
+                onLoaded = { onPrepared?.invoke(true) },
+                onFailed = { message ->
+                    val fallback = plan.fallback
+                    val fallbackId = fallback?.let { resolveAdUnitId(it, "splash") }
+                    if (fallback != null && !fallbackId.isNullOrBlank()) {
+                        Timber.tag(TAG_AO).w("Splash primary=${plan.primary} load failed ($message), trying fallback=$fallback")
+                        loadOn(
+                            network = fallback,
+                            adUnitId = fallbackId,
+                            fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID,
+                            onLoaded = { onPrepared?.invoke(true) },
+                            onFailed = { handleSplashLoadFailure(it, allowRetry, onPrepared) }
+                        )
+                    } else {
+                        handleSplashLoadFailure(message, allowRetry, onPrepared)
+                    }
                 }
             )
         } catch (e: Exception) {
@@ -113,22 +191,24 @@ class AppOpenAdLifecycleManager @Inject constructor(
     }
 
     private fun handleSplashLoadFailure(
-        error: com.google.android.gms.ads.LoadAdError,
+        message: String,
         allowRetry: Boolean,
         onPrepared: ((Boolean) -> Unit)?
     ) {
-        val retryable = allowRetry && error.code != 3 // 3 = NO_FILL, retry won't help
+        val retryable = allowRetry && !message.contains("no fill", ignoreCase = true)
         if (!retryable) {
             onPrepared?.invoke(false)
             return
         }
-        Timber.tag(TAG_AO).w("Splash app-open load failed code=${error.code}, retrying once")
+        Timber.tag(TAG_AO).w("Splash app-open load failed, retrying once")
         Handler(Looper.getMainLooper()).postDelayed({
             preloadSplashAdInternal(allowRetry = false, onPrepared = onPrepared)
         }, 600L)
     }
 
     private fun pollForLoadedAdAndShow(
+        plan: AdWaterfallPlan,
+        type: String,
         totalWaitMs: Long,
         intervalMs: Long,
         onAdShown: (() -> Unit)?,
@@ -138,11 +218,11 @@ class AppOpenAdLifecycleManager @Inject constructor(
         val deadline = System.currentTimeMillis() + totalWaitMs
         val tick = object : Runnable {
             override fun run() {
-                if (appOpenManager.hasUsableAd()) {
-                    showAppOpenAdDirect(onAdShown, onFinished)
-                } else if (System.currentTimeMillis() >= deadline || !appOpenManager.isAdLoading()) {
-                    if (appOpenManager.hasUsableAd()) {
-                        showAppOpenAdDirect(onAdShown, onFinished)
+                if (hasUsableAd(plan, type)) {
+                    showAppOpenAdDirect(plan, type, onAdShown, onFinished)
+                } else if (System.currentTimeMillis() >= deadline || plan.networksInOrder().none { isAdLoading(it) }) {
+                    if (hasUsableAd(plan, type)) {
+                        showAppOpenAdDirect(plan, type, onAdShown, onFinished)
                     } else {
                         onFinished()
                     }
@@ -154,18 +234,13 @@ class AppOpenAdLifecycleManager @Inject constructor(
         handler.postDelayed(tick, intervalMs)
     }
 
-    private fun pollResumeForLoadedAd(totalWaitMs: Long, intervalMs: Long) {
+    private fun pollResumeForLoadedAd(plan: AdWaterfallPlan, totalWaitMs: Long, intervalMs: Long) {
         val deadline = System.currentTimeMillis() + totalWaitMs
         val tick = object : Runnable {
             override fun run() {
-                if (appOpenManager.hasUsableAd()) {
-                    showAppOpenAdDirect(
-                        onFinished = {
-                            dismissResumeLoading()
-                            resumeFlowInProgress.set(false)
-                        }
-                    )
-                } else if (System.currentTimeMillis() >= deadline || !appOpenManager.isAdLoading()) {
+                if (hasUsableAd(plan, "resume")) {
+                    showResumeAppOpenAd(plan)
+                } else if (System.currentTimeMillis() >= deadline || plan.networksInOrder().none { isAdLoading(it) }) {
                     dismissResumeLoading()
                     resumeFlowInProgress.set(false)
                 } else {
@@ -187,46 +262,68 @@ class AppOpenAdLifecycleManager @Inject constructor(
                 return
             }
             initializeAppOpenManager()
-            val adId = if (BuildConfig.DEBUG) {
-                TEST_ADMOB_APP_OPEN_SPLASH_ID
-            } else {
-                adControlConfigManager.getProdAppOpenSplashAdUnitId(ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID)
+            val plan = adControlConfigManager.getAppOpenWaterfallPlan("splash")
+            if (plan == null) {
+                onFinished()
+                return
             }
+            val adId = resolveAdUnitId(plan.primary, "splash")
             if (adId.isBlank()) {
                 onFinished()
                 return
             }
-            if (appOpenManager.hasUsableAd()) {
-                showAppOpenAdDirect(onAdShown, onFinished)
+            if (hasUsableAd(plan, "splash")) {
+                showAppOpenAdDirect(plan, "splash", onAdShown, onFinished)
                 return
             }
-            if (appOpenManager.isAdLoading()) {
+            if (isAdLoading(plan.primary)) {
                 // Extended wait so an in-flight load that completes a moment after the
                 // splash budget elapsed still gets shown, instead of dropping the ad.
                 pollForLoadedAdAndShow(
-                    totalWaitMs = 4000L,
+                    plan = plan,
+                    type = "splash",
+                    totalWaitMs = SPLASH_APP_OPEN_WAIT_TIMEOUT_MS,
                     intervalMs = 250L,
                     onAdShown = onAdShown,
                     onFinished = onFinished
                 )
                 return
             }
-            appOpenManager.loadAppOpenAd(
+            loadOn(
+                network = plan.primary,
                 adUnitId = adId,
-                adsPref = adsPref,
                 fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID,
-                onAdLoaded = {
+                onLoaded = {
                     val act = currentActivity
                     if (act != null && isOnSplashScreen(act)) {
-                        showAppOpenAdDirect(onAdShown, onFinished)
+                        showAppOpenAdDirect(plan, "splash", onAdShown, onFinished)
                     } else {
                         Timber.w("Splash App Open loaded late, discarding to prevent showing over Home")
                         onFinished()
                     }
                 },
-                onAdFailed = {
-                    onFinished()
-                    Unit
+                onFailed = { message ->
+                    val fallback = plan.fallback
+                    val fallbackId = fallback?.let { resolveAdUnitId(it, "splash") }
+                    if (fallback != null && !fallbackId.isNullOrBlank()) {
+                        Timber.tag(TAG_AO).w("Splash primary=${plan.primary} load failed ($message), trying fallback=$fallback")
+                        loadOn(
+                            network = fallback,
+                            adUnitId = fallbackId,
+                            fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID,
+                            onLoaded = {
+                                val act = currentActivity
+                                if (act != null && isOnSplashScreen(act)) {
+                                    showAppOpenAdDirect(plan, "splash", onAdShown, onFinished)
+                                } else {
+                                    onFinished()
+                                }
+                            },
+                            onFailed = { onFinished() }
+                        )
+                    } else {
+                        onFinished()
+                    }
                 }
             )
         } catch (e: Exception) {
@@ -278,6 +375,7 @@ class AppOpenAdLifecycleManager @Inject constructor(
         backgroundedAtMillis = System.currentTimeMillis()
         Timber.tag(TAG_AO).d("onStop backgroundedAtMillis=$backgroundedAtMillis")
         dismissResumeLoading()
+        resumeFlowInProgress.set(false)
         super.onStop(owner)
     }
 
@@ -316,13 +414,16 @@ class AppOpenAdLifecycleManager @Inject constructor(
     }
 
     private fun showAppOpenAdDirect(
+        plan: AdWaterfallPlan,
+        type: String,
         onAdShown: (() -> Unit)? = null,
         onFinished: (() -> Unit)? = null
     ) {
         try {
-            appOpenManager.showAppOpenAdIfAvailable(adsPref, object : AdShowCallback {
+            val readyNetwork = plan.networksInOrder().firstOrNull { hasUsableAd(it, type) } ?: plan.primary
+            val callback = object : AdShowCallback {
                 override fun onAdShown() {
-                    Timber.d("App Open ad shown")
+                    Timber.d("App Open ad shown (network=$readyNetwork)")
                     onAdShown?.invoke()
                 }
 
@@ -338,7 +439,17 @@ class AppOpenAdLifecycleManager @Inject constructor(
                 override fun onAdDismissed() {
                     onFinished?.invoke()
                 }
-            })
+            }
+            if (readyNetwork == AdNetwork.FACEBOOK) {
+                val activity = currentActivity
+                if (activity != null) {
+                    fbAppOpenManager.showAppOpenAdIfAvailable(activity, callback)
+                } else {
+                    onFinished?.invoke()
+                }
+            } else {
+                appOpenManager.showAppOpenAdIfAvailable(adsPref, callback)
+            }
         } catch (e: Exception) {
             Timber.e(e, "Error showing app open ad direct")
             onFinished?.invoke()
@@ -389,55 +500,78 @@ class AppOpenAdLifecycleManager @Inject constructor(
             return
         }
 
-        val resumeAdUnitId = if (BuildConfig.DEBUG) {
-            TEST_ADMOB_APP_OPEN_ID
-        } else {
-            adControlConfigManager.getProdAppOpenResumeAdUnitId(ADS.PROD_ADMOB_APP_OPEN_ID)
+        val plan = adControlConfigManager.getAppOpenWaterfallPlan("resume")
+        if (plan == null) {
+            Timber.tag(TAG_AO).w("blocked: resume waterfall plan is null")
+            resumeFlowInProgress.set(false)
+            return
         }
+
+        val resumeAdUnitId = resolveAdUnitId(plan.primary, "resume")
         if (resumeAdUnitId.isBlank()) {
             Timber.tag(TAG_AO).w("blocked: resume ad unit id is blank")
             resumeFlowInProgress.set(false)
             return
         }
 
-        if (appOpenManager.hasUsableAd()) {
+        if (hasUsableAd(plan, "resume")) {
             Timber.tag(TAG_AO).d("resume path: using cached app-open ad, no loading dialog needed")
-            showAppOpenAdDirect(
-                onFinished = {
-                    dismissResumeLoading()
-                    resumeFlowInProgress.set(false)
-                }
-            )
+            showResumeAppOpenAd(plan)
             return
         }
 
-        if (appOpenManager.isAdLoading()) {
-            Timber.tag(TAG_AO).d("resume load already in progress, waiting up to 3s")
+        if (isAdLoading(plan.primary)) {
+            Timber.tag(TAG_AO).d("resume load already in progress, waiting up to ${RESUME_APP_OPEN_WAIT_TIMEOUT_MS}ms")
             showResumeLoadingIfPossible()
-            pollResumeForLoadedAd(totalWaitMs = 3000L, intervalMs = 250L)
+            pollResumeForLoadedAd(plan, totalWaitMs = RESUME_APP_OPEN_WAIT_TIMEOUT_MS, intervalMs = 250L)
             return
         }
 
         Timber.tag(TAG_AO).d("loading resume app-open ad id=$resumeAdUnitId")
         showResumeLoadingIfPossible()
-        appOpenManager.loadAppOpenAd(
+        loadOn(
+            network = plan.primary,
             adUnitId = resumeAdUnitId,
-            adsPref = adsPref,
             fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_ID,
-            onAdLoaded = {
+            onLoaded = {
                 Timber.tag(TAG_AO).d("resume load success, calling show")
-                showAppOpenAdDirect(
-                    onFinished = {
-                        dismissResumeLoading()
-                        resumeFlowInProgress.set(false)
-                    }
-                )
+                showResumeAppOpenAd(plan)
             },
-            onAdFailed = {
-                Timber.tag(TAG_AO).w("resume load failed code=${it.code} message=${it.message}")
-                dismissResumeLoading()
+            onFailed = { message ->
+                val fallback = plan.fallback
+                val fallbackId = fallback?.let { resolveAdUnitId(it, "resume") }
+                if (fallback != null && !fallbackId.isNullOrBlank()) {
+                    Timber.tag(TAG_AO).w("resume primary=${plan.primary} load failed ($message), trying fallback=$fallback")
+                    loadOn(
+                        network = fallback,
+                        adUnitId = fallbackId,
+                        fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_ID,
+                        onLoaded = {
+                            Timber.tag(TAG_AO).d("resume fallback load success, calling show")
+                            showResumeAppOpenAd(plan)
+                        },
+                        onFailed = {
+                            Timber.tag(TAG_AO).w("resume fallback load failed: $it")
+                            dismissResumeLoading()
+                            resumeFlowInProgress.set(false)
+                        }
+                    )
+                } else {
+                    Timber.tag(TAG_AO).w("resume load failed: $message")
+                    dismissResumeLoading()
+                    resumeFlowInProgress.set(false)
+                }
+            }
+        )
+    }
+
+    private fun showResumeAppOpenAd(plan: AdWaterfallPlan) {
+        dismissResumeLoading()
+        showAppOpenAdDirect(
+            plan = plan,
+            type = "resume",
+            onFinished = {
                 resumeFlowInProgress.set(false)
-                Unit
             }
         )
     }
@@ -453,16 +587,20 @@ class AppOpenAdLifecycleManager @Inject constructor(
             Timber.tag(TAG_AO).d("resume loading dialog shown")
             it.show()
         }
-        resumeDialogHandler.postDelayed({
+        resumeLoadingTimeoutRunnable = Runnable {
             if (resumeLoadingDialog != null) {
                 Timber.tag(TAG_AO).w("resume loading dialog timeout -> dismissing")
                 dismissResumeLoading()
+                resumeFlowInProgress.set(false)
             }
-        }, 7000L)
+        }.also { timeout ->
+            resumeDialogHandler.postDelayed(timeout, RESUME_APP_OPEN_WAIT_TIMEOUT_MS)
+        }
     }
 
     private fun dismissResumeLoading() {
-        resumeDialogHandler.removeCallbacksAndMessages(null)
+        resumeLoadingTimeoutRunnable?.let { resumeDialogHandler.removeCallbacks(it) }
+        resumeLoadingTimeoutRunnable = null
         resumeLoadingDialog?.dismiss()
         resumeLoadingDialog = null
         Timber.tag(TAG_AO).d("resume loading dialog dismissed")

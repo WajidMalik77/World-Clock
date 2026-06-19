@@ -106,7 +106,7 @@ class AppPrefsManager @Inject constructor(@param:ApplicationContext private val 
     }
 
     fun markFirstHomeInterstitialClickConsumed() {
-        viewScope.launch {
+        runBlocking(Dispatchers.IO) {
             ds.edit { it[KEY_FIRST_HOME_INTERSTITIAL_PENDING] = false }
         }
     }

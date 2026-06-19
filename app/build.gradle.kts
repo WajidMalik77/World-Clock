@@ -17,24 +17,24 @@ android {
         applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.0.4"
+        versionCode = 6
+        versionName = "1.0.6"
         setProperty("archivesBaseName", "World_Clock-v$versionCode($versionName)")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-//    flavorDimensions.add("version")
-//    productFlavors {
-//        create("production") {
-//            dimension = "version"
-//            applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
-//        }
-//        create("dev") {
-//            dimension = "version"
-//            applicationId = "com.test.clock"
-//        }
-//    }
+    flavorDimensions.add("version")
+    productFlavors {
+        create("production") {
+            dimension = "version"
+            applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
+        }
+        create("dev") {
+            dimension = "version"
+            applicationId = "com.test.clock"
+        }
+    }
 
     buildTypes {
         release {
@@ -45,6 +45,7 @@ android {
                 "proguard-rules.pro"
             )
             resValue("string", "admobSDKKey", "ca-app-pub-9304966727485663~4278170280")
+            resValue("string", "facebook_app_id", "1938017986712136")
         }
 
         debug {
@@ -55,6 +56,7 @@ android {
                 "proguard-rules.pro"
             )
             resValue("string", "admobSDKKey", "ca-app-pub-3940256099942544~3347511713")
+            resValue("string", "facebook_app_id", "123456789012345")
         }
     }
     compileOptions {
@@ -99,6 +101,7 @@ dependencies {
     implementation(libs.room.ktx)
     implementation(libs.circular.seek.bar)
     implementation(libs.play.services.ads)
+    implementation(libs.facebook.audience.network)
     implementation(libs.lifecycle.process)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.hilt.android)

@@ -56,3 +56,9 @@
 }
 -keep class com.google.gson.** { *; }
 -keep class com.worldclock.app_themes.domain.model.** { *; }
+
+# --- Meta Audience Network ---
+-dontwarn com.facebook.ads.**
+-keep class com.facebook.ads.** { *; }
+-dontwarn com.facebook.appevents.**
+-dontwarn com.facebook.internal.**

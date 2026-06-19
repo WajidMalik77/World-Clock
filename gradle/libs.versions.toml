@@ -36,6 +36,7 @@ firebaseMessaging = "24.1.0"
 firebasePerf = "21.0.1"
 firebasePerfPlugin = "2.0.2"
 playUpdate = "2.1.0"
+facebookAudienceNetwork = "6.21.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -74,6 +75,7 @@ firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging
 play-app-update = { group = "com.google.android.play", name = "app-update", version.ref = "playUpdate" }
 play-app-update-ktx = { group = "com.google.android.play", name = "app-update-ktx", version.ref = "playUpdate" }
 firebase-perf = { group = "com.google.firebase", name = "firebase-perf", version.ref = "firebasePerf" }
+facebook-audience-network = { module = "com.facebook.android:audience-network-sdk", version.ref = "facebookAudienceNetwork" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -84,4 +86,3 @@ hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }
-

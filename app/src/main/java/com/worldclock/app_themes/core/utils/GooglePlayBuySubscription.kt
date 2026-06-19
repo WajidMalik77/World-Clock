@@ -163,6 +163,16 @@ class GooglePlayBuySubscription {
 
         fun startSubscriptionProcess(context: Context, productDetails: ProductDetails) {
             val TAG = "BILLING PROCESS"
+            val activity = context as? Activity
+            if (activity == null) {
+                Log.e(TAG, "Unable to start billing flow without Activity context")
+                return
+            }
+            val purchaseCallback = context as? SubscriptionPurchaseInterface
+            if (purchaseCallback == null) {
+                Log.e(TAG, "Activity must implement SubscriptionPurchaseInterface")
+                return
+            }
             val offerToken = productDetails.subscriptionOfferDetails?.firstOrNull()?.offerToken
 
             val productDetailsParamsList = listOf(
@@ -177,7 +187,7 @@ class GooglePlayBuySubscription {
                 .build()
 
             val responseCode = billingClient?.launchBillingFlow(
-                context as Activity,
+                activity,
                 billingFlowParams
             )?.responseCode
 
@@ -197,7 +207,7 @@ class GooglePlayBuySubscription {
                 SERVICE_UNAVAILABLE -> Log.e(TAG, "SERVICE_UNAVAILABLE")
                 USER_CANCELED       -> Log.e(TAG, "USER_CANCELED")
             }
-            purchasesInterface = context as SubscriptionPurchaseInterface
+            purchasesInterface = purchaseCallback
         }
 
 

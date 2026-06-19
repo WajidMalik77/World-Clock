@@ -121,7 +121,8 @@ class ClockThemeWidgetProvider : AppWidgetProvider() {
         }
 
         fun scheduleMinuteUpdates(context: Context) {
-            val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val am = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+                ?: return
             val pi = getTickIntent(context)
             am.setRepeating(
                 AlarmManager.ELAPSED_REALTIME,
@@ -132,7 +133,8 @@ class ClockThemeWidgetProvider : AppWidgetProvider() {
         }
 
         fun cancelUpdates(context: Context) {
-            val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val am = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+                ?: return
             am.cancel(getTickIntent(context))
             Log.d(TAG, "AlarmManager cancelled")
         }

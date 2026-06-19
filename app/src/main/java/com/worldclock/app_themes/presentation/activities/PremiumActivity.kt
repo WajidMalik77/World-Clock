@@ -188,7 +188,8 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
     }
 
     private fun establishConnection() {
-        billingClient!!.startConnection(object : BillingClientStateListener {
+        val client = billingClient ?: return
+        client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) getProducts()
             }
@@ -203,7 +204,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
     private fun verifySubPurchase(purchase: Purchase) {
         val params = AcknowledgePurchaseParams.newBuilder()
             .setPurchaseToken(purchase.purchaseToken).build()
-        billingClient!!.acknowledgePurchase(params) { billingResult ->
+        billingClient?.acknowledgePurchase(params) { billingResult ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 PrefUtil(this).setBool("is_premium", true)
                 PrefUtil.setPremium(this, true)
@@ -225,7 +226,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
                 .setProductId(weekly_ad).setProductType(BillingClient.ProductType.SUBS).build()
         )
         val params = QueryProductDetailsParams.newBuilder().setProductList(productList).build()
-        billingClient!!.queryProductDetailsAsync(params, ProductDetailsResponseListener { billingResult: BillingResult, result: QueryProductDetailsResult ->
+        billingClient?.queryProductDetailsAsync(params, ProductDetailsResponseListener { billingResult: BillingResult, result: QueryProductDetailsResult ->
             val prodDetailsList = result.productDetailsList
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 prodDetailsList.forEach { prod ->
@@ -250,21 +251,27 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
 
     fun launchPurchaseFlow(productDetails: ProductDetails) {
         MyApplication.isResume = true
-        assert(productDetails.subscriptionOfferDetails != null)
+        val offerToken = productDetails.subscriptionOfferDetails
+            ?.firstOrNull()
+            ?.offerToken
+        if (offerToken.isNullOrBlank()) {
+            Toast.makeText(this, getString(R.string.subscription_failed), Toast.LENGTH_SHORT).show()
+            return
+        }
         val productDetailsParamsList = listOf(
             BillingFlowParams.ProductDetailsParams.newBuilder()
                 .setProductDetails(productDetails)
-                .setOfferToken(productDetails.subscriptionOfferDetails!![0].offerToken)
+                .setOfferToken(offerToken)
                 .build()
         )
         val billingFlowParams = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(productDetailsParamsList).build()
-        billingClient!!.launchBillingFlow(this, billingFlowParams)
+        billingClient?.launchBillingFlow(this, billingFlowParams)
     }
 
     override fun onResume() {
         super.onResume()
-        billingClient!!.queryPurchasesAsync(
+        billingClient?.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         ) { billingResult, list ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {

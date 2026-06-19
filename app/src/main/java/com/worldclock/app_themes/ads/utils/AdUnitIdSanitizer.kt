@@ -21,6 +21,14 @@ object AdUnitIdSanitizer {
         return sanitize(adUnitId, fallbackId)
     }
 
+    fun sanitizeFbBanner(placementId: String): String = placementId.trim()
+
+    fun sanitizeFbInterstitial(placementId: String): String = placementId.trim()
+
+    fun sanitizeFbNative(placementId: String): String = placementId.trim()
+
+    fun sanitizeFbAppOpen(placementId: String): String = placementId.trim()
+
     private fun sanitize(adUnitId: String, releaseFallback: String): String {
         if (adUnitId.isBlank()) return releaseFallback
         if (BuildConfig.DEBUG) return adUnitId
