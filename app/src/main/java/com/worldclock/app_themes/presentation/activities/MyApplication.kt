@@ -6,6 +6,7 @@ import android.app.Application
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import com.worldclock.app_themes.BuildConfig
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -27,6 +28,7 @@ import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Date
 import kotlin.let
 
@@ -57,6 +59,7 @@ class MyApplication : LocaleAwareApplication(), LifecycleObserver,
 
     override fun onCreate() {
         super<LocaleAwareApplication>.onCreate()
+        plantTimber()
         FirebaseApp.initializeApp(this)
         SubscriptionBilling(this)
         mContext = this
@@ -147,4 +150,37 @@ class MyApplication : LocaleAwareApplication(), LifecycleObserver,
 
 
 
+}
+
+private fun plantTimber() {
+    if (Timber.treeCount > 0) return
+    if (BuildConfig.DEBUG) {
+        Timber.plant(Timber.DebugTree())
+    } else {
+        Timber.plant(ReleaseAdDebugTree())
+    }
+}
+
+private class ReleaseAdDebugTree : Timber.Tree() {
+    private val allowedTags = setOf(
+        "NativeConfigTrace",
+        "SplashAdSequence",
+        "ConfigTrace",
+        "InterstitialTrace",
+        "AppOpenTrace"
+    )
+
+    override fun isLoggable(tag: String?, priority: Int): Boolean {
+        return priority >= Log.WARN || tag in allowedTags
+    }
+
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        if (!isLoggable(tag, priority)) return
+        val safeTag = tag ?: "WorldClock"
+        if (t != null) {
+            Log.println(priority, safeTag, "$message\n${Log.getStackTraceString(t)}")
+        } else {
+            Log.println(priority, safeTag, message)
+        }
+    }
 }

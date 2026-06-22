@@ -37,7 +37,7 @@ data class NativeAdSettingsConfig(
     ),
     val placements: Map<String, NativePlacement> = mapOf(
         "splash_top" to NativePlacement(value = 0),
-        "splash_bottom" to NativePlacement(value = 3, network = 1),
+        "splash_bottom" to NativePlacement(value = 3, network = 2),
         "languages_bottom" to NativePlacement(value = 2, network = 1),
         "intro_bottom" to NativePlacement(value = 4, network = 1),
         "intro_full_screen" to NativePlacement(value = 1, network = 1),

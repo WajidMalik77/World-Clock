@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 
 class AdControlConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig
-) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v6") {
+) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v7") {
 
     companion object {
         private const val TAG_CFG = "ConfigTrace"

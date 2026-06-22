@@ -24,17 +24,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    flavorDimensions.add("version")
-    productFlavors {
-        create("production") {
-            dimension = "version"
-            applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
-        }
-        create("dev") {
-            dimension = "version"
-            applicationId = "com.test.clock"
-        }
-    }
+//    flavorDimensions.add("version")
+//    productFlavors {
+//        create("production") {
+//            dimension = "version"
+//            applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
+//        }
+//        create("dev") {
+//            dimension = "version"
+//            applicationId = "com.test.clock"
+//        }
+//    }
 
     buildTypes {
         release {
