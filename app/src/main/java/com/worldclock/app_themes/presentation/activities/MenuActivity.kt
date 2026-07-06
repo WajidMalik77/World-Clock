@@ -26,6 +26,8 @@ import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
+import dagger.hilt.android.EntryPointAccessors
+import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
 
 @AndroidEntryPoint
 class MenuActivity : BaseActivity() {
@@ -77,7 +79,7 @@ class MenuActivity : BaseActivity() {
 
         binding.pro.setOnClickListener {
             AppEventLogger.trackButtonClick("MenuScreen", "go_premium", "navigate", "menu_flow")
-            startActivity(Intent(this, PremiumActivity::class.java))
+            startActivity(resolveManualPremiumIntent())
         }
         binding.recycler.adapter = MenuAdapter(getMenuData()) {
             when (it) {
@@ -114,5 +116,18 @@ class MenuActivity : BaseActivity() {
     override fun onDestroy() {
         AppEventLogger.trackScreenDestroy(this, "MenuScreen")
         super.onDestroy()
+    }
+
+    private fun resolveManualPremiumIntent(): Intent {
+        val premiumMode = runCatching {
+            EntryPointAccessors.fromActivity(this, AdConfigEntryPoint::class.java)
+                .adControlConfigManager()
+                .getSettingsPremiumScreenMode()
+        }.getOrDefault(1)
+
+        return when (premiumMode) {
+            2 -> Intent(this, ActivityPurchase::class.java)
+            else -> Intent(this, PremiumActivity::class.java)
+        }
     }
 }

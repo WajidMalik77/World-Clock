@@ -66,7 +66,6 @@ class Splash : BaseActivity() {
 
     private var getStartedConsumed = false
     private var splashAppOpenWarmupStarted = false
-    private var splashAppOpenHandledBeforeCta = false
 
     private lateinit var appUpdateManager: AppUpdateManager
 
@@ -165,18 +164,17 @@ class Splash : BaseActivity() {
                 return@launch
             }
 
-            // Phase 4: Ad request strategy. If native splash is enabled, render/native-impress
-            // and app-open load in parallel. Native impression is the trigger to show app-open,
-            // and the CTA is revealed only after app-open finishes or is unavailable.
+            // Phase 4: Ad request strategy. If native splash is enabled, preload the native ad.
+            // In parallel, we warm up/preload the splash app-open ad in the background.
+            // The CTA is revealed after native ad finishes loading or is unavailable.
             if (splashNativeEnabled) {
-                Timber.tag(TAG_SPLASH_ADS).d("parallel load start: splash native + splash app-open")
+                Timber.tag(TAG_SPLASH_ADS).d("parallel load start: splash native + splash app-open warmup")
                 startSplashAppOpenWarmupForCta()
                 val completed = withTimeoutOrNull(SPLASH_AD_SEQUENCE_TIMEOUT_MS) {
-                    loadSplashNativeThenShowAppOpenSuspending()
+                    preloadSplashNativeAdSuspending()
                 }
                 if (completed == null) {
-                    Timber.tag(TAG_SPLASH_ADS).w("splash ad sequence timed out; showing CTA")
-                    showGetStartedCta()
+                    Timber.tag(TAG_SPLASH_ADS).w("splash native ad preload timed out")
                 }
             } else {
                 withTimeoutOrNull(15_000) {
@@ -264,65 +262,6 @@ class Splash : BaseActivity() {
         )
     }
 
-    private suspend fun loadSplashNativeThenShowAppOpenSuspending() = suspendCancellableCoroutine<Unit> { cont ->
-        if (!splashNativeEnabled) {
-            if (cont.isActive) cont.resume(Unit)
-            return@suspendCancellableCoroutine
-        }
-
-        var appOpenFlowStarted = false
-        var resolved = false
-
-        cont.invokeOnCancellation {
-            resolved = true
-        }
-
-        fun finishOnce() {
-            if (resolved) return
-            resolved = true
-            if (!isFinishing && !isDestroyed) {
-                showGetStartedCta()
-            }
-            if (cont.isActive) cont.resume(Unit)
-        }
-
-        fun showAppOpenOnce() {
-            if (appOpenFlowStarted) return
-            appOpenFlowStarted = true
-            Timber.tag(TAG_SPLASH_ADS).d("splash app-open show requested after native signal")
-            showSplashAppOpenThen { finishOnce() }
-        }
-
-        loadBottomNative(
-            screen = "SplashScreen",
-            topNativeLayout = binding.adsContainerTop.root,
-            bottomLayout = binding.adsContainerBottom.root,
-            loadBannerAds = false,
-            onEvent = { event ->
-                when (event) {
-                    is NativeAdEvent.Loaded -> {
-                        splashNativeLoaded = true
-                        Timber.tag(TAG_SPLASH_ADS).d("splash native loaded position=${event.position}; waiting for impression")
-                        lifecycleScope.launch {
-                            delay(SPLASH_NATIVE_IMPRESSION_GRACE_MS)
-                            Timber.tag(TAG_SPLASH_ADS).d("splash native impression grace elapsed position=${event.position}; requesting app-open")
-                            showAppOpenOnce()
-                        }
-                    }
-                    is NativeAdEvent.Impression -> {
-                        Timber.tag(TAG_SPLASH_ADS).d("splash native impression position=${event.position}; requesting app-open")
-                        showAppOpenOnce()
-                    }
-                    is NativeAdEvent.Failed,
-                    is NativeAdEvent.Off,
-                    NativeAdEvent.AllOffFromConfig -> {
-                        Timber.tag(TAG_SPLASH_ADS).d("splash native unavailable event=${event::class.java.simpleName}; requesting app-open")
-                        showAppOpenOnce()
-                    }
-                }
-            }
-        )
-    }
 
     private fun configureSplashNativeGate() {
         val nativeConfigManager = EntryPointAccessors.fromActivity(
@@ -380,10 +319,6 @@ class Splash : BaseActivity() {
     }
 
     private fun continueAfterAds() {
-        if (splashNativeEnabled && splashAppOpenHandledBeforeCta) {
-            startMainActivity(showInterstitial = false)
-            return
-        }
         showSplashAppOpenThen { appOpenAdShown ->
             startMainActivity(showInterstitial = !appOpenAdShown)
         }
@@ -403,9 +338,6 @@ class Splash : BaseActivity() {
                 Timber.tag(TAG_SPLASH_ADS).d("splash app-open shown")
             }
         ) {
-            if (splashNativeEnabled) {
-                splashAppOpenHandledBeforeCta = true
-            }
             Timber.tag(TAG_SPLASH_ADS).d("splash app-open finished shown=$appOpenAdShown")
             afterAd(appOpenAdShown)
         }

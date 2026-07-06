@@ -80,15 +80,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
         }
 
         binding.purchase.setOnClickListener {
-            val selectedId = when (purchasCount) {
-                0 -> monthly_ad
-                1 -> yearly_ad
-                2 -> weekly_ad
-                else -> monthly_ad
-            }
-            AppEventLogger.trackButtonClick("PremiumScreen", "purchase", "start_purchase", "premium_flow")
-            val product = productDetailsList?.find { it.productId == selectedId }
-            product?.let { launchPurchaseFlow(it) }
+            performPurchase()
         }
 
         binding.yearly.setOnClickListener {
@@ -97,6 +89,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
             binding.yearly.setBackgroundResource(R.drawable.bg_black_line)
             binding.sixMonth.setBackgroundResource(R.drawable.bg_prem)
             binding.lifetime.setBackgroundResource(R.drawable.bg_prem)
+            performPurchase()
         }
         binding.sixMonth.setOnClickListener {
             purchasCount = 0
@@ -104,6 +97,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
             binding.yearly.setBackgroundResource(R.drawable.bg_prem)
             binding.sixMonth.setBackgroundResource(R.drawable.bg_black_line)
             binding.lifetime.setBackgroundResource(R.drawable.bg_prem)
+            performPurchase()
         }
         binding.lifetime.setOnClickListener {
             purchasCount = 2
@@ -111,6 +105,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
             binding.yearly.setBackgroundResource(R.drawable.bg_prem)
             binding.sixMonth.setBackgroundResource(R.drawable.bg_prem)
             binding.lifetime.setBackgroundResource(R.drawable.bg_black_line)
+            performPurchase()
         }
 
         billingClient = BillingClient.newBuilder(this)
@@ -174,6 +169,18 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
         val offer = prod.subscriptionOfferDetails?.firstOrNull()
         val phase = offer?.pricingPhases?.pricingPhaseList?.firstOrNull()
         return "${phase?.formattedPrice} ${phase?.priceCurrencyCode}"
+    }
+
+    private fun performPurchase() {
+        val selectedId = when (purchasCount) {
+            0 -> monthly_ad
+            1 -> yearly_ad
+            2 -> weekly_ad
+            else -> monthly_ad
+        }
+        AppEventLogger.trackButtonClick("PremiumScreen", "purchase", "start_purchase", "premium_flow")
+        val product = productDetailsList?.find { it.productId == selectedId }
+        product?.let { launchPurchaseFlow(it) }
     }
 
     override fun productPurchasedSuccessful() {

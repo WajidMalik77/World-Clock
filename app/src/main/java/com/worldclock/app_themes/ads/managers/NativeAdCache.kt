@@ -70,10 +70,6 @@ class NativeAdCache @Inject constructor() {
         available: Boolean = false,
         onImpression: (() -> Unit)? = null
     ) {
-        val previous = singletonEntry
-        if (previous != null && previous.ad !== ad && !previous.impressed) {
-            runCatching { previous.ad.destroy() }
-        }
         singletonEntry = Entry(
             ad = ad,
             loadedAt = System.currentTimeMillis(),

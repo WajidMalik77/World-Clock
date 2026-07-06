@@ -35,23 +35,34 @@ class BannerAdsManager(
     private var collapsibleTopBannerAdView: AdView? = null
     private var collapsibleBottomBannerAdView: AdView? = null
     private val activeBannerAds = mutableMapOf<FrameLayout, AdView>()
+    private val impressedContainers = mutableSetOf<FrameLayout>()
     private val mainHandler = Handler(Looper.getMainLooper())
     private val collapseRunnables = mutableMapOf<AdView, Runnable>()
-    private val AUTO_COLLAPSE_DELAY = 3000L // 10 seconds
+    private val AUTO_COLLAPSE_DELAY = 10000L // 10 seconds
     private val DESTRUCTION_TIMEOUT = 2000L // 2 seconds timeout for destruction
 
     fun loadCollapsibleTopBanner(
         adContainer: FrameLayout,
         adUnitId: String,
         defaultVisibility: Int = View.VISIBLE,
+        forceRefresh: Boolean = false,
         onAdLoaded: (() -> Unit)? = null,
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (defaultVisibility != View.VISIBLE) return
         val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
+        val existingAdView = activeBannerAds[adContainer]
+        if (!forceRefresh && existingAdView != null && existingAdView.adUnitId == resolvedAdUnitId) {
+            Timber.d("Top collapsible banner already loaded in this container for id=$resolvedAdUnitId")
+            adContainer.visibility = defaultVisibility
+            onAdLoaded?.invoke()
+            return
+        }
+
         // Clean up existing ad first
         collapsibleTopBannerAdView?.let { cleanupAdView(it, adContainer) }
+        impressedContainers.remove(adContainer)
 
         val adView = AdView(activity).apply {
             this.adUnitId = resolvedAdUnitId
@@ -92,18 +103,17 @@ class BannerAdsManager(
                     onAdLoaded?.invoke()
                 }
 
+                override fun onAdImpression() {
+                    super.onAdImpression()
+                    impressedContainers.add(adContainer)
+                    Timber.d("Top collapsible banner recorded impression")
+                }
+
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     adContainer.visibility = View.GONE
                     Timber.d("Top collapsible banner ad failed: ${error.message}")
                     DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastBannerEnabled(), "Banner (Top Col): Failed")
                     onAdFailed?.invoke(error)
-
-                    // Retry with exponential backoff
-                    adContainer.postDelayed({
-                        if (!activity.isFinishing && !activity.isDestroyed) {
-                            adView.loadAd(adRequest)
-                        }
-                    }, 5000)
                 }
 
                 override fun onAdClosed() {
@@ -126,14 +136,24 @@ class BannerAdsManager(
         adContainer: FrameLayout,
         adUnitId: String,
         defaultVisibility: Int = View.VISIBLE,
+        forceRefresh: Boolean = false,
         onAdLoaded: (() -> Unit)? = null,
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (defaultVisibility != View.VISIBLE) return
         val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
+        val existingAdView = activeBannerAds[adContainer]
+        if (!forceRefresh && existingAdView != null && existingAdView.adUnitId == resolvedAdUnitId) {
+            Timber.d("Bottom collapsible banner already loaded in this container for id=$resolvedAdUnitId")
+            adContainer.visibility = defaultVisibility
+            onAdLoaded?.invoke()
+            return
+        }
+
         // Clean up existing ad first
         collapsibleBottomBannerAdView?.let { cleanupAdView(it, adContainer) }
+        impressedContainers.remove(adContainer)
 
         val adView = AdView(activity).apply {
             this.adUnitId = resolvedAdUnitId
@@ -175,18 +195,17 @@ class BannerAdsManager(
                     onAdLoaded?.invoke()
                 }
 
+                override fun onAdImpression() {
+                    super.onAdImpression()
+                    impressedContainers.add(adContainer)
+                    Timber.d("Bottom collapsible banner recorded impression")
+                }
+
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     adContainer.visibility = View.GONE
                     Timber.d("Bottom collapsible banner ad failed: ${error.message}")
                     DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastBannerEnabled(), "Banner (Bottom Col): Failed")
                     onAdFailed?.invoke(error)
-
-                    // Retry with exponential backoff
-                    adContainer.postDelayed({
-                        if (!activity.isFinishing && !activity.isDestroyed) {
-                            adView.loadAd(adRequest)
-                        }
-                    }, 5000)
                 }
 
                 override fun onAdClosed() {
@@ -250,14 +269,24 @@ class BannerAdsManager(
         container: FrameLayout,
         adUnitId: String,
         visibility: Int = View.VISIBLE,
+        forceRefresh: Boolean = false,
         onAdLoaded: (() -> Unit)? = null,
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (visibility != View.VISIBLE) return
         val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
+        val existingAdView = activeBannerAds[container]
+        if (!forceRefresh && existingAdView != null && existingAdView.adUnitId == resolvedAdUnitId) {
+            Timber.d("Adaptive banner already loaded in this container for id=$resolvedAdUnitId")
+            container.visibility = visibility
+            onAdLoaded?.invoke()
+            return
+        }
+
         // Clean up existing ad first
         adaptiveAdView?.let { cleanupAdView(it, container) }
+        impressedContainers.remove(container)
 
         val adView = AdView(activity).apply {
             this.adUnitId = resolvedAdUnitId
@@ -285,17 +314,17 @@ class BannerAdsManager(
                     onAdLoaded?.invoke()
                 }
 
+                override fun onAdImpression() {
+                    super.onAdImpression()
+                    impressedContainers.add(container)
+                    Timber.d("Adaptive banner recorded impression")
+                }
+
                 override fun onAdFailedToLoad(error: LoadAdError) {
                     container.visibility = View.GONE
                     Timber.d("Adaptive banner failed: ${error.message}")
                     DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastBannerEnabled(), "Banner (Adaptive): Failed")
                     onAdFailed?.invoke(error)
-
-                    container.postDelayed({
-                        if (!activity.isFinishing && !activity.isDestroyed) {
-                            adView.loadAd(buildAdRequest())
-                        }
-                    }, 5000)
                 }
 
                 override fun onAdOpened() {
@@ -312,14 +341,24 @@ class BannerAdsManager(
         adContainer: FrameLayout,
         adUnitId: String,
         defaultVisibility: Int = View.VISIBLE,
+        forceRefresh: Boolean = false,
         onAdLoaded: (() -> Unit)? = null,
         onAdFailed: ((LoadAdError) -> Unit)? = null
     ) {
         if (defaultVisibility != View.VISIBLE) return
         val resolvedAdUnitId = AdUnitIdSanitizer.sanitizeBanner(adUnitId)
 
+        val existingAdView = activeBannerAds[adContainer]
+        if (!forceRefresh && existingAdView != null && existingAdView.adUnitId == resolvedAdUnitId) {
+            Timber.d("Rectangle banner already loaded in this container for id=$resolvedAdUnitId")
+            adContainer.visibility = defaultVisibility
+            onAdLoaded?.invoke()
+            return
+        }
+
         // Clean up existing ad first
         rectangleAdView?.let { cleanupAdView(it, adContainer) }
+        impressedContainers.remove(adContainer)
 
         val adView = AdView(activity).apply {
             this.adUnitId = resolvedAdUnitId
@@ -345,17 +384,17 @@ class BannerAdsManager(
                 onAdLoaded?.invoke()
             }
 
+            override fun onAdImpression() {
+                super.onAdImpression()
+                impressedContainers.add(adContainer)
+                Timber.d("Rectangle banner recorded impression")
+            }
+
             override fun onAdFailedToLoad(error: LoadAdError) {
                 adContainer.visibility = View.GONE
                 Timber.d("Rectangle banner ad failed: ${error.message}")
                 DebugToaster.showAdDebugCard(activity, adsPref.isDebugToastBannerEnabled(), "Banner (Rectangle): Failed")
                 onAdFailed?.invoke(error)
-
-                adContainer.postDelayed({
-                    if (!activity.isFinishing && !activity.isDestroyed) {
-                        adView.loadAd(adRequest)
-                    }
-                }, 5000)
             }
 
             override fun onAdOpened() {
@@ -406,13 +445,14 @@ class BannerAdsManager(
     /**
      * Clean up specific ad view with timeout protection
      */
-    private fun cleanupAdView(adView: AdView, container: FrameLayout) {
+    fun cleanupAdView(adView: AdView, container: FrameLayout) {
         try {
             // Cancel auto-collapse
             cancelAutoCollapse(adView)
 
             // Remove from tracking
             activeBannerAds.remove(container)
+            impressedContainers.remove(container)
 
             // Fast destruction with timeout
             val destructionRunnable = Runnable {
@@ -489,6 +529,13 @@ class BannerAdsManager(
         }
 
         return builder.build()
+    }
+
+    /**
+     * Check if a container has an impressed ad
+     */
+    fun isImpressed(container: FrameLayout): Boolean {
+        return impressedContainers.contains(container)
     }
 
     /**

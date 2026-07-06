@@ -76,10 +76,9 @@ class AppInitializer @Inject constructor(
                     if (!premiumRepository.isPremiumUser() &&
                         umpConsentManager.canRequestAdsFromCache(appContext)
                     ) {
-                        Timber.tag(TAG_INIT).d("Phase0: UMP cached -> pre-warming MobileAds + splash app-open")
+                        Timber.tag(TAG_INIT).d("Phase0: UMP cached -> pre-warming MobileAds")
                         adsManager.initializeIfNeeded()
                         adsManager.awaitInitialization()
-                        appOpenAdLifecycleManager.preloadSplashAd()
                     } else {
                         Timber.tag(TAG_INIT).d("Phase0: skipping pre-warm (premium or UMP not cached)")
                     }

@@ -5,8 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    tools:context=".activities.Splash">
+    android:background="@color/white">
 
     <!-- Top native ad container -->
     <include
@@ -23,10 +22,11 @@
         android:id="@+id/centerLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_110sdp"
         app:layout_constraintBottom_toTopOf="@+id/splashProgress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ads_container_top">
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/splash_image"
@@ -42,7 +42,8 @@
             android:id="@+id/mainTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/_10sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:layout_marginHorizontal="@dimen/_10sdp"
             android:fontFamily="@font/poppins_medium"
             android:text="@string/alarm_clock"
             android:textColor="@color/black"
@@ -58,7 +59,7 @@
         android:id="@+id/splashProgress"
         android:layout_width="@dimen/_40sdp"
         android:layout_height="@dimen/_40sdp"
-        android:layout_marginBottom="@dimen/_20sdp"
+        android:layout_marginBottom="@dimen/_30sdp"
         android:indeterminate="true"
         android:indeterminateTint="@color/blue"
         android:indeterminateTintMode="src_in"
@@ -87,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/_20sdp"
         android:layout_marginEnd="@dimen/_20sdp"
-        android:layout_marginBottom="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_26sdp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/ads_container_bottom"

@@ -75,7 +75,7 @@ class AppOpenAdLifecycleManager @Inject constructor(
     }
 
     fun preloadSplashAd(onPrepared: ((Boolean) -> Unit)? = null) {
-        preloadSplashAdInternal(allowRetry = true, onPrepared = onPrepared)
+        preloadSplashAdInternal(onPrepared = onPrepared)
     }
 
     private fun resolveAdUnitId(network: AdNetwork, type: String): String = when (network) {
@@ -134,7 +134,6 @@ class AppOpenAdLifecycleManager @Inject constructor(
     }
 
     private fun preloadSplashAdInternal(
-        allowRetry: Boolean,
         onPrepared: ((Boolean) -> Unit)? = null
     ) {
         try {
@@ -177,10 +176,10 @@ class AppOpenAdLifecycleManager @Inject constructor(
                             adUnitId = fallbackId,
                             fallbackAdUnitId = ADS.PROD_ADMOB_APP_OPEN_SPLASH_ID,
                             onLoaded = { onPrepared?.invoke(true) },
-                            onFailed = { handleSplashLoadFailure(it, allowRetry, onPrepared) }
+                            onFailed = { handleSplashLoadFailure(it, onPrepared) }
                         )
                     } else {
-                        handleSplashLoadFailure(message, allowRetry, onPrepared)
+                        handleSplashLoadFailure(message, onPrepared)
                     }
                 }
             )
@@ -192,18 +191,10 @@ class AppOpenAdLifecycleManager @Inject constructor(
 
     private fun handleSplashLoadFailure(
         message: String,
-        allowRetry: Boolean,
         onPrepared: ((Boolean) -> Unit)?
     ) {
-        val retryable = allowRetry && !message.contains("no fill", ignoreCase = true)
-        if (!retryable) {
-            onPrepared?.invoke(false)
-            return
-        }
-        Timber.tag(TAG_AO).w("Splash app-open load failed, retrying once")
-        Handler(Looper.getMainLooper()).postDelayed({
-            preloadSplashAdInternal(allowRetry = false, onPrepared = onPrepared)
-        }, 600L)
+        Timber.tag(TAG_AO).w("Splash app-open load failed: $message")
+        onPrepared?.invoke(false)
     }
 
     private fun pollForLoadedAdAndShow(

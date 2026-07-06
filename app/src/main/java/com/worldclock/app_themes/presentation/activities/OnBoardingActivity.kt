@@ -5,6 +5,8 @@ import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.edit
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.viewpager2.widget.ViewPager2
@@ -67,6 +69,14 @@ class OnBoardingActivity : BaseActivity() {
                 position = "top",
                 container = binding.bannerContainer.admobBanner,
                 shimmer = binding.bannerContainer.bannerAdShimmer
+            )
+        }
+
+        lifecycleScope.launch {
+            nativeAdOrchestrator.preloadNativeForNextContainer(
+                context = this@OnBoardingActivity,
+                screen = "IntroScreen",
+                position = "full_screen"
             )
         }
 
@@ -190,8 +200,43 @@ class OnBoardingActivity : BaseActivity() {
                 )
             )
             introFullscreenNativeLoaded = true
-            adBinding.llSwipeToContinue.visibility = View.VISIBLE
+            startCloseAdTimer(adBinding)
         }
+    }
+
+    private fun startCloseAdTimer(adBinding: LayoutFullscreenAdIntroBinding) {
+        val timerTv = adBinding.tvTimer
+        val closeIv = adBinding.ivClose
+        val container = adBinding.closeAdContainer
+
+        container.visibility = View.VISIBLE
+        timerTv.visibility = View.VISIBLE
+        closeIv.visibility = View.GONE
+
+        var timeLeft = 3
+        val timerRunnable = object : Runnable {
+            override fun run() {
+                if (isFinishing || isDestroyed) return
+                if (timeLeft > 0) {
+                    timerTv.text = timeLeft.toString()
+                    timeLeft--
+                    timerTv.postDelayed(this, 1000)
+                } else {
+                    timerTv.visibility = View.GONE
+                    closeIv.visibility = View.VISIBLE
+                    closeIv.setOnClickListener {
+                        val current = binding.viewPager.currentItem
+                        val total = binding.viewPager.adapter?.itemCount ?: 0
+                        if (current < total - 1) {
+                            binding.viewPager.setCurrentItem(current + 1, true)
+                        } else {
+                            goNext()
+                        }
+                    }
+                }
+            }
+        }
+        timerTv.post(timerRunnable)
     }
 
     private fun isPremium(): Boolean {
@@ -200,9 +245,6 @@ class OnBoardingActivity : BaseActivity() {
     }
 
     private fun goNext() {
-        getSharedPreferences(PrefsName, Context.MODE_PRIVATE).edit {
-            putBoolean(isFirstTime, true)
-        }
         val proceed = {
             if (isPremium()) {
                 startActivity(Intent(this, MainActivity::class.java))
@@ -212,6 +254,9 @@ class OnBoardingActivity : BaseActivity() {
                     AdConfigEntryPoint::class.java
                 ).adControlConfigManager()
                 startActivity(cfg.getNextScreenIntent(this, "intro"))
+            }
+            getSharedPreferences(PrefsName, Context.MODE_PRIVATE).edit {
+                putBoolean(isFirstTime, true)
             }
             finish()
         }

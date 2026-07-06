@@ -9,19 +9,18 @@
     tools:context=".activities.AddClockActivity">
 
     <include
-        android:id="@+id/banner_container"
-        layout="@layout/layout_top_banner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@+id/toolbar"
-        app:layout_constraintBottom_toBottomOf="@+id/toolbar" />
-
-    <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <include
+        android:id="@+id/banner_container"
+        layout="@layout/layout_top_banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
 
     <EditText
@@ -63,7 +62,7 @@
         android:layout_marginVertical="@dimen/_10sdp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@+id/addNewClock"
-        app:layout_constraintTop_toBottomOf="@+id/searchIcon"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container"
         tools:itemCount="8"
         tools:layout_editor_absoluteX="13dp"
         tools:listitem="@layout/item_add_clock" />

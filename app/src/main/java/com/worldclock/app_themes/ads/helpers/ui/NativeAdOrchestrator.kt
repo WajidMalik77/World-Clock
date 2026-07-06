@@ -31,6 +31,8 @@ class NativeAdOrchestrator @Inject constructor(
     private val checkEligibility: CheckAdEligibilityUseCase
 ) {
 
+    private val impressedPositions = mutableSetOf<String>()
+
     private fun networkFromValue(value: Int): AdNetwork = when (value) {
         2 -> AdNetwork.FACEBOOK
         else -> AdNetwork.ADMOB
@@ -43,6 +45,7 @@ class NativeAdOrchestrator @Inject constructor(
         context: Context,
         screen: String,
         nativeConfigs: List<NativeAdConfig>,
+        forceRefresh: Boolean = false,
         onEvent: ((NativeAdEvent) -> Unit)? = null
     ) {
         // Check eligibility
@@ -68,7 +71,21 @@ class NativeAdOrchestrator @Inject constructor(
 
         // Load each native ad
         nativeConfigs.forEach { config ->
-            loadSingleNativeAd(screen, config, onEvent)
+            val isImpressed = impressedPositions.contains(config.position) || admobNativeManager.isImpressed()
+            val shouldRefresh = forceRefresh || isImpressed
+            if (shouldRefresh) {
+                admobNativeManager.clearCurrentAd()
+                impressedPositions.remove(config.position)
+            }
+
+            val wrappedEvent: (NativeAdEvent) -> Unit = { event ->
+                if (event is NativeAdEvent.Impression) {
+                    impressedPositions.add(event.position)
+                }
+                onEvent?.invoke(event)
+            }
+
+            loadSingleNativeAd(screen, config, wrappedEvent)
         }
     }
 

@@ -59,30 +59,6 @@ class MainActivity : BaseActivity() {
             putBoolean(isFirstTime, true)
         }
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@MainActivity,
-                screen = "HomeScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@MainActivity,
-                screen = "HomeScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
-
         requestNotificationPermissionIfNeeded()
 
         binding.toolbar.back.setImageResource(R.drawable.menu)
@@ -119,7 +95,7 @@ class MainActivity : BaseActivity() {
 
         binding.premium.setOnClickListener {
             AppEventLogger.trackButtonClick("HomeScreen", "go_premium", "navigate", "home_flow")
-            startActivity(Intent(this, PremiumActivity::class.java))
+            startActivity(resolveManualPremiumIntent())
         }
 
         val showCenterNative = EntryPointAccessors.fromActivity(
@@ -250,6 +226,37 @@ class MainActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         handler.post(clockRunnable)
+        loadAds()
+    }
+
+    private fun loadAds() {
+        lifecycleScope.launch {
+            bannerAdOrchestrator.loadBannerAd(
+                context = this@MainActivity,
+                screen = "HomeScreen",
+                position = "top",
+                container = binding.bannerContainer.admobBanner,
+                shimmer = binding.bannerContainer.bannerAdShimmer
+            )
+        }
+
+        // Refresh Center Native (in adapter)
+        centerNativeLoaded = false
+        binding.recycler.adapter?.notifyItemChanged(HomeAdapter.CENTER_NATIVE_POSITION)
+
+        lifecycleScope.launch {
+            nativeAdOrchestrator.loadNativeAds(
+                context = this@MainActivity,
+                screen = "HomeScreen",
+                nativeConfigs = listOf(
+                    NativeAdConfig(
+                        position = "bottom",
+                        container = binding.adsContainer.admobNative,
+                        shimmer = binding.adsContainer.nativeAdShimmer
+                    )
+                )
+            )
+        }
     }
 
     override fun onPause() {
@@ -261,5 +268,18 @@ class MainActivity : BaseActivity() {
         AppEventLogger.trackScreenDestroy(this, "HomeScreen")
         super.onDestroy()
         handler.removeCallbacks(clockRunnable)
+    }
+
+    private fun resolveManualPremiumIntent(): Intent {
+        val premiumMode = runCatching {
+            EntryPointAccessors.fromActivity(this, AdConfigEntryPoint::class.java)
+                .adControlConfigManager()
+                .getGoProPremiumScreenMode()
+        }.getOrDefault(1)
+
+        return when (premiumMode) {
+            2 -> Intent(this, ActivityPurchase::class.java)
+            else -> Intent(this, PremiumActivity::class.java)
+        }
     }
 }

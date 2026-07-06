@@ -194,6 +194,22 @@ class AdmobNativeManager(
         nativeAdCache.releaseIfUnimpressed(nativeAd)
     }
 
+    fun clearCurrentAd() {
+        if (isDestroyed) return
+        val currentAd = nativeAd
+        val keepForNextContainer = nativeAdCache.releaseIfUnimpressed(currentAd)
+        if (!keepForNextContainer) {
+            currentAd?.destroy()
+        }
+        nativeAd = null
+        lastLoadParams = null
+    }
+
+    fun isImpressed(): Boolean {
+        val currentAd = nativeAd ?: return false
+        return !nativeAdCache.isTrackedUnimpressed(currentAd)
+    }
+
     fun keepCurrentNativeForNextContainer() {
         if (isDestroyed) return
         val currentNative = nativeAd ?: return
@@ -417,12 +433,9 @@ class AdmobNativeManager(
     private fun handleAdReceived(ad: NativeAd, params: AdLoadParams, isPreloaded: Boolean) {
         isLoading = false
 
-        // Don't destroy current ad if this is from preload
+        // Forget the previous ad without destroying it — it may still be displayed in another slot
         if (!isPreloaded) {
-            val keepPrevious = nativeAdCache.releaseIfUnimpressed(nativeAd)
-            if (!keepPrevious) {
-                nativeAd?.destroy()
-            }
+            nativeAdCache.forget(nativeAd)
         }
         nativeAd = ad
 

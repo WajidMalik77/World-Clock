@@ -136,9 +136,10 @@ class AdsManager @Inject constructor(
         context: Context,
         screen: String,
         configs: List<NativeAdConfig>,
+        forceRefresh: Boolean = false,
         onEvent: ((NativeAdEvent) -> Unit)? = null
     ) {
-        nativeAdOrchestrator.loadNativeAds(context, screen, configs, onEvent)
+        nativeAdOrchestrator.loadNativeAds(context, screen, configs, forceRefresh, onEvent)
     }
 
     suspend fun preloadNativeForNextContainer(

@@ -21,11 +21,10 @@ import kotlinx.serialization.json.Json
 
 class AdControlConfigManager(
     firebaseRemoteConfig: FirebaseRemoteConfig
-) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v7") {
+) : BaseRemoteConfigManager<AdControlConfig>(firebaseRemoteConfig, "Config_v6") {
 
     companion object {
         private const val TAG_CFG = "ConfigTrace"
-        // Local testing only: set true to ignore remote ads-off/type-off/placement-off gates.
         private const val FORCE_REMOTE_ADS_ON_FOR_TESTING = false
         private val jsonParser by lazy {
             Json {

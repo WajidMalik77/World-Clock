@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.gms.ads.nativead.NativeAdView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/native_ad_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -93,7 +92,7 @@
 
         </LinearLayout>
 
-        <!-- CTA + swipe lottie row -->
+        <!-- CTA row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -104,24 +103,14 @@
 
             <TextView
                 android:id="@+id/ad_call_to_action"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:paddingVertical="@dimen/_8sdp"
                 android:text="Install"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/_13ssp" />
 
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottieSwipe"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
-                android:layout_marginStart="@dimen/_8sdp"
-                android:background="@drawable/bg_swipe_lottie"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="true"
-                app:lottie_rawRes="@raw/tiktoke_swipe" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.gms.ads.nativead.NativeAdView>

@@ -29,7 +29,8 @@ class BannerAdOrchestrator @Inject constructor(
         position: String,
         container: FrameLayout,
         shimmer: View,
-        adId: String? = null
+        adId: String? = null,
+        forceRefresh: Boolean = false
     ) {
         if (position.equals("bottom", ignoreCase = true)) {
             shimmer.visibility = View.GONE
@@ -65,10 +66,12 @@ class BannerAdOrchestrator @Inject constructor(
 
         val bannerId = adId ?: adConfigRepository.getBannerAdUnitId(screen, position, primary)
 
-        loadBannerByType(type, position, container, bannerId, shimmer, primary) { failedMessage ->
+        val shouldRefresh = forceRefresh || bannerAdsManager.isImpressed(container) || fbBannerAdsManager.isImpressed(container)
+
+        loadBannerByType(type, position, container, bannerId, shimmer, primary, shouldRefresh) { failedMessage ->
             if (fallback != null) {
                 val fallbackId = adId ?: adConfigRepository.getBannerAdUnitId(screen, position, fallback)
-                loadBannerByType(type, position, container, fallbackId, shimmer, fallback) {
+                loadBannerByType(type, position, container, fallbackId, shimmer, fallback, shouldRefresh) {
                     shimmer.visibility = View.GONE
                 }
             } else {
@@ -84,24 +87,25 @@ class BannerAdOrchestrator @Inject constructor(
         bannerId: String,
         shimmer: View,
         network: AdNetwork,
+        forceRefresh: Boolean,
         onFailed: (String) -> Unit
     ) {
         val onLoaded = { shimmer.visibility = View.GONE }
 
         when (type) {
             "a" -> if (network == AdNetwork.FACEBOOK) {
-                fbBannerAdsManager.loadAdaptiveBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = onFailed)
+                fbBannerAdsManager.loadAdaptiveBanner(container, bannerId, View.VISIBLE, forceRefresh, onLoaded, onAdFailed = onFailed)
             } else {
-                bannerAdsManager.loadAdaptiveBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed(it.message) })
+                bannerAdsManager.loadAdaptiveBanner(container, bannerId, View.VISIBLE, forceRefresh, onLoaded, onAdFailed = { onFailed(it.message) })
             }
 
             "r" -> if (network == AdNetwork.FACEBOOK) {
-                fbBannerAdsManager.loadRectangleAd(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = onFailed)
+                fbBannerAdsManager.loadRectangleAd(container, bannerId, View.VISIBLE, forceRefresh, onLoaded, onAdFailed = onFailed)
             } else {
-                bannerAdsManager.loadRectangleAd(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed(it.message) })
+                bannerAdsManager.loadRectangleAd(container, bannerId, View.VISIBLE, forceRefresh, onLoaded, onAdFailed = { onFailed(it.message) })
             }
 
-            "c" -> loadCollapsibleBanner(position, container, bannerId, onLoaded, network, onFailed)
+            "c" -> loadCollapsibleBanner(position, container, bannerId, onLoaded, network, forceRefresh, onFailed)
             else -> container.visibility = View.GONE
         }
     }
@@ -112,13 +116,14 @@ class BannerAdOrchestrator @Inject constructor(
         bannerId: String,
         onLoaded: () -> Unit,
         network: AdNetwork,
+        forceRefresh: Boolean,
         onFailed: (String) -> Unit
     ) {
         when (position) {
             "top" -> if (network == AdNetwork.FACEBOOK) {
-                fbBannerAdsManager.loadCollapsibleTopBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = onFailed)
+                fbBannerAdsManager.loadCollapsibleTopBanner(container, bannerId, View.VISIBLE, forceRefresh, onLoaded, onAdFailed = onFailed)
             } else {
-                bannerAdsManager.loadCollapsibleTopBanner(container, bannerId, View.VISIBLE, onLoaded, onAdFailed = { onFailed(it.message) })
+                bannerAdsManager.loadCollapsibleTopBanner(container, bannerId, View.VISIBLE, forceRefresh, onLoaded, onAdFailed = { onFailed(it.message) })
             }
 
             else -> container.visibility = View.GONE

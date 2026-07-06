@@ -16,7 +16,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.ads.di.AdsManagerEntryPoint
@@ -174,7 +173,12 @@ fun Fragment.loadNativeAds(
             return@launch
         }
 
-        adsManager.loadNativeAds(context, screen, configs, onEvent)
+        adsManager.loadNativeAds(
+            context = context,
+            screen = screen,
+            configs = configs,
+            onEvent = onEvent
+        )
     }
 }
 
@@ -380,7 +384,7 @@ fun Activity.loadBottomNative(
                     this@loadBottomNative,
                     nativeTargetScreen,
                     nativeConfigs,
-                    onEvent
+                    onEvent = onEvent
                 )
             }
         }

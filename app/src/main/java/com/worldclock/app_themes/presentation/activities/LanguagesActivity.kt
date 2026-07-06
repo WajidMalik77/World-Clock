@@ -96,9 +96,9 @@ class LanguagesActivity : BaseActivity() {
         val sharedPreferences = getSharedPreferences("MySharedPref", MODE_PRIVATE)
         val hasSavedLang = sharedPreferences.contains("lang")
         val initialPos = if (hasSavedLang && !isSplash) {
-            sharedPreferences.getInt("lang", -1).coerceIn(0, languages.lastIndex)
+            sharedPreferences.getInt("lang", 0).coerceIn(0, languages.lastIndex)
         } else {
-            -1
+            0
         }
         pos = initialPos
 

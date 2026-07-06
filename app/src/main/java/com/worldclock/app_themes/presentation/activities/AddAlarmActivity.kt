@@ -43,7 +43,7 @@ class AddAlarmActivity : BaseActivity() {
     private var isVib = false
     private var repeatedStrings = StringBuilder()
     private var selectedSnooze = 5
-    private var isAm = true  // ✅ AM/PM state
+    private var isAm = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,8 +60,6 @@ class AddAlarmActivity : BaseActivity() {
                 shimmer = binding.bannerContainer.bannerAdShimmer
             )
         }
-
-
 
         lifecycleScope.launch {
             nativeAdOrchestrator.loadNativeAds(
