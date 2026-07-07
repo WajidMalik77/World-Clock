@@ -8,7 +8,9 @@ data class AppConfig(
     val ads: Int = 1,
     @SerialName("app_open")
     val appOpen: AppOpenV2Config = AppOpenV2Config(),
-    val screens: ScreensV2 = ScreensV2()
+    val screens: ScreensV2 = ScreensV2(),
+    @SerialName("should_force_update")
+    val shouldForceUpdate: Int = 0
 )
 
 @Serializable

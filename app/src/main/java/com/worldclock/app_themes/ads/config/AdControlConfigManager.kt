@@ -201,6 +201,10 @@ class AdControlConfigManager(
         val app = configData?.app ?: return false
         return areAdsEnabled() && (isRemoteAdsOverrideEnabled() || app.appOpen.resume in 1..2)
     }
+    fun isForceUpdateEnabled(): Boolean {
+        return configData?.app?.shouldForceUpdate == 1
+    }
+
     fun getResumeMinBackgroundSeconds(): Int =
         configData?.app?.appOpen?.resumeMinBackgroundSeconds
             ?: 0

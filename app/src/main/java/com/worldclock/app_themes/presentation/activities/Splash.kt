@@ -1,16 +1,21 @@
 package com.worldclock.app_themes.presentation.activities
 
 import android.annotation.SuppressLint
+import android.app.Dialog
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.WindowManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.whenStarted
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.ads.config.AdControlConfigManager
 import com.worldclock.app_themes.ads.config.NativeAdConfigManager
@@ -37,12 +42,10 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import javax.inject.Inject
@@ -68,10 +71,18 @@ class Splash : BaseActivity() {
     private var splashAppOpenWarmupStarted = false
 
     private lateinit var appUpdateManager: AppUpdateManager
+    private var forceUpdateDialog: Dialog? = null
+    private var forceUpdateEnabled = false
 
     private val appUpdateLauncher =
-        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-            startMainActivity()
+        registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                startMainActivity()
+            } else if (forceUpdateEnabled || DEBUG_FORCE_UPDATE) {
+                showForceUpdateDialog()
+            } else {
+                startMainActivity()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -124,10 +135,15 @@ class Splash : BaseActivity() {
             // Phase 1: Run App Update + UMP consent + config preloads in parallel
             val updateInfoAsync = async { checkAppUpdateSuspending() }
             val umpConsentAsync = async { umpConsentManager.gatherConsent(this@Splash) }
-            val configAsync = async(Dispatchers.IO) {
-                runCatching {
-                    adConfigInitializer.preloadConfigs(false)
-                    FirebaseRemoteConfig.getInstance().fetchAndActivate().await()
+            val configAsync = async {
+                adConfigInitializer.preloadConfigs(false)
+                withTimeoutOrNull(15_000) {
+                    suspendCancellableCoroutine<Unit> { cont ->
+                        adConfigInitializer.setListener(
+                            onReady = { if (cont.isActive) cont.resume(Unit) },
+                            onFailed = { if (cont.isActive) cont.resume(Unit) }
+                        )
+                    }
                 }
             }
 
@@ -136,9 +152,20 @@ class Splash : BaseActivity() {
             configAsync.await()
 
             // Phase 1.5: Mandatory Update Check
+            val adControlConfigManager = EntryPointAccessors.fromActivity(
+                this@Splash,
+                AdConfigEntryPoint::class.java
+            ).adControlConfigManager()
+            forceUpdateEnabled = adControlConfigManager.isForceUpdateEnabled()
+
             if (updateInfo != null && shouldShowImmediateUpdate(updateInfo)) {
                 startImmediateUpdate(updateInfo)
                 return@launch // Stop ad flow, wait for update UI
+            }
+
+            if (DEBUG_FORCE_UPDATE || forceUpdateEnabled) {
+                showForceUpdateDialog()
+                return@launch
             }
 
             // Phase 2: Initialize MobileAds if consent granted
@@ -152,11 +179,6 @@ class Splash : BaseActivity() {
             if (!splashNativeEnabled) {
                 binding.action.visibility = View.VISIBLE
             }
-
-            val adControlConfigManager = EntryPointAccessors.fromActivity(
-                this@Splash,
-                AdConfigEntryPoint::class.java
-            ).adControlConfigManager()
 
             // If neither native nor app open ad is expected, navigate immediately
             if (!splashNativeExpected && !adControlConfigManager.shouldShowAppOpenSplash()) {
@@ -410,13 +432,70 @@ class Splash : BaseActivity() {
     }
 
     override fun onDestroy() {
+        forceUpdateDialog?.dismiss()
         AppEventLogger.trackScreenDestroy(this, "Splash")
         super.onDestroy()
+    }
+
+    private fun showForceUpdateDialog() {
+        if (forceUpdateDialog?.isShowing == true) return
+        val isDark = isDarkThemeEnabled()
+        val dialog = Dialog(this, R.style.TransparentDialog)
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+        val view = layoutInflater.inflate(R.layout.dialog_force_update, null)
+
+        val root = view.findViewById<android.widget.LinearLayout>(R.id.dialog_root)
+        val title = view.findViewById<android.widget.TextView>(R.id.update_title)
+        val message = view.findViewById<android.widget.TextView>(R.id.update_message)
+        val button = view.findViewById<android.widget.TextView>(R.id.update_button)
+
+        if (isDark) {
+            val darkBg = android.graphics.drawable.GradientDrawable().apply {
+                shape = android.graphics.drawable.GradientDrawable.RECTANGLE
+                setColor(Color.parseColor("#2D3137"))
+                cornerRadius = 14f * resources.displayMetrics.density
+            }
+            root.background = darkBg
+            title.setTextColor(Color.WHITE)
+            message.setTextColor(Color.parseColor("#B5B3BD"))
+        }
+
+        button.setOnClickListener { openAppInPlayStore() }
+
+        dialog.setContentView(view)
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        forceUpdateDialog = dialog
+        dialog.show()
+    }
+
+    private fun openAppInPlayStore() {
+        val marketIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")).apply {
+            setPackage("com.android.vending")
+        }
+        val webIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+        )
+        try {
+            startActivity(marketIntent)
+        } catch (_: ActivityNotFoundException) {
+            runCatching { startActivity(webIntent) }
+        }
+    }
+
+    private fun isDarkThemeEnabled(): Boolean {
+        val currentNightMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return currentNightMode == Configuration.UI_MODE_NIGHT_YES
     }
 
     companion object {
         private const val TAG_SPLASH_ADS = "SplashAdSequence"
         private const val SPLASH_NATIVE_IMPRESSION_GRACE_MS = 1200L
         private const val SPLASH_AD_SEQUENCE_TIMEOUT_MS = 24_000L
+        private const val DEBUG_FORCE_UPDATE = false
     }
 }

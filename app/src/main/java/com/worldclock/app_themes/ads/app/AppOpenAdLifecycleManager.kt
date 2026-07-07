@@ -136,6 +136,7 @@ class AppOpenAdLifecycleManager @Inject constructor(
     private fun preloadSplashAdInternal(
         onPrepared: ((Boolean) -> Unit)? = null
     ) {
+        Timber.tag(TAG_AO).d("Splash app open load called at time=%d", System.currentTimeMillis())
         try {
             val canRequestAds = canRequestAds()
             if (!canRequestAds || premiumRepository.isPremiumUser() || !adControlConfigManager.shouldShowAppOpenSplash()) {

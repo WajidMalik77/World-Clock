@@ -1,5 +1,6 @@
 package com.worldclock.app_themes.ads.helpers
 
+import timber.log.Timber
 import com.worldclock.app_themes.ads.config.AdControlConfigManager
 import com.worldclock.app_themes.ads.config.NativeAdConfigManager
 import javax.inject.Inject
@@ -85,6 +86,7 @@ class AdConfigInitializer @Inject constructor(
     private fun notifySuccess() {
         val snapshot = readyListeners.toList()
         clearCallbacks()
+        Timber.tag("ConfigTrace").d("Config fetch completed at time=%d", System.currentTimeMillis())
         snapshot.forEach { it.invoke() }
     }
 
