@@ -3,6 +3,11 @@ package com.worldclock.app_themes.ads.utils
 object GetFirebase {
 
     var toastForAds = false
+    var enable_interstitial_ads = false
+    var use_counter = false
+    var MIN_INTERVAL_MS = 1000
+    var time_delay_for_preloaded_interstitial: Long = 0
+    var time_delay_for_ondemand_interstitial: Long = 0
 
     // ══════════════════════════════════════
     // NATIVE AD STYLING — SPLASH
@@ -82,25 +87,11 @@ object GetFirebase {
     // ══════════════════════════════════════
     // AD IDs
     // ══════════════════════════════════════
-    var admobNativeAdID: String = ""
-    var admobBannerAdID: String = ""
-    var admobInterAdID: String = ""
-    var admobOpenAdID: String = ""
-    var SplashAppOpen: String = ""
-    var SplashInterstitial: String = ""
-    var OnboardingNativeBottom: String = ""
-
-    // ══════════════════════════════════════
-    // BANNER/NATIVE FLAGS (0=off, 1=banner, 2-3=collapsible, 4-9=native)
-    // ══════════════════════════════════════
-    var bannerAdSplashTop: Int = 0
-    var bannerAdSplashBottom: Int = 0
-    var bannerAdOnboardingScreenTop: Int = 0
-    var bannerAdOnboardingScreenBottom: Int = 0
-    var bannerAdLanguageScreenTop: Int = 0
-    var bannerAdLanguageScreenBottom: Int = 0
-    var bannerAdHomeFragmentTop: Int = 0
-    var bannerAdHomeFragmentBottom: Int = 0
+    var adIdSplash_interstitial = ""
+    var adIdLanguage_interstitial = ""
+    var adIdOnboarding_interstitial = ""
+    var adIdPremium_interstitial = ""
+    var adIdOther_interstitial = ""
 
 
 }
