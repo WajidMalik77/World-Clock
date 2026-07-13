@@ -1,5 +1,6 @@
 package com.worldclock.app_themes.presentation.activities
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -31,6 +32,7 @@ import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import com.worldclock.app_themes.ads.helpers.ui.BannerAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
 import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import dagger.hilt.android.EntryPointAccessors
 
@@ -58,6 +60,10 @@ class MainActivity : BaseActivity() {
         getSharedPreferences(PrefsName, MODE_PRIVATE).edit {
             putBoolean(isFirstTime, true)
         }
+
+        Utils.isPremium = PrefUtil(this).getBool("is_premium", false) ||
+                getSharedPreferences(LifeTimePref, Context.MODE_PRIVATE).getBoolean("premium", false)
+
 
         requestNotificationPermissionIfNeeded()
 

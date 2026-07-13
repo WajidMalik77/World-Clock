@@ -29,4 +29,9 @@
     <color name="orange">#FA702C</color>
     <color name="menu_card">#F6F6F6</color>
     <color name="blue">#007AFF</color>
+    <color name="yellow">#FFC107</color>
+
+    <color name="ad_text">#575757</color>
+
+
 </resources>

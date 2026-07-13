@@ -90,28 +90,28 @@ class AdsPref @Inject constructor(
     }
 
     fun isDebugToastBannerEnabled(): Boolean =
-        sharedPreferences.getBoolean("debug_toast_banner", false)
+        sharedPreferences.getBoolean("debug_toast_banner", true)
 
     fun setDebugToastBannerEnabled(enabled: Boolean) {
         sharedPreferences.edit { putBoolean("debug_toast_banner", enabled) }
     }
 
     fun isDebugToastNativeEnabled(): Boolean =
-        sharedPreferences.getBoolean("debug_toast_native", false)
+        sharedPreferences.getBoolean("debug_toast_native", true)
 
     fun setDebugToastNativeEnabled(enabled: Boolean) {
         sharedPreferences.edit { putBoolean("debug_toast_native", enabled) }
     }
 
     fun isDebugToastInterstitialEnabled(): Boolean =
-        sharedPreferences.getBoolean("debug_toast_interstitial", false)
+        sharedPreferences.getBoolean("debug_toast_interstitial", true)
 
     fun setDebugToastInterstitialEnabled(enabled: Boolean) {
         sharedPreferences.edit { putBoolean("debug_toast_interstitial", enabled) }
     }
 
     fun isDebugToastAppOpenEnabled(): Boolean =
-        sharedPreferences.getBoolean("debug_toast_appopen", false)
+        sharedPreferences.getBoolean("debug_toast_appopen", true)
 
     fun setDebugToastAppOpenEnabled(enabled: Boolean) {
         sharedPreferences.edit { putBoolean("debug_toast_appopen", enabled) }
