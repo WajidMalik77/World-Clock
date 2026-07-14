@@ -2,6 +2,7 @@ package com.worldclock.app_themes.presentation.activities
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -28,6 +29,14 @@ import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import dagger.hilt.android.EntryPointAccessors
 import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 
 @AndroidEntryPoint
 class MenuActivity : BaseActivity() {
@@ -47,45 +56,117 @@ class MenuActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "MenuScreen", "activity_lifecycle")
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@MenuActivity,
-                screen = "MenuScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_menuactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
         }
 
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@MenuActivity,
-                screen = "MenuScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_menuactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
         }
 
         binding.toolbar.back.setOnClickListener {
             AppEventLogger.trackButtonClick("MenuScreen", "back", "navigate_back", "menu_flow")
-            finish()
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_mainactivity_top, "top", this@MenuActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop
+            )
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_mainactivity_bottom, "bottom", this@MenuActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom
+            )
+
+
+            InterstitialAdManager.showIfReady(
+                this@MenuActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_MenuBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@MenuActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@MenuActivity, MainActivity::class.java))
+                    finish()
+                })
+
+
         }
         binding.toolbar.title.text = getString(R.string.settings1)
 
         binding.pro.setOnClickListener {
             AppEventLogger.trackButtonClick("MenuScreen", "go_premium", "navigate", "menu_flow")
-            startActivity(resolveManualPremiumIntent())
+
+            InterstitialAdManager.showIfReady(
+                this,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_MenuForward,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(resolveManualPremiumIntent())
+
+                },
+                {
+                    startActivity(resolveManualPremiumIntent())
+
+                })
+
+
         }
         binding.recycler.adapter = MenuAdapter(getMenuData()) {
             when (it) {
                 0 -> {
                     AppEventLogger.trackButtonClick("MenuScreen", "languages", "navigate", "menu_options")
-                    startActivity(Intent(this, LanguagesActivity::class.java))
+
+
+                    PreloadController.loadAdInBannerPosition(
+                        GetFirebase.banner_ad_languagesactivity_top, "top", this@MenuActivity,
+                        GetFirebase.adIdLanguagesActivity_bannerTop, GetFirebase.adIdLanguagesActivity_nativeTop
+                    )
+
+                    PreloadController.loadAdInBannerPosition(
+                        GetFirebase.banner_ad_languagesactivity_bottom, "bottom", this@MenuActivity,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom, GetFirebase.adIdLanguagesActivity_nativeBottom
+                    )
+
+                    InterstitialAdManager.showIfReady(
+                        this,
+                        InterstitialScreen.OTHER,
+                        GetFirebase.adIdOther_interstitial,
+                        if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                        GetFirebase.transition_MenuForward,
+                        GetFirebase.counter_interval,
+                        Utils.isPremium,
+                        GetFirebase.enable_interstitial_ads,
+                        {
+                            startActivity(Intent(this, LanguagesActivity::class.java))
+
+                        },
+                        {
+                            startActivity(Intent(this, LanguagesActivity::class.java))
+
+                        })
                 }
                 1 -> {
                     AppEventLogger.trackButtonClick("MenuScreen", "rate_us", "open_external", "menu_options")
@@ -109,6 +190,38 @@ class MenuActivity : BaseActivity() {
                     openPrivacyPolicy("https://styleappsworld.wordpress.com/world-clock-privacy-policy/")
                 }
             }
+        }
+
+        onBackPressedDispatcher.addCallback(this@MenuActivity){
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_mainactivity_top, "top", this@MenuActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop
+            )
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_mainactivity_bottom, "bottom", this@MenuActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom
+            )
+
+
+            InterstitialAdManager.showIfReady(
+                this@MenuActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_MenuBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@MenuActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@MenuActivity, MainActivity::class.java))
+                    finish()
+                })
+
         }
 
     }

@@ -1,8 +1,10 @@
 package com.worldclock.app_themes.presentation.activities
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.worldclock.app_themes.R
@@ -26,6 +28,14 @@ import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 @AndroidEntryPoint
@@ -51,29 +61,25 @@ class AddAlarmActivity : BaseActivity() {
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@AddAlarmActivity,
-                screen = "AddAlarmScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_addalarm_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
         }
 
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@AddAlarmActivity,
-                screen = "AddAlarmScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_addalarm_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
         }
+
 
         GradientTextHelper.apply(
             binding.save,
@@ -103,8 +109,30 @@ class AddAlarmActivity : BaseActivity() {
         updateAmPm()
 
         binding.toolbar.back.setOnClickListener {
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_top,"top",this@AddAlarmActivity,
+                GetFirebase.adIdAlarm_bannerTop, GetFirebase.adIdAlarm_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_bottom,"bottom",this@AddAlarmActivity,
+                GetFirebase.adIdAlarm_bannerBottom, GetFirebase.adIdAlarm_nativeBottom)
+
+            InterstitialAdManager.showIfReady(
+                this,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_AddAlarmBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                    finish()
+                })
             AppEventLogger.trackButtonClick("AddAlarmScreen", "back", "navigate_back", "alarm_flow")
-            finish()
         }
         binding.toolbar.title.text = getString(R.string.new_alarm)
         dao = WorldClockDatabase.getDatabase(this).alarmDao()
@@ -113,7 +141,30 @@ class AddAlarmActivity : BaseActivity() {
 
         binding.cancel.setOnClickListener {
             AppEventLogger.trackButtonClick("AddAlarmScreen", "cancel", "dismiss", "alarm_flow")
-            finish()
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_top,"top",this@AddAlarmActivity,
+                GetFirebase.adIdAlarm_bannerTop, GetFirebase.adIdAlarm_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_bottom,"bottom",this@AddAlarmActivity,
+                GetFirebase.adIdAlarm_bannerBottom, GetFirebase.adIdAlarm_nativeBottom)
+
+            InterstitialAdManager.showIfReady(
+                this,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_AddAlarmBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                    finish()
+                })
+
         }
 
         binding.vibRadio.setOnClickListener {
@@ -164,6 +215,23 @@ class AddAlarmActivity : BaseActivity() {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@AddAlarmActivity, "Alarm updated!", Toast.LENGTH_SHORT)
                                 .show()
+//                            InterstitialAdManager.showIfReady(
+//                                this@AddAlarmActivity,
+//                                InterstitialScreen.OTHER,
+//                                GetFirebase.adIdOther_interstitial,
+//                                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+//                                GetFirebase.transition_AddAlarmBack,
+//                                GetFirebase.counter_interval,
+//                                Utils.isPremium,
+//                                GetFirebase.enable_interstitial_ads,
+//                                {
+//                                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+//                                    finish()
+//                                },
+//                                {
+//                                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+//                                    finish()
+//                                })
                             finish()
                         }
                     } else {
@@ -174,6 +242,23 @@ class AddAlarmActivity : BaseActivity() {
                             else cancelAlarm(this@AddAlarmActivity, newAlarm)
                             Toast.makeText(this@AddAlarmActivity, "Alarm added!", Toast.LENGTH_SHORT)
                                 .show()
+//                            InterstitialAdManager.showIfReady(
+//                                this@AddAlarmActivity,
+//                                InterstitialScreen.OTHER,
+//                                GetFirebase.adIdOther_interstitial,
+//                                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+//                                GetFirebase.transition_AddAlarmBack,
+//                                GetFirebase.counter_interval,
+//                                Utils.isPremium,
+//                                GetFirebase.enable_interstitial_ads,
+//                                {
+//                                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+//                                    finish()
+//                                },
+//                                {
+//                                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+//                                    finish()
+//                                })
                             finish()
                         }
                     }
@@ -187,15 +272,63 @@ class AddAlarmActivity : BaseActivity() {
             if (isPremium) {
                 saveAction()
             } else {
-                safeShowInterstitialAction(
-                    screenName = "AddAlarmScreen",
-                    trigger = "save",
-                    noCounterNeeded = false,
-                    afterAd = saveAction
-                )
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_top,"top",this,
+                    GetFirebase.adIdAlarm_bannerTop, GetFirebase.adIdAlarm_nativeTop)
+
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_bottom,"bottom",this,
+                    GetFirebase.adIdAlarm_bannerBottom, GetFirebase.adIdAlarm_nativeBottom)
+
+
+                InterstitialAdManager.showIfReady(
+                    this,
+                    InterstitialScreen.OTHER,
+                    GetFirebase.adIdOther_interstitial,
+                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                    GetFirebase.transition_AddAlarmBack,
+                    GetFirebase.counter_interval,
+                    Utils.isPremium,
+                    GetFirebase.enable_interstitial_ads,
+                    {
+                        startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                        finish()
+                    },
+                    {
+                        startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                        finish()
+                    })
             }
         }
         setupDaySelector()
+
+
+        onBackPressedDispatcher.addCallback(this) {
+            // Handle back press
+            // e.g., show confirmation dialog, navigate, etc.
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_top,"top",this@AddAlarmActivity,
+                GetFirebase.adIdAlarm_bannerTop, GetFirebase.adIdAlarm_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_alarmactivity_bottom,"bottom",this@AddAlarmActivity,
+                GetFirebase.adIdAlarm_bannerBottom, GetFirebase.adIdAlarm_nativeBottom)
+
+            InterstitialAdManager.showIfReady(
+                this@AddAlarmActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_AddAlarmBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+                    finish()
+                })
+        }
+
     }
 
     // ✅ AM/PM setup
@@ -262,6 +395,8 @@ class AddAlarmActivity : BaseActivity() {
             }
         }
     }
+
+
 
     private fun setDayName(pos: Int) = when (pos) {
         1 -> "SUN,"; 2 -> "MON,"; 3 -> "TUE,"; 4 -> "WED,"

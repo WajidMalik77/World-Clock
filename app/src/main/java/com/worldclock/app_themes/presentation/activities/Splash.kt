@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.lifecycle.Lifecycle
@@ -34,12 +35,26 @@ import com.worldclock.app_themes.core.utils.AdsConstants.isFirstTime
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import androidx.activity.result.contract.ActivityResultContracts
+import com.google.android.gms.ads.MobileAds
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.AppOpenAdManager
+import com.worldclock.app_themes.ads.preload.AppOpenScreen
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.FetchRemoteConfig
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
+import com.worldclock.app_themes.ads.utils.Utils.isPremium
+import com.worldclock.app_themes.core.utils.AdsConstants
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.async
@@ -108,7 +123,8 @@ class Splash : BaseActivity() {
         }
 
         binding.splashImage.setImageResource(R.drawable.ic_splash)
-
+        binding.adsContainerTop.adTextAdvertisementTop.visibility = View.INVISIBLE
+        binding.adsContainerBottom.adTextAdvertisementBottom.visibility = View.INVISIBLE
         startProgressBar()
         startSplashFlow()
     }
@@ -152,11 +168,11 @@ class Splash : BaseActivity() {
             configAsync.await()
 
             // Phase 1.5: Mandatory Update Check
-            val adControlConfigManager = EntryPointAccessors.fromActivity(
-                this@Splash,
-                AdConfigEntryPoint::class.java
-            ).adControlConfigManager()
-            forceUpdateEnabled = adControlConfigManager.isForceUpdateEnabled()
+//            val adControlConfigManager = EntryPointAccessors.fromActivity(
+//                this@Splash,
+//                AdConfigEntryPoint::class.java
+//            ).adControlConfigManager()
+            forceUpdateEnabled = false
 
             if (updateInfo != null && shouldShowImmediateUpdate(updateInfo)) {
                 startImmediateUpdate(updateInfo)
@@ -170,51 +186,68 @@ class Splash : BaseActivity() {
 
             // Phase 2: Initialize MobileAds if consent granted
             if (canRequestAds) {
-                adsManager.initializeIfNeeded()
-                adsManager.awaitInitialization()
+                FetchRemoteConfig.fetchAndApply {
+                    initializedAds()
+                }
+
             }
 
-            // Phase 3: Evaluate splash native gate
-            configureSplashNativeGate()
-            if (!splashNativeEnabled) {
-                binding.action.visibility = View.VISIBLE
-            }
 
-            // If neither native nor app open ad is expected, navigate immediately
-            if (!splashNativeExpected && !adControlConfigManager.shouldShowAppOpenSplash()) {
-                startMainActivity()
-                return@launch
-            }
 
-            // Phase 4: Ad request strategy. If native splash is enabled, preload the native ad.
-            // In parallel, we warm up/preload the splash app-open ad in the background.
-            // The CTA is revealed after native ad finishes loading or is unavailable.
-            if (splashNativeEnabled) {
-                Timber.tag(TAG_SPLASH_ADS).d("parallel load start: splash native + splash app-open warmup")
-                startSplashAppOpenWarmupForCta()
-                val completed = withTimeoutOrNull(SPLASH_AD_SEQUENCE_TIMEOUT_MS) {
-                    preloadSplashNativeAdSuspending()
-                }
-                if (completed == null) {
-                    Timber.tag(TAG_SPLASH_ADS).w("splash native ad preload timed out")
-                }
-            } else {
-                withTimeoutOrNull(15_000) {
-                    preloadSplashAppOpenAdSuspending()
-                }
-            }
-
-            // Phase 5: Show CTA or auto-navigate
-            lifecycle.whenStarted {
-                if (lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) {
-                    if (splashNativeEnabled) {
-                        showGetStartedCta()
-                    } else {
-                        continueAfterAds()
-                    }
-                }
-            }
         }
+    }
+
+    fun initializedAds() {
+        MobileAds.initialize(this)
+
+        if (GetFirebase.transition_splash_ad_type == 1){
+            AppOpenAdManager().loadSplash(this, GetFirebase.adIdSplash_appopen)
+        }
+        else if (GetFirebase.transition_splash_ad_type == 2){
+            InterstitialAdManager.loadSplash(this, GetFirebase.adIdSplash_interstitial)
+        }
+
+
+        if (GetFirebase.open_ad_from_background){
+            AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
+        }
+
+        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_splashactivity_top,"top",this,
+            GetFirebase.adIdSplash_bannerTop, GetFirebase.adIdSplash_nativeTop)
+
+        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_splashactivity_bottom,"bottom",this,
+            GetFirebase.adIdSplash_bannerBottom, GetFirebase.adIdSplash_nativeBottom)
+
+        Log.d("bannerAdSplashTop", GetFirebase.banner_ad_splashactivity_top.toString())
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.adsContainerTop.bannerTopContainer,binding.adsContainerTop.adVeiwTop,binding.adsContainerTop.adTextAdvertisementTop,
+            GetFirebase.banner_ad_splashactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainerBottom.bannerBottomContainer,binding.adsContainerBottom.adVeiwBottom,binding.adsContainerBottom.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_splashactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
+
+        Handler().postDelayed(object : Runnable{
+            override fun run() {
+                showGetStartedCta()
+
+            }
+
+        },10000)
+
+
+
     }
 
     // ---------------------------------------------------------------------------
@@ -229,80 +262,6 @@ class Splash : BaseActivity() {
         appOpenManager.preloadSplashAd {
             if (cont.isActive) cont.resume(Unit)
         }
-    }
-
-    private suspend fun preloadSplashNativeAdSuspending() = suspendCancellableCoroutine<Unit> { cont ->
-        if (!splashNativeEnabled) {
-            loadBottomNative(
-                screen = "SplashScreen",
-                topNativeLayout = binding.adsContainerTop.root,
-                bottomLayout = binding.adsContainerBottom.root,
-                loadBannerAds = false
-            )
-            if (cont.isActive) cont.resume(Unit)
-            return@suspendCancellableCoroutine
-        }
-
-        var resolved = false
-        val pendingPositions = splashNativeExpectedPositions.toMutableSet()
-        fun resumeOnce() {
-            if (!resolved && cont.isActive) {
-                resolved = true
-                cont.resume(Unit)
-            }
-        }
-        fun markPositionResolved(position: String) {
-            pendingPositions.remove(position.lowercase())
-            if (pendingPositions.isEmpty()) {
-                resumeOnce()
-            }
-        }
-
-        loadBottomNative(
-            screen = "SplashScreen",
-            topNativeLayout = binding.adsContainerTop.root,
-            bottomLayout = binding.adsContainerBottom.root,
-            loadBannerAds = false,
-            onEvent = { event ->
-                when (event) {
-                    is NativeAdEvent.Loaded -> {
-                        splashNativeLoaded = true
-                        startSplashAppOpenWarmupForCta()
-                        lifecycleScope.launch {
-                            delay(SPLASH_NATIVE_IMPRESSION_GRACE_MS)
-                            markPositionResolved(event.position)
-                        }
-                    }
-                    is NativeAdEvent.Impression -> {
-                        markPositionResolved(event.position)
-                    }
-                    is NativeAdEvent.Failed -> markPositionResolved(event.position)
-                    is NativeAdEvent.Off -> markPositionResolved(event.position)
-                    NativeAdEvent.AllOffFromConfig -> resumeOnce()
-                }
-            }
-        )
-    }
-
-
-    private fun configureSplashNativeGate() {
-        val nativeConfigManager = EntryPointAccessors.fromActivity(
-            this,
-            AdConfigEntryPoint::class.java
-        ).nativeAdConfigManager()
-
-        if (nativeConfigManager.getConfig() == null) {
-            splashNativeExpected = false
-            splashNativeEnabled = false
-            return
-        }
-
-        val expectedPositions = listOf("top", "bottom").filter { position ->
-            nativeConfigManager.isNativeVisible("SplashScreen", position)
-        }
-        splashNativeExpectedPositions = expectedPositions.map { it.lowercase() }.toSet()
-        splashNativeExpected = expectedPositions.isNotEmpty()
-        splashNativeEnabled  = splashNativeExpected
     }
 
     // ---------------------------------------------------------------------------
@@ -341,9 +300,39 @@ class Splash : BaseActivity() {
     }
 
     private fun continueAfterAds() {
-        showSplashAppOpenThen { appOpenAdShown ->
-            startMainActivity(showInterstitial = !appOpenAdShown)
+
+
+
+        if (GetFirebase.transition_splash_ad_type == 1){
+            preloadAds(this, "splash")
+            AppOpenAdManager().showIfAvailable(this@Splash, AppOpenScreen.SPLASH,
+                true, isPremium = isPremium, true, {
+                    startMainActivity(showInterstitial = false)
+                }, {
+                    InterstitialAdManager.showWithoutCounter(this@Splash,
+                        InterstitialScreen.SPLASH, GetFirebase.adIdSplash_interstitial,
+                        AdLoadMode.ON_DEMAND,1,isPremium, true, {
+                            startMainActivity(showInterstitial = false)
+                        },{
+                            startMainActivity(showInterstitial = false)
+                        })
+                })
         }
+        else if (GetFirebase.transition_splash_ad_type == 2){
+            preloadAds(this, "splash")
+            InterstitialAdManager.showWithoutCounter(this@Splash,
+                InterstitialScreen.SPLASH, GetFirebase.adIdSplash_interstitial,
+                AdLoadMode.PRELOADED,1,isPremium, true, {
+                    startMainActivity(showInterstitial = false)
+                },{
+                    startMainActivity(showInterstitial = false)
+                })
+        }
+        else{
+            preloadAds(this, "splash")
+            startMainActivity(showInterstitial = false)
+        }
+
     }
 
     private fun showSplashAppOpenThen(afterAd: (appOpenAdShown: Boolean) -> Unit) {
@@ -377,12 +366,7 @@ class Splash : BaseActivity() {
             || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
 
         val proceed = {
-            val cfg = EntryPointAccessors.fromActivity(
-                this,
-                AdConfigEntryPoint::class.java
-            ).adControlConfigManager()
-
-            startActivity(cfg.getNextScreenIntent(this, "splash"))
+            startActivity(getNextScreenIntent(this, "splash"))
             finish()
         }
 
@@ -403,6 +387,377 @@ class Splash : BaseActivity() {
             proceed()
         }
     }
+
+    fun getNextScreenIntent(context: Context, currentScreen: String): Intent {
+        val isFirstLaunch = !context.getSharedPreferences(AdsConstants.PrefsName, Context.MODE_PRIVATE)
+            .getBoolean(AdsConstants.isFirstTime, false)
+
+        if (Utils.isPremium) {
+            return Intent(context, MainActivity::class.java)
+        }
+
+       when (currentScreen) {
+            "splash" -> {
+                if (isFirstLaunch){
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerTop,
+                        GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom,
+                        GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                    return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+
+                        return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                    }
+                    else{
+                        if (Utils.isPremium){
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+                            }
+                            else{
+
+                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                            }
+                        }
+
+                    }
+                }
+            }
+            "languages" -> {
+                if (isFirstLaunch){
+                    return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                    }
+                    else{
+                        if (Utils.isPremium){
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+                            }
+                            else{
+                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                            }
+                        }
+
+                    }
+                }
+            }
+            "intro" -> {
+                if (isFirstLaunch){
+                    return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                    }
+                    else{
+                        if (Utils.isPremium){
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+                            }
+                            else{
+                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                            }
+                        }
+
+                    }
+                }
+            }
+            "premium" -> {
+                if (isFirstLaunch){
+                    return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                    }
+                    else{
+                        if (Utils.isPremium){
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+                            }
+                            else{
+                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                            }
+                        }
+
+                    }
+                }
+            }
+            else -> {
+                if (isFirstLaunch){
+                    return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        return Intent(context, LanguagesActivity::class.java).putExtra("isSplash", true)
+                    }
+                    else{
+                        if (Utils.isPremium){
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+                            }
+                            else{
+                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    fun preloadAds(context: Context, currentScreen: String) {
+        val isFirstLaunch = !context.getSharedPreferences(AdsConstants.PrefsName, Context.MODE_PRIVATE)
+            .getBoolean(AdsConstants.isFirstTime, false)
+
+
+        when (currentScreen) {
+            "splash" -> {
+                if (isFirstLaunch){
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerTop,
+                        GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom,
+                        GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerTop,
+                            GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerBottom,
+                            GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                    }
+                    else{
+                        if (Utils.isPremium){
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                            }
+                            else{
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerTop,
+                                    GetFirebase.adIdMainActivity_nativeTop)
+
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerBottom,
+                                    GetFirebase.adIdMainActivity_nativeBottom)
+
+                            }
+                        }
+
+                    }
+                }
+            }
+            "languages" -> {
+                if (isFirstLaunch){
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerTop,
+                        GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom,
+                        GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerTop,
+                            GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerBottom,
+                            GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                    }
+                    else{
+                        if (Utils.isPremium){
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                            }
+                            else{
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerTop,
+                                    GetFirebase.adIdMainActivity_nativeTop)
+
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerBottom,
+                                    GetFirebase.adIdMainActivity_nativeBottom)
+
+                            }
+                        }
+
+                    }
+                }
+            }
+            "intro" -> {
+                if (isFirstLaunch){
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerTop,
+                        GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom,
+                        GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerTop,
+                            GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerBottom,
+                            GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                    }
+                    else{
+                        if (Utils.isPremium){
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                            }
+                            else{
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerTop,
+                                    GetFirebase.adIdMainActivity_nativeTop)
+
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerBottom,
+                                    GetFirebase.adIdMainActivity_nativeBottom)
+
+                            }
+                        }
+
+                    }
+                }
+            }
+            "premium" -> {
+                if (isFirstLaunch){
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerTop,
+                        GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom,
+                        GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerTop,
+                            GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerBottom,
+                            GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                    }
+                    else{
+                        if (Utils.isPremium){
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                            }
+                            else{
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerTop,
+                                    GetFirebase.adIdMainActivity_nativeTop)
+
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerBottom,
+                                    GetFirebase.adIdMainActivity_nativeBottom)
+
+                            }
+                        }
+
+                    }
+                }
+            }
+            else -> {
+                if (isFirstLaunch){
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerTop,
+                        GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                        GetFirebase.adIdLanguagesActivity_bannerBottom,
+                        GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                }
+                else{
+                    if (GetFirebase.show_language_for_retained_user){
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_top,"top",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerTop,
+                            GetFirebase.adIdLanguagesActivity_nativeTop)
+
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_languagesactivity_bottom,"bottom",this@Splash,
+                            GetFirebase.adIdLanguagesActivity_bannerBottom,
+                            GetFirebase.adIdLanguagesActivity_nativeBottom)
+
+                    }
+                    else{
+                        if (Utils.isPremium){
+                        }
+                        else{
+                            if (GetFirebase.show_premium_for_retained_user){
+                            }
+                            else{
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerTop,
+                                    GetFirebase.adIdMainActivity_nativeTop)
+
+                                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@Splash,
+                                    GetFirebase.adIdMainActivity_bannerBottom,
+                                    GetFirebase.adIdMainActivity_nativeBottom)
+
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
 
     private suspend fun checkAppUpdateSuspending(): AppUpdateInfo? = suspendCancellableCoroutine { cont ->
         appUpdateManager.appUpdateInfo

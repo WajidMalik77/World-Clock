@@ -1,8 +1,10 @@
 package com.worldclock.app_themes.presentation.activities
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,6 +25,14 @@ import javax.inject.Inject
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import androidx.lifecycle.lifecycleScope
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -55,34 +65,89 @@ class StopWatchActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "StopwatchScreen", "activity_lifecycle")
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@StopWatchActivity,
-                screen = "StopwatchScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
+
+        binding.toolbar.back.setOnClickListener {
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@StopWatchActivity,
+                GetFirebase.adIdMainActivity_bannerTop,
+                GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@StopWatchActivity,
+                GetFirebase.adIdMainActivity_bannerBottom,
+                GetFirebase.adIdMainActivity_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@StopWatchActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_StopWatchBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@StopWatchActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@StopWatchActivity, MainActivity::class.java))
+                    finish()
+                })
+
         }
 
+        onBackPressedDispatcher.addCallback {
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@StopWatchActivity,
+                GetFirebase.adIdMainActivity_bannerTop,
+                GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@StopWatchActivity,
+                GetFirebase.adIdMainActivity_bannerBottom,
+                GetFirebase.adIdMainActivity_nativeBottom)
 
 
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@StopWatchActivity,
-                screen = "StopwatchScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
+
+            InterstitialAdManager.showIfReady(
+                this@StopWatchActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_StopWatchBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@StopWatchActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@StopWatchActivity, MainActivity::class.java))
+                    finish()
+                })
         }
 
-        binding.toolbar.back.setOnClickListener { finish() }
         binding.toolbar.title.text = getString(R.string.stop_watch)
+
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_stopwatchactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_stopwatchactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
 
 
         GradientTextHelper.apply(

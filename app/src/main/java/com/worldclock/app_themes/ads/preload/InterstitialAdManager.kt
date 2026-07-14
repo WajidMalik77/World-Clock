@@ -17,6 +17,8 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.GetFirebase.MIN_INTERVAL_MS
+import com.worldclock.app_themes.ads.utils.Utils
+import com.worldclock.app_themes.core.analytics.AppEventLogger
 import com.worldclock.app_themes.databinding.DialogTimerBinding
 import com.worldclock.app_themes.databinding.LoadingAdDialogBinding
 
@@ -153,6 +155,7 @@ object InterstitialAdManager {
             AdRequest.Builder().build(),
             object : InterstitialAdLoadCallback() {
                 override fun onAdLoaded(ad: InterstitialAd) {
+                    Utils.showMessage(context, "interstitial loaded")
 
                     setAd(screen, ad)
                 }
@@ -429,6 +432,9 @@ object InterstitialAdManager {
                         isOnDemandLoading = false
                         onDemandAd = ad
 
+                        Utils.showMessage(activity, "interstitial loaded")
+
+
                         if (activity.isFinishing) {
                             onFailed()
                             return
@@ -479,6 +485,7 @@ object InterstitialAdManager {
                         handler.removeCallbacks(timeoutRunnable)
                         isOnDemandLoading = false
                         onDemandAd = ad
+                        Utils.showMessage(activity, "interstitial loaded")
 
                         if (activity.isFinishing) {
                             dismissDialog(dialog, activity)
@@ -518,6 +525,8 @@ object InterstitialAdManager {
     ) {
         ad.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdShowedFullScreenContent() {
+                Utils.showMessage(activity, "interstitial showed")
+
                 isAdVisible = true
             }
 
@@ -532,6 +541,8 @@ object InterstitialAdManager {
                 } else {
                     onDemandAd = null
                 }
+                Utils.showMessage(activity, "interstitial dismissed")
+
 
                 onDismiss()
             }
@@ -552,6 +563,15 @@ object InterstitialAdManager {
                 super.onAdClicked()
             }
         }
+        ad.setOnPaidEventListener { adValue ->
+            // Then pass it
+            AppEventLogger.logCustomImpressions(
+                activity, // 'this' in Activity
+                adValue = adValue,
+                adUnitId = ad?.adUnitId.toString(),
+                adFormat = "native"
+            )
+        }
 
         ad.show(activity)
     }
@@ -563,27 +583,21 @@ object InterstitialAdManager {
     private fun createLoadingDialog(activity: Activity): AlertDialog? {
         if (activity.isFinishing) return null
 
-        try {
+        val binding = LoadingAdDialogBinding.inflate(LayoutInflater.from(activity))
 
+        val dialog = AlertDialog.Builder(activity)
+            .setView(binding.root)
+            .setCancelable(false)
+            .create()
 
-            val binding = LoadingAdDialogBinding.inflate(LayoutInflater.from(activity))
+        dialog.show()
 
-            val dialog = AlertDialog.Builder(activity)
-                .setView(binding.root)
-                .setCancelable(false)
-                .create()
-
-            dialog.show()
-
-            dialog.window?.apply {
-                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-                decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
-            }
-
-            return dialog
-        } catch (e: Exception) {
-            return null
+        dialog.window?.apply {
+            setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            decorView.layoutDirection = View.LAYOUT_DIRECTION_LTR
         }
+
+        return dialog
     }
 
     private fun dismissDialog(dialog: AlertDialog, activity: Activity) {

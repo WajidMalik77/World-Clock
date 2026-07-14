@@ -10,7 +10,7 @@
     <!-- Top native ad container -->
     <include
         android:id="@+id/ads_container_top"
-        layout="@layout/layout_bottom_native"
+        layout="@layout/layout_top_banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"

@@ -35,16 +35,16 @@ class AdControlConfigManager(
     }
 
     init {
-        configData = AdControlConfig()
-        val timeOut = if (BuildConfig.DEBUG) 0 else 300
-        val configSettings = FirebaseRemoteConfigSettings.Builder()
-            .setMinimumFetchIntervalInSeconds(timeOut.toLong())
-            .build()
-
-        firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
-            .addOnFailureListener {
-                Timber.e(it, "Remote Config settings failed")
-            }
+//        configData = AdControlConfig()
+//        val timeOut = if (BuildConfig.DEBUG) 0 else 300
+//        val configSettings = FirebaseRemoteConfigSettings.Builder()
+//            .setMinimumFetchIntervalInSeconds(timeOut.toLong())
+//            .build()
+//
+//        firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
+//            .addOnFailureListener {
+//                Timber.e(it, "Remote Config settings failed")
+//            }
     }
 
     fun fetchAdConfig() {

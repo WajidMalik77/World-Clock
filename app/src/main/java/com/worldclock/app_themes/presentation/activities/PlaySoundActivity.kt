@@ -1,9 +1,11 @@
 package com.worldclock.app_themes.presentation.activities
 
+import android.content.Intent
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.addCallback
 import com.bumptech.glide.Glide
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.databinding.ActivityPlaySoundBinding
@@ -13,6 +15,14 @@ import javax.inject.Inject
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import androidx.lifecycle.lifecycleScope
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import kotlinx.coroutines.launch
 
@@ -46,31 +56,6 @@ class PlaySoundActivity : BaseActivity() {
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@PlaySoundActivity,
-                screen = "PlaySoundScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@PlaySoundActivity,
-                screen = "PlaySoundScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
 
         val soundName = intent.getStringExtra("sound_name") ?: ""
         val previewUrl = intent.getStringExtra("preview_url") ?: ""
@@ -81,10 +66,92 @@ class PlaySoundActivity : BaseActivity() {
         binding.tvTitle.text = soundName
         binding.ivBack.setOnClickListener {
             AppEventLogger.trackButtonClick("PlaySoundScreen", "back", "navigate_back", "sleep_sound_flow")
-            finish()
+
+
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_sleepsoundactivity_top, "top", this@PlaySoundActivity,
+                GetFirebase.adIdSleepSound_bannerTop, GetFirebase.adIdSleepSound_nativeTop
+            )
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_sleepsoundactivity_bottom, "bottom", this@PlaySoundActivity,
+                GetFirebase.adIdSleepSound_bannerBottom, GetFirebase.adIdSleepSound_nativeBottom
+            )
+
+
+            InterstitialAdManager.showIfReady(
+                this@PlaySoundActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_PlaySoundBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@PlaySoundActivity, SleepSoundActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@PlaySoundActivity, SleepSoundActivity::class.java))
+                    finish()
+                })
+
+        }
+
+        onBackPressedDispatcher.addCallback(this){
+
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_sleepsoundactivity_top, "top", this@PlaySoundActivity,
+                GetFirebase.adIdSleepSound_bannerTop, GetFirebase.adIdSleepSound_nativeTop
+            )
+
+            PreloadController.loadAdInBannerPosition(
+                GetFirebase.banner_ad_sleepsoundactivity_bottom, "bottom", this@PlaySoundActivity,
+                GetFirebase.adIdSleepSound_bannerBottom, GetFirebase.adIdSleepSound_nativeBottom
+            )
+
+
+            InterstitialAdManager.showIfReady(
+                this@PlaySoundActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_PlaySoundBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@PlaySoundActivity, SleepSoundActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@PlaySoundActivity, SleepSoundActivity::class.java))
+                    finish()
+                })
         }
 
         startPlayback(previewUrl)
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_playsoundactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_playsoundactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
 
         binding.btnPlayPause.setOnClickListener {
             AppEventLogger.trackButtonClick(

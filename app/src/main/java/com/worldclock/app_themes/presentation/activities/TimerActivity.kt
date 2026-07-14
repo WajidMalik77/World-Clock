@@ -1,6 +1,7 @@
 package com.worldclock.app_themes.presentation.activities
 
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.NumberPicker
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -25,6 +27,14 @@ import javax.inject.Inject
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import androidx.lifecycle.lifecycleScope
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -54,32 +64,6 @@ class TimerActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "TimerScreen", "activity_lifecycle")
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@TimerActivity,
-                screen = "TimerScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@TimerActivity,
-                screen = "TimerScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
-
         GradientTextHelper.apply(
             binding.stopWatchTime,
             Color.parseColor("#7441D0"),
@@ -87,9 +71,46 @@ class TimerActivity : BaseActivity() {
             direction = GradientTextHelper.Direction.LEFT_RIGHT
         )
 
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_timeractivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_timeractivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
+
+
         binding.toolbar.title.text = getString(R.string.timer)
         binding.toolbar.back.setOnClickListener {
-            finish()
+
+            InterstitialAdManager.showIfReady(
+                this@TimerActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_TimerBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@TimerActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@TimerActivity, MainActivity::class.java))
+                    finish()
+                })
+
         }
         binding.progressBar.isEnabled = false
 //        addTimer()
@@ -109,6 +130,37 @@ class TimerActivity : BaseActivity() {
 
             }
         })
+
+        onBackPressedDispatcher.addCallback(this){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_timeractivity_top,"top",this@TimerActivity,
+                GetFirebase.adIdTimer_bannerTop,
+                GetFirebase.adIdTimer_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_timeractivity_bottom,"bottom",this@TimerActivity,
+                GetFirebase.adIdTimer_bannerBottom,
+                GetFirebase.adIdTimer_nativeBottom)
+
+
+
+            InterstitialAdManager.showIfReady(
+                this@TimerActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_TimerBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@TimerActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@TimerActivity, MainActivity::class.java))
+                    finish()
+                })
+        }
 
         binding.addTimerBtn.setOnClickListener(View.OnClickListener {
 

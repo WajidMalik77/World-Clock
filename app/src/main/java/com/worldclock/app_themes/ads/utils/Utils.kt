@@ -6,7 +6,10 @@ import android.widget.Toast
 
 object Utils {
     fun showMessage(context: Context, string: String) {
-        Toast.makeText(context, string, Toast.LENGTH_SHORT).show()
+        if (GetFirebase.toastForAds){
+            Toast.makeText(context, string, Toast.LENGTH_SHORT).show()
+
+        }
     }
 
     var isPremium = false

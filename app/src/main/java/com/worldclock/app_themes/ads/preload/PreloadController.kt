@@ -1,10 +1,13 @@
 package com.worldclock.app_themes.ads.preload
 
 import android.content.Context
+import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -12,7 +15,35 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import com.google.ads.mediation.admob.AdMobAdapter
+import com.google.android.gms.ads.AdListener
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
+import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
+import com.worldclock.app_themes.core.analytics.AppEventLogger
+import com.worldclock.app_themes.presentation.activities.AddAlarmActivity
+import com.worldclock.app_themes.presentation.activities.AddAllRemindersActivity
+import com.worldclock.app_themes.presentation.activities.AddClockActivity
+import com.worldclock.app_themes.presentation.activities.AddReminderActiviity
+import com.worldclock.app_themes.presentation.activities.AddWidgetActivity
+import com.worldclock.app_themes.presentation.activities.AlarmActivity
+import com.worldclock.app_themes.presentation.activities.AllRemindersActivity
+import com.worldclock.app_themes.presentation.activities.ClockActivity
+import com.worldclock.app_themes.presentation.activities.CompassActivity
+import com.worldclock.app_themes.presentation.activities.ExitActivity
+import com.worldclock.app_themes.presentation.activities.LanguagesActivity
+import com.worldclock.app_themes.presentation.activities.MainActivity
+import com.worldclock.app_themes.presentation.activities.MenuActivity
+import com.worldclock.app_themes.presentation.activities.OnBoardingActivity
+import com.worldclock.app_themes.presentation.activities.PlaySoundActivity
+import com.worldclock.app_themes.presentation.activities.SleepSoundActivity
+import com.worldclock.app_themes.presentation.activities.Splash
+import com.worldclock.app_themes.presentation.activities.StopWatchActivity
+import com.worldclock.app_themes.presentation.activities.TimerActivity
+import com.worldclock.app_themes.presentation.activities.WidgetActivity
 
 object PreloadController {
 
@@ -217,6 +248,7 @@ object PreloadController {
         adPosition: String,
         window: Window,
         liveDataNative: MutableLiveData<Boolean>,
+        adIDCollapsible: String = "",
         callback: () -> Unit
     )
     {
@@ -248,12 +280,13 @@ object PreloadController {
 
                 2 -> {
                     //collapsible top
-                    callback.invoke()
+                    loadCollapsibleBanner(context as AppCompatActivity,adLayout, adIDCollapsible, textView, "top")
                 }
 
                 3 -> {
                     //collapsible bottom
-                    callback.invoke()
+                    loadCollapsibleBanner(context as AppCompatActivity,adLayout, adIDCollapsible, textView, "bottom")
+
                 }
 
                 4 -> {
@@ -402,12 +435,13 @@ object PreloadController {
 
                 2 -> {
                     //collapsible top
-                    callback.invoke()
+                    loadCollapsibleBanner(context as AppCompatActivity,adLayout, adIDCollapsible, textView, "top")
                 }
 
                 3 -> {
                     //collapsible bottom
-                    callback.invoke()
+                    loadCollapsibleBanner(context as AppCompatActivity,adLayout, adIDCollapsible, textView, "bottom")
+
                 }
 
                 4 -> {
@@ -687,6 +721,107 @@ object PreloadController {
 
     }
 
+    private fun getCollapsibleAdId(context: AppCompatActivity, isTop: Boolean): String {
+        return when (context) {
+            is Splash -> if (isTop) GetFirebase.adIdSplash_collapsibleTop else GetFirebase.adIdSplash_collapsibleBottom
+            is AddAlarmActivity -> if (isTop) GetFirebase.adIdAddAlarm_collapsibleTop else GetFirebase.adIdAddAlarm_collapsibleBottom
+            is AddAllRemindersActivity -> {
+                if (isTop) GetFirebase.adIdAddAllReminders_collapsibleTop else GetFirebase.adIdAddAllReminders_collapsibleBottom
+            }
+            is AddClockActivity -> if (isTop) GetFirebase.adIdAddClock_collapsibleTop else GetFirebase.adIdAddClock_collapsibleBottom
+            is AddReminderActiviity -> if (isTop) GetFirebase.adIdAddReminder_collapsibleTop else GetFirebase.adIdAddReminder_collapsibleBottom
+            is AddWidgetActivity -> if (isTop) GetFirebase.adIdAddWidget_collapsibleTop else GetFirebase.adIdAddWidget_collapsibleBottom
+            is AlarmActivity -> if (isTop) GetFirebase.adIdAlarm_collapsibleTop else GetFirebase.adIdAlarm_collapsibleBottom
+            is AllRemindersActivity -> if (isTop) GetFirebase.adIdAllReminders_collapsibleTop else GetFirebase.adIdAllReminders_collapsibleBottom
+            is ClockActivity -> if (isTop) GetFirebase.adIdClock_collapsibleTop else GetFirebase.adIdClock_collapsibleBottom
+            is CompassActivity -> if (isTop) GetFirebase.adIdCompass_collapsibleTop else GetFirebase.adIdCompass_collapsibleBottom
+            is ExitActivity -> if (isTop) GetFirebase.adIdExit_collapsibleTop else GetFirebase.adIdExit_collapsibleBottom
+            is LanguagesActivity -> if (isTop) GetFirebase.adIdLanguagesActivity_collapsibleTop else GetFirebase.adIdLanguagesActivity_collapsibleBottom
+            is MainActivity -> if (isTop) GetFirebase.adIdMainActivity_collapsibleTop else GetFirebase.adIdMainActivity_collapsibleBottom
+            is MenuActivity -> if (isTop) GetFirebase.adIdMenu_collapsibleTop else GetFirebase.adIdMenu_collapsibleBottom
+            is OnBoardingActivity -> if (isTop) GetFirebase.adIdOnboarding_collapsibleTop else GetFirebase.adIdOnboarding_collapsibleBottom
+            is PlaySoundActivity -> if (isTop) GetFirebase.adIdPlaySound_collapsibleTop else GetFirebase.adIdPlaySound_collapsibleBottom
+            is SleepSoundActivity -> if (isTop) GetFirebase.adIdSleepSound_collapsibleTop else GetFirebase.adIdSleepSound_collapsibleBottom
+            is StopWatchActivity -> if (isTop) GetFirebase.adIdStopWatch_collapsibleTop else GetFirebase.adIdStopWatch_collapsibleBottom
+            is TimerActivity -> if (isTop) GetFirebase.adIdTimer_collapsibleTop else GetFirebase.adIdTimer_collapsibleBottom
+            is WidgetActivity -> if (isTop) GetFirebase.adIdWidget_collapsibleTop else GetFirebase.adIdWidget_collapsibleBottom
+            else -> if (isTop) GetFirebase.adIdMainActivity_collapsibleTop else GetFirebase.adIdMainActivity_collapsibleBottom
+        }
+    }
 
+    private fun loadCollapsibleBanner(
+        context: AppCompatActivity,
+        adLayout: FrameLayout,
+        adID: String,
+        textView: TextView,
+        position: String? = null
+    ) {
+        try {
+
+            val isTop = position == "top"
+            val adIDCollapsible = getCollapsibleAdId(context, isTop)
+
+            val adView = AdView(context).apply {
+                setAdSize(getAdSize(context))
+                this.adUnitId = adIDCollapsible
+
+            }
+
+            val adRequestBuilder = AdRequest.Builder()
+
+            // Add collapsible extras only if applicable
+            if (position != null) {
+                val extras = Bundle().apply { putString("collapsible", position) }
+                adRequestBuilder.addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
+            }
+
+            adLayout.addView(adView)
+            adView.loadAd(adRequestBuilder.build())
+
+            adView.setOnPaidEventListener { adValue ->
+                // Then pass it
+                AppEventLogger.logCustomImpressions(
+                    context, // 'this' in Activity
+                    adValue = adValue,
+                    adUnitId = adView?.adUnitId.toString(),
+                    adFormat = "native"
+                )
+            }
+
+            adView.adListener = object : AdListener() {
+                override fun onAdLoaded() {
+
+                    if (GetFirebase.toastForAds) {
+                        Utils.showMessage(context, "banner ad loaded")
+                    }
+
+
+                }
+
+                override fun onAdFailedToLoad(error: LoadAdError) {
+                    Log.d("TAG_LOADED", error.message)
+
+                    if (GetFirebase.toastForAds) {
+                        Utils.showMessage(context, error.message)
+                    }
+
+                }
+
+                override fun onAdClicked() {
+
+                }
+            }
+        } catch (e: Exception) {
+            // Optional: log or print the error
+        }
+    }
+
+    private fun getAdSize(context: Context): AdSize {
+        val outMetrics = DisplayMetrics()
+        (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager)
+            .defaultDisplay.getMetrics(outMetrics)
+        val adWidth = (outMetrics.widthPixels / outMetrics.density).toInt()
+        return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(context, adWidth)
+    }
 
 }

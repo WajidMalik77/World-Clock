@@ -10,30 +10,25 @@
     android:paddingEnd="0dp"
     android:paddingBottom="0dp">
 
-    <com.facebook.shimmer.ShimmerFrameLayout
-        android:id="@+id/banner_ad_shimmer"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/_50sdp"
-        android:visibility="gone">
+        android:id="@+id/bannerTopContainer"
+        >
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/_50sdp"
+            android:id="@+id/adVeiwTop"/>
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_50sdp"
-            android:background="@drawable/shimmer_placeholder"
-            android:fontFamily="@font/poppins_medium"
-            android:gravity="center"
-            android:text="Ad is Loading..."
-            android:textColor="@color/black"
-            android:textSize="@dimen/_10ssp" />
-    </com.facebook.shimmer.ShimmerFrameLayout>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:id="@+id/adTextAdvertisementTop"
+            android:text="Preparing Advertisement"/>
 
-    <FrameLayout
-        android:id="@+id/admob_banner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="@dimen/_50sdp"
-        android:visibility="gone"
-        tools:background="@color/grey" />
+    </RelativeLayout>
 
 </LinearLayout>

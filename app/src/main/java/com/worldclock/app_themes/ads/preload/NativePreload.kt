@@ -24,10 +24,12 @@ import com.google.android.gms.ads.VideoOptions
 import com.google.android.gms.ads.nativead.NativeAd
 import com.google.android.gms.ads.nativead.NativeAdOptions
 import com.worldclock.app_themes.R
+import com.worldclock.app_themes.ads.preload.BannerPreload.bannerAdBottomLoaded
 import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.ads.utils.Utils.getSdpHeightInPx
 import com.worldclock.app_themes.ads.utils.Utils.getSspTextSizeInPx
+import com.worldclock.app_themes.core.analytics.AppEventLogger
 import com.worldclock.app_themes.databinding.NativeAdWithoutMediaOneBinding
 import com.worldclock.app_themes.databinding.NativeAdWithoutMediaThreeBinding
 import com.worldclock.app_themes.databinding.NativeAdWithoutMediaTwoBinding
@@ -36,9 +38,26 @@ import com.worldclock.app_themes.databinding.NativeWithMediaOneBinding
 import com.worldclock.app_themes.databinding.NativeWithMediaThreeBinding
 import com.worldclock.app_themes.databinding.NativeWithMediaTwoBinding
 import com.worldclock.app_themes.databinding.NativeWithoutMediaFourBinding
+import com.worldclock.app_themes.presentation.activities.AddAlarmActivity
 import com.worldclock.app_themes.presentation.activities.LanguagesActivity
 import com.worldclock.app_themes.presentation.activities.OnBoardingActivity
 import com.worldclock.app_themes.presentation.activities.Splash
+import com.worldclock.app_themes.presentation.activities.AddAllRemindersActivity
+import com.worldclock.app_themes.presentation.activities.AddClockActivity
+import com.worldclock.app_themes.presentation.activities.AddReminderActiviity
+import com.worldclock.app_themes.presentation.activities.AddWidgetActivity
+import com.worldclock.app_themes.presentation.activities.AlarmActivity
+import com.worldclock.app_themes.presentation.activities.AllRemindersActivity
+import com.worldclock.app_themes.presentation.activities.ClockActivity
+import com.worldclock.app_themes.presentation.activities.CompassActivity
+import com.worldclock.app_themes.presentation.activities.ExitActivity
+import com.worldclock.app_themes.presentation.activities.MainActivity
+import com.worldclock.app_themes.presentation.activities.MenuActivity
+import com.worldclock.app_themes.presentation.activities.PlaySoundActivity
+import com.worldclock.app_themes.presentation.activities.SleepSoundActivity
+import com.worldclock.app_themes.presentation.activities.StopWatchActivity
+import com.worldclock.app_themes.presentation.activities.TimerActivity
+import com.worldclock.app_themes.presentation.activities.WidgetActivity
 
 object NativePreload {
 
@@ -229,6 +248,31 @@ object NativePreload {
 
     }
 
+    private fun getNativeAdId(context: AppCompatActivity, isTop: Boolean): String {
+        return when (context) {
+            is Splash -> if (isTop) GetFirebase.adIdSplash_nativeTop else GetFirebase.adIdSplash_nativeBottom
+            is AddAlarmActivity -> if (isTop) GetFirebase.adIdAddAlarm_nativeTop else GetFirebase.adIdAddAlarm_nativeBottom
+            is AddAllRemindersActivity -> if (isTop) GetFirebase.adIdAddAllReminders_nativeTop else GetFirebase.adIdAddAllReminders_nativeBottom
+            is AddClockActivity -> if (isTop) GetFirebase.adIdAddClock_nativeTop else GetFirebase.adIdAddClock_nativeBottom
+            is AddReminderActiviity -> if (isTop) GetFirebase.adIdAddReminder_nativeTop else GetFirebase.adIdAddReminder_nativeBottom
+            is AlarmActivity -> if (isTop) GetFirebase.adIdAlarm_nativeTop else GetFirebase.adIdAlarm_nativeBottom
+            is AllRemindersActivity -> if (isTop) GetFirebase.adIdAllReminders_nativeTop else GetFirebase.adIdAllReminders_nativeBottom
+            is ClockActivity -> if (isTop) GetFirebase.adIdClock_nativeTop else GetFirebase.adIdClock_nativeBottom
+            is CompassActivity -> if (isTop) GetFirebase.adIdCompass_nativeTop else GetFirebase.adIdCompass_nativeBottom
+            is ExitActivity -> if (isTop) GetFirebase.adIdExit_nativeTop else GetFirebase.adIdExit_nativeBottom
+            is LanguagesActivity -> if (isTop) GetFirebase.adIdLanguagesActivity_nativeTop else GetFirebase.adIdLanguagesActivity_nativeBottom
+            is MainActivity -> if (isTop) GetFirebase.adIdMainActivity_nativeTop else GetFirebase.adIdMainActivity_nativeBottom
+            is MenuActivity -> if (isTop) GetFirebase.adIdMenu_nativeTop else GetFirebase.adIdMenu_nativeBottom
+            is OnBoardingActivity -> if (isTop) GetFirebase.adIdOnboarding_nativeTop else GetFirebase.adIdOnboarding_nativeBottom
+            is PlaySoundActivity -> if (isTop) GetFirebase.adIdPlaySound_nativeTop else GetFirebase.adIdPlaySound_nativeBottom
+            is SleepSoundActivity -> if (isTop) GetFirebase.adIdSleepSound_nativeTop else GetFirebase.adIdSleepSound_nativeBottom
+            is StopWatchActivity -> if (isTop) GetFirebase.adIdStopWatch_nativeTop else GetFirebase.adIdStopWatch_nativeBottom
+            is TimerActivity -> if (isTop) GetFirebase.adIdTimer_nativeTop else GetFirebase.adIdTimer_nativeBottom
+            is WidgetActivity -> if (isTop) GetFirebase.adIdWidget_nativeTop else GetFirebase.adIdWidget_nativeBottom
+            else -> if (isTop) GetFirebase.adIdMainActivity_nativeTop else GetFirebase.adIdMainActivity_nativeBottom
+        }
+    }
+
     fun showNativeAdForPreload(
         layoutParent: RelativeLayout,
         layoutAdView: FrameLayout,
@@ -239,8 +283,7 @@ object NativePreload {
         textView: TextView,
         liveDataNative: MutableLiveData<Boolean>, position: String
     ) {
-
-
+        val isTop = position.equals("top", ignoreCase = true)
         val owner = activity as? LifecycleOwner ?: return
         liveDataNative.observe(owner) {
             if (it == true) {
@@ -250,8 +293,18 @@ object NativePreload {
                 } else {
                     native_ad = NativePreload.nativeAdBottom
                 }
+
+                native_ad?.setOnPaidEventListener { adValue ->
+                    // Then pass it
+                    AppEventLogger.logCustomImpressions(
+                        activity, // 'this' in Activity
+                        adValue = adValue,
+                        adUnitId = getNativeAdId(activity,isTop),
+                        adFormat = "native"
+                    )
+                }
+
                 textView.visibility = View.GONE
-                Log.d("NTTN", "ad ${ad.toString()}")
                 when (i) {
                     1 -> {
                         val admobBinding =

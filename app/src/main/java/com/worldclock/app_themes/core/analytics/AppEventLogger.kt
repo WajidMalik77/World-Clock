@@ -2,7 +2,9 @@ package com.worldclock.app_themes.core.analytics
 
 import android.content.Context
 import android.os.Bundle
+import com.google.android.gms.ads.AdValue
 import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
 import com.worldclock.app_themes.core.utils.AdsConstants.PrefsName
@@ -199,4 +201,41 @@ object AppEventLogger {
             .lowercase(Locale.US)
         return snake.ifBlank { UNKNOWN }.take(100)
     }
+
+    fun logCustomImpressions(
+        context: Context,
+        adValue: AdValue,
+        adUnitId: String,
+        adFormat: String,
+        adPlatform: String = "AdMob"
+    ) {
+
+        val firebaseAnalytics = FirebaseAnalytics.getInstance(context)
+
+
+        val revenueUSD = adValue.valueMicros / 1_000_000.0
+
+        val baseParams = Bundle().apply {
+            putString("ad_unit_id", adUnitId)
+            putString("ad_format", adFormat)
+            putString("ad_platform", adPlatform)
+            putString("currency", adValue.currencyCode)
+        }
+
+        val maxSpendParams = Bundle(baseParams).apply {
+            putDouble("value", revenueUSD)
+        }
+        firebaseAnalytics.logEvent("ad_impression_max_spend", maxSpendParams)
+
+        val breakEvenParams = Bundle(baseParams).apply {
+            putDouble("value", revenueUSD)
+        }
+        firebaseAnalytics.logEvent("ad_impression_break_even", breakEvenParams)
+
+        val baselineParams = Bundle(baseParams).apply {
+            putDouble("value", revenueUSD)
+        }
+        firebaseAnalytics.logEvent("ad_impression_baseline", baselineParams)
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.worldclock.app_themes.presentation.activities
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import androidx.activity.addCallback
 import androidx.recyclerview.widget.GridLayoutManager
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.presentation.adapter.ClockWidgetAdapter
@@ -12,6 +14,14 @@ import javax.inject.Inject
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import androidx.lifecycle.lifecycleScope
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import kotlinx.coroutines.launch
 
@@ -118,36 +128,88 @@ class WidgetActivity : BaseActivity() {
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@WidgetActivity,
-                screen = "WidgetScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@WidgetActivity,
-                screen = "WidgetScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
 
         binding.toolbar.title.text = getString(R.string.widget_clock)
         binding.toolbar.back.setOnClickListener {
             AppEventLogger.trackButtonClick("WidgetScreen", "back", "navigate_back", "widget_flow")
-            finish()
+
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@WidgetActivity,
+                GetFirebase.adIdMainActivity_bannerTop,
+                GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@WidgetActivity,
+                GetFirebase.adIdMainActivity_bannerBottom,
+                GetFirebase.adIdMainActivity_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@WidgetActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_WidgetBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@WidgetActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@WidgetActivity, MainActivity::class.java))
+                    finish()
+                })
+
+        }
+
+        onBackPressedDispatcher.addCallback(this){
+
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@WidgetActivity,
+                GetFirebase.adIdMainActivity_bannerTop,
+                GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@WidgetActivity,
+                GetFirebase.adIdMainActivity_bannerBottom,
+                GetFirebase.adIdMainActivity_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@WidgetActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_WidgetBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@WidgetActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@WidgetActivity, MainActivity::class.java))
+                    finish()
+                })
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_widgetactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_widgetactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
         }
 
         binding.rvClockThemes.apply {

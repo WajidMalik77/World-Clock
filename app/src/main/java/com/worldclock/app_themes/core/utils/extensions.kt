@@ -23,7 +23,6 @@ import com.worldclock.app_themes.R
 import com.zeugmasolutions.localehelper.Locales
 import java.util.Locale
 import androidx.core.net.toUri
-import com.worldclock.app_themes.presentation.activities.MyApplication
 import com.worldclock.app_themes.data.database.AlarmEntity
 import com.worldclock.app_themes.data.database.WidgetClockItem
 import com.worldclock.app_themes.data.database.WorldClockItem
@@ -666,7 +665,7 @@ fun Activity.requestNotificationPermissionIfNeeded() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 
         if (!isNotificationPermissionGranted()) {
-            MyApplication.isResume = false
+
             requestPermissions(
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
                 NOTIFICATION_PERMISSION_CODE
@@ -677,7 +676,7 @@ fun Activity.requestNotificationPermissionIfNeeded() {
 
 fun Activity.showNotificationPermissionSettings() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        MyApplication.isResume = false
+
         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
             putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
         }

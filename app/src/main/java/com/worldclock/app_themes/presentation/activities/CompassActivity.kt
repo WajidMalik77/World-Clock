@@ -20,10 +20,12 @@ import kotlin.math.*
 
 
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.hardware.*
 import android.view.animation.LinearInterpolator
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.addCallback
 import com.worldclock.app_themes.databinding.ActivityCompassBinding
 import com.worldclock.app_themes.databinding.ActivityPurchaseBinding
 import kotlin.math.abs
@@ -32,6 +34,14 @@ import javax.inject.Inject
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import androidx.lifecycle.lifecycleScope
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -65,32 +75,84 @@ class CompassActivity : BaseActivity(), SensorEventListener {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "CompassScreen", "activity_lifecycle")
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@CompassActivity,
-                screen = "CompassScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_compassactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
         }
 
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@CompassActivity,
-                screen = "CompassScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_compassactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
         }
+
+
         binding.toolbar.title.text = getString(R.string.compass)
         binding.toolbar.back.setOnClickListener {
-            finish()
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@CompassActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@CompassActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@CompassActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_CompassBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@CompassActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@CompassActivity, MainActivity::class.java))
+                    finish()
+                })
+
+        }
+
+
+        onBackPressedDispatcher.addCallback(this@CompassActivity){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@CompassActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@CompassActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+
+            InterstitialAdManager.showIfReady(
+                this@CompassActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_CompassBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@CompassActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@CompassActivity, MainActivity::class.java))
+                    finish()
+                })
         }
 
 

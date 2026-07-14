@@ -90,7 +90,7 @@
 
     <include
         android:id="@+id/ads_container"
-        layout="@layout/layout_bottom_native_compact"
+        layout="@layout/layout_bottom_native"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent" />

@@ -33,7 +33,16 @@ import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
 
 import com.worldclock.app_themes.ads.helpers.ui.BannerAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
+import com.worldclock.app_themes.core.utils.AdsConstants
 import com.worldclock.app_themes.databinding.LayoutFullscreenAdIntroBinding
 
 @AndroidEntryPoint
@@ -62,60 +71,35 @@ class OnBoardingActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "IntroScreen", "activity_lifecycle")
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@OnBoardingActivity,
-                screen = "IntroScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.preloadNativeForNextContainer(
-                context = this@OnBoardingActivity,
-                screen = "IntroScreen",
-                position = "full_screen"
-            )
+        if (GetFirebase.enable_on_demand_interstitial == 1){
+            InterstitialAdManager.loadOnboarding(this, GetFirebase.adIdOnboarding_interstitial)
         }
 
         isFullAd = false
         bottomNativeAvailable = shouldShowBottomNative()
         updateOnboardingChromeForPage(binding.viewPager.currentItem)
 
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@OnBoardingActivity,
-                screen = "IntroScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                ),
-                onEvent = { event ->
-                    when (event) {
-                        is NativeAdEvent.Loaded -> {
-                            if (event.position == "bottom") {
-                                bottomNativeAvailable = true
-                                updateOnboardingChromeForPage(binding.viewPager.currentItem)
-                            }
-                        }
-                        is NativeAdEvent.Failed,
-                        is NativeAdEvent.Off,
-                        NativeAdEvent.AllOffFromConfig -> {
-                            bottomNativeAvailable = false
-                            updateOnboardingChromeForPage(binding.viewPager.currentItem)
-                        }
-                        else -> {}
-                    }
-                }
-            )
+        setViewPager()
+
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_onboardingactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
         }
 
-        setViewPager()
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_onboardingactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
+
 
         binding.nextBtn.paintFlags = binding.nextBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
 
@@ -249,11 +233,8 @@ class OnBoardingActivity : BaseActivity() {
             if (isPremium()) {
                 startActivity(Intent(this, MainActivity::class.java))
             } else {
-                val cfg = EntryPointAccessors.fromActivity(
-                    this,
-                    AdConfigEntryPoint::class.java
-                ).adControlConfigManager()
-                startActivity(cfg.getNextScreenIntent(this, "intro"))
+
+                startActivity(getNextScreenIntent(this, "intro"))
             }
             getSharedPreferences(PrefsName, Context.MODE_PRIVATE).edit {
                 putBoolean(isFirstTime, true)
@@ -264,14 +245,59 @@ class OnBoardingActivity : BaseActivity() {
         if (isPremium()) {
             proceed()
         } else {
-            safeShowInterstitialAction(
-                screenName = "IntroScreen",
-                trigger = "finish",
-                noCounterNeeded = false,
-                afterAd = proceed
-            )
+
+            InterstitialAdManager.showIfReady(
+                this,
+                InterstitialScreen.ONBOARDING,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_OnboardingForward,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    proceed()
+                },
+                {
+                    proceed()
+                })
+
         }
     }
+
+    fun getNextScreenIntent(context: Context, currentScreen: String): Intent {
+        val isFirstLaunch = !context.getSharedPreferences(AdsConstants.PrefsName, Context.MODE_PRIVATE)
+            .getBoolean(AdsConstants.isFirstTime, false)
+
+        if (Utils.isPremium) {
+            return Intent(context, MainActivity::class.java)
+        }
+
+        when (currentScreen) {
+            "splash" -> {
+                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+
+            }
+            "languages" -> {
+                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+
+            }
+            "intro" -> {
+                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+
+            }
+            "premium" -> {
+                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+
+            }
+            else -> {
+                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+
+            }
+        }
+
+    }
+
 
     val pages = mutableListOf<OnboardingItem>()
 
@@ -297,13 +323,13 @@ class OnBoardingActivity : BaseActivity() {
                 )
             )
 
-            if (!isPremium() && shouldShowIntroFullScreenNative()) {
-                pages.add(
-                    OnboardingItem(
-                        type = TYPE_AD
-                    )
-                )
-            }
+//            if (!isPremium() && shouldShowIntroFullScreenNative()) {
+//                pages.add(
+//                    OnboardingItem(
+//                        type = TYPE_AD
+//                    )
+//                )
+//            }
 
             pages.add(
                 OnboardingItem(
@@ -316,7 +342,7 @@ class OnBoardingActivity : BaseActivity() {
             )
 
             adapter = OnboardingAdapter(pages) { adBinding ->
-                loadIntroFullScreenNative(adBinding)
+//                loadIntroFullScreenNative(adBinding)
             }
             binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             binding.viewPager.adapter = adapter

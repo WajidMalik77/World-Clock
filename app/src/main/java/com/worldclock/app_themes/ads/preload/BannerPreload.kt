@@ -18,6 +18,7 @@ import com.google.android.gms.ads.LoadAdError
 import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.ads.utils.Utils.getSdpHeightInPx
+import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 object BannerPreload {
 
@@ -167,6 +168,16 @@ object BannerPreload {
                 layoutAd.addView(bannerAdTopLoaded)
             }
 
+            bannerAdTopLoaded?.setOnPaidEventListener { adValue ->
+                // Then pass it
+                AppEventLogger.logCustomImpressions(
+                    contextAd, // 'this' in Activity
+                    adValue = adValue,
+                    adUnitId = bannerAdTopLoaded?.adUnitId.toString(),
+                    adFormat = "banner"
+                )
+            }
+
         } catch (e: Exception) {
 
         }
@@ -179,8 +190,6 @@ object BannerPreload {
         contextAd: Context
     ) {
         try {
-
-            Log.d("PRELOOO", "loaded")
 
             val topPadding = contextAd.getSdpHeightInPx(2)
 
@@ -197,6 +206,16 @@ object BannerPreload {
 
             layoutAd.post {
                 layoutAd.addView(bannerAdBottomLoaded)
+            }
+
+            bannerAdBottomLoaded?.setOnPaidEventListener { adValue ->
+                // Then pass it
+                AppEventLogger.logCustomImpressions(
+                    contextAd, // 'this' in Activity
+                    adValue = adValue,
+                    adUnitId = bannerAdBottomLoaded?.adUnitId.toString(),
+                    adFormat = "banner"
+                )
             }
 
         } catch (e: Exception) {

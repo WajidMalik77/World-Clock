@@ -1,6 +1,7 @@
 package com.worldclock.app_themes.presentation.activities
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
@@ -8,6 +9,7 @@ import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.addCallback
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
@@ -27,6 +29,13 @@ import com.worldclock.app_themes.core.utils.openPrivacyPolicy
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import dagger.hilt.android.EntryPointAccessors
 import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
+import com.worldclock.app_themes.core.utils.AdsConstants
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -46,6 +55,13 @@ class ActivityPurchase : BaseActivity() {
         Handler(mainLooper).postDelayed({
             binding.back.visibility = View.VISIBLE
         }, 1400)
+
+
+        if (GetFirebase.enable_on_demand_interstitial == 1){
+            InterstitialAdManager.loadPremium(this, GetFirebase.adIdPremium_interstitial)
+        }
+
+
         binding.cancelButton.setOnClickListener {
             AppEventLogger.trackButtonClick("PurchaseScreen", "cancel", "continue_with_ads", "premium_flow")
             val isPremium = PrefUtil(this).getBool("is_premium", false)
@@ -53,12 +69,29 @@ class ActivityPurchase : BaseActivity() {
             if (isPremium) {
                 goNext()
             } else {
-                safeShowInterstitialAction(
-                    screenName = "PurchaseScreen",
-                    trigger = "continue_with_ads",
-                    noCounterNeeded = false,
-                    afterAd = { goNext() }
-                )
+
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this,
+                    GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this,
+                    GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+                InterstitialAdManager.showIfReady(
+                    this@ActivityPurchase,
+                    InterstitialScreen.PREMIUM,
+                    GetFirebase.adIdOther_interstitial,
+                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                    GetFirebase.transition_PremiumBack,
+                    GetFirebase.counter_interval,
+                    Utils.isPremium,
+                    GetFirebase.enable_interstitial_ads,
+                    {
+                        goNext()
+                    },
+                    {
+                        goNext()
+                    })
             }
         }
         binding.privacy.paintFlags = binding.privacy.paintFlags or Paint.UNDERLINE_TEXT_FLAG
@@ -71,6 +104,36 @@ class ActivityPurchase : BaseActivity() {
         binding.privacy.setOnClickListener {
             openPrivacyPolicy("https://styleappsworld.wordpress.com/world-clock-privacy-policy/")
         }
+
+
+        onBackPressedDispatcher.addCallback(this@ActivityPurchase){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@ActivityPurchase,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@ActivityPurchase,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+
+            InterstitialAdManager.showIfReady(
+                this@ActivityPurchase,
+                InterstitialScreen.PREMIUM,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_PremiumBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    goNext()
+                },
+                {
+                    goNext()
+                })
+        }
+
+
         binding.back.setOnClickListener {
             AppEventLogger.trackButtonClick("PurchaseScreen", "back", "navigate_back", "premium_flow")
             val isPremium = PrefUtil(this).getBool("is_premium", false)
@@ -78,18 +141,33 @@ class ActivityPurchase : BaseActivity() {
             if (isPremium) {
                 goNext()
             } else {
-                safeShowInterstitialAction(
-                    screenName = "PurchaseScreen",
-                    trigger = "close",
-                    noCounterNeeded = false,
-                    afterAd = { goNext() }
-                )
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this,
+                    GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this,
+                    GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+                InterstitialAdManager.showIfReady(
+                    this@ActivityPurchase,
+                    InterstitialScreen.PREMIUM,
+                    GetFirebase.adIdOther_interstitial,
+                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                    GetFirebase.transition_PremiumBack,
+                    GetFirebase.counter_interval,
+                    Utils.isPremium,
+                    GetFirebase.enable_interstitial_ads,
+                    {
+                        goNext()
+                    },
+                    {
+                        goNext()
+                    })
             }
         }
 
         binding.purchase.setOnClickListener {
             AppEventLogger.trackButtonClick("PurchaseScreen", "purchase", "start_purchase", "premium_flow")
-            MyApplication.isResume = false
             BillingUtilsIAP(this)
                 .purchase(
                     this,
@@ -197,16 +275,26 @@ class ActivityPurchase : BaseActivity() {
 
     private fun goNext() {
         if (isSplash) {
-            val cfg = EntryPointAccessors.fromActivity(
-                this,
-                AdConfigEntryPoint::class.java
-            ).adControlConfigManager()
-            startActivity(cfg.getNextScreenIntent(this, "premium"))
+            startActivity(getNextScreenIntent(this, "premium"))
             finish()
         } else {
             finish()
         }
     }
+
+    fun getNextScreenIntent(context: Context, currentScreen: String): Intent {
+        val isFirstLaunch = !context.getSharedPreferences(AdsConstants.PrefsName, Context.MODE_PRIVATE)
+            .getBoolean(AdsConstants.isFirstTime, false)
+
+        val isPremium = PrefUtil(context).getBool("is_premium", false)
+                || context.getSharedPreferences(AdsConstants.LifeTimePref, 0).getBoolean("premium", false)
+
+
+
+        return Intent(context, MainActivity::class.java)
+
+    }
+
 
     override fun onDestroy() {
         AppEventLogger.trackScreenDestroy(this, "PurchaseScreen")

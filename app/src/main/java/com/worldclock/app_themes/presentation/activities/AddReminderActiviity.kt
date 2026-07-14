@@ -1,9 +1,11 @@
 package com.worldclock.app_themes.presentation.activities
 
+import android.content.Intent
 import android.graphics.Color
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.lifecycle.lifecycleScope
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.data.database.ReminderDao
@@ -22,6 +24,14 @@ import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -66,31 +76,6 @@ class AddReminderActiviity : BaseActivity() {
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@AddReminderActiviity,
-                screen = "AddReminderScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@AddReminderActiviity,
-                screen = "AddReminderScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
 
         dao = WorldClockDatabase.getDatabase(this).reminderDao()
         categoryId = intent.getIntExtra("category_id", -1)
@@ -99,9 +84,83 @@ class AddReminderActiviity : BaseActivity() {
 
         binding.toolbar.back.setOnClickListener {
             AppEventLogger.trackButtonClick("AddReminderScreen", "back", "navigate_back", "reminders_flow")
-            finish()
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addallreminders_top,"top",this@AddReminderActiviity,
+                GetFirebase.adIdAddAllReminders_bannerTop, GetFirebase.adIdAddAllReminders_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addallreminders_bottom,"bottom",this@AddReminderActiviity,
+                GetFirebase.adIdAddAllReminders_bannerBottom, GetFirebase.adIdAddAllReminders_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@AddReminderActiviity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_AddReminderBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@AddReminderActiviity, AddAllRemindersActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@AddReminderActiviity, AddAllRemindersActivity::class.java))
+                    finish()
+                })
+
+
+
         }
         binding.toolbar.title.text = getString(R.string.all_reminders)
+
+        onBackPressedDispatcher.addCallback(this){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addallreminders_top,"top",this@AddReminderActiviity,
+                GetFirebase.adIdAddAllReminders_bannerTop, GetFirebase.adIdAddAllReminders_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addallreminders_bottom,"bottom",this@AddReminderActiviity,
+                GetFirebase.adIdAddAllReminders_bannerBottom, GetFirebase.adIdAddAllReminders_nativeBottom)
+
+
+
+            InterstitialAdManager.showIfReady(
+                this@AddReminderActiviity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_AddReminderBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@AddReminderActiviity, AddAllRemindersActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@AddReminderActiviity, AddAllRemindersActivity::class.java))
+                    finish()
+                })
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_addreminder_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_addreminder_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
 
         loadDeviceSounds()
         setupRepeatDays()
@@ -183,12 +242,24 @@ class AddReminderActiviity : BaseActivity() {
             if (isPremium) {
                 navigate()
             } else {
-                safeShowInterstitialAction(
-                    screenName = "AddReminderScreen",
-                    trigger = "save",
-                    noCounterNeeded = false,
-                    afterAd = navigate
-                )
+
+                InterstitialAdManager.showIfReady(
+                    this@AddReminderActiviity,
+                    InterstitialScreen.OTHER,
+                    GetFirebase.adIdOther_interstitial,
+                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                    GetFirebase.transition_AddReminderBack,
+                    GetFirebase.counter_interval,
+                    Utils.isPremium,
+                    GetFirebase.enable_interstitial_ads,
+                    {
+                        navigate()
+                    },
+                    {
+                        navigate()
+                    })
+
+
             }
         }
     }
@@ -324,6 +395,7 @@ class AddReminderActiviity : BaseActivity() {
                     if (editingReminderId != -1) "Reminder updated!" else "Reminder saved!",
                     Toast.LENGTH_SHORT
                 ).show()
+                startActivity(Intent(this@AddReminderActiviity, AddAllRemindersActivity::class.java))
                 finish()
             }
         }

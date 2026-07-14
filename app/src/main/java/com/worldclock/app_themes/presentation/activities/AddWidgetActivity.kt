@@ -27,6 +27,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import com.worldclock.app_themes.ads.helpers.ui.NativeAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 @AndroidEntryPoint
@@ -50,33 +54,28 @@ class AddWidgetActivity : BaseActivity() {
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@AddWidgetActivity,
-                screen = "AddWidgetScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@AddWidgetActivity,
-                screen = "AddWidgetScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
 
         dao = WorldClockDatabase.getDatabase(this).widgetClockDao()
+
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_addwidget_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_addwidget_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
+
 
         CoroutineScope(Dispatchers.IO).launch {
             val existingCount = dao.getCount()
@@ -108,6 +107,9 @@ class AddWidgetActivity : BaseActivity() {
                 binding.toolbar.title.text = getString(R.string.add_city)
                 binding.toolbar.back.setOnClickListener {
                     AppEventLogger.trackButtonClick("AddWidgetScreen", "back", "navigate_back", "widget_flow")
+
+
+
                     finish()
                 }
                 loadClocks()

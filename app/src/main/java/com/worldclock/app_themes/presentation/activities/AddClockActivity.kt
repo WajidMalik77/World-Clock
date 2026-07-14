@@ -1,12 +1,14 @@
 package com.worldclock.app_themes.presentation.activities
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.activity.addCallback
 import androidx.core.view.isGone
 import androidx.lifecycle.lifecycleScope
 import com.worldclock.app_themes.R
@@ -27,6 +29,14 @@ import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 @AndroidEntryPoint
@@ -46,36 +56,37 @@ class AddClockActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppEventLogger.trackScreenCreate(this, savedInstanceState, "AddClockScreen", "activity_lifecycle")
+        AppEventLogger.trackScreenCreate(
+            this,
+            savedInstanceState,
+            "AddClockScreen",
+            "activity_lifecycle"
+        )
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@AddClockActivity,
-                screen = "AddClockScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
+
+        dao = WorldClockDatabase.getDatabase(this).worldClockDao()
+
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_addclock_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
         }
 
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_addclock_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
 
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@AddClockActivity,
-                screen = "AddClockScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
         }
-               dao = WorldClockDatabase.getDatabase(this).worldClockDao()
+
 
         CoroutineScope(Dispatchers.IO).launch {
             val existingCount = dao.getCount()  // 👈 check existing data
@@ -90,49 +101,83 @@ class AddClockActivity : BaseActivity() {
             }
 
             withContext(Dispatchers.Main) {
-                adapter = AddClockAdapter{ clock ->
+                adapter = AddClockAdapter { clock ->
                     lifecycleScope.launch {
                         dao.updateClock(clock)
                     }
                 }
                 binding.toolbar.title.text = getString(R.string.add_city)
                 binding.toolbar.back.setOnClickListener {
-                    AppEventLogger.trackButtonClick("AddClockScreen", "back", "navigate_back", "clock_flow")
+                    AppEventLogger.trackButtonClick(
+                        "AddClockScreen",
+                        "back",
+                        "navigate_back",
+                        "clock_flow"
+                    )
                     finish()
                 }
                 loadClocks()
 
                 binding.addNewClock.setOnClickListener {
-                    AppEventLogger.trackButtonClick("AddClockScreen", "save", "save_city", "clock_flow")
+                    AppEventLogger.trackButtonClick(
+                        "AddClockScreen",
+                        "save",
+                        "save_city",
+                        "clock_flow"
+                    )
                     val selectedItems = adapter.getSelectedItems()
                     if (selectedItems.isEmpty()) return@setOnClickListener
 
                     val navigate = {
                         lifecycleScope.launch {
                             selectedItems.forEach { dao.updateClock(it) }
+                            startActivity(Intent(this@AddClockActivity, ClockActivity::class.java))
                             finish()
                         }
                         Unit
                     }
 
                     val isPremium = PrefUtil(this@AddClockActivity).getBool("is_premium", false)
-                        || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
+                            || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
 
                     if (isPremium) {
                         navigate()
                     } else {
-                        safeShowInterstitialAction(
-                            screenName = "AddClockScreen",
-                            trigger = "save",
-                            noCounterNeeded = false,
-                            afterAd = navigate
-                        )
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_clockactivity_top,"top",this@AddClockActivity,
+                            GetFirebase.adIdClock_bannerTop, GetFirebase.adIdClock_nativeTop)
+
+                        PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_clockactivity_bottom,"bottom",this@AddClockActivity,
+                            GetFirebase.adIdClock_bannerBottom, GetFirebase.adIdClock_nativeBottom)
+
+
+
+                        InterstitialAdManager.showIfReady(
+                            this@AddClockActivity,
+                            InterstitialScreen.OTHER,
+                            GetFirebase.adIdOther_interstitial,
+                            if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                            GetFirebase.transition_AddClockBack,
+                            GetFirebase.counter_interval,
+                            Utils.isPremium,
+                            GetFirebase.enable_interstitial_ads,
+                            {
+                           navigate()
+                            },
+                            {
+                           navigate()
+                            })
+
                     }
                 }
 
 
                 binding.searchIcon.setOnClickListener {
-                    AppEventLogger.trackButtonClick("AddClockScreen", "search", "toggle", "clock_search")
+                    AppEventLogger.trackButtonClick(
+                        "AddClockScreen",
+                        "search",
+                        "toggle",
+                        "clock_search"
+                    )
                     if (binding.searchBar.isGone) {
                         // Expand with animation
                         binding.searchBar.visibility = View.VISIBLE
@@ -146,7 +191,10 @@ class AddClockActivity : BaseActivity() {
                                 binding.searchBar.requestFocus()
                                 val imm =
                                     getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-                                imm?.showSoftInput(binding.searchBar, InputMethodManager.SHOW_IMPLICIT)
+                                imm?.showSoftInput(
+                                    binding.searchBar,
+                                    InputMethodManager.SHOW_IMPLICIT
+                                )
                             }
                             .start()
                     } else {
@@ -166,12 +214,42 @@ class AddClockActivity : BaseActivity() {
             }
         }
 
+        onBackPressedDispatcher.addCallback(this){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_clockactivity_top,"top",this@AddClockActivity,
+                GetFirebase.adIdClock_bannerTop, GetFirebase.adIdClock_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_clockactivity_bottom,"bottom",this@AddClockActivity,
+                GetFirebase.adIdClock_bannerBottom, GetFirebase.adIdClock_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@AddClockActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_AddClockBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@AddClockActivity, ClockActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@AddClockActivity, ClockActivity::class.java))
+                    finish()
+                })
+
+        }
+
     }
 
     override fun onDestroy() {
         AppEventLogger.trackScreenDestroy(this, "AddClockScreen")
         super.onDestroy()
     }
+
     private fun loadClocks() {
         CoroutineScope(Dispatchers.IO).launch {
             val clocks =

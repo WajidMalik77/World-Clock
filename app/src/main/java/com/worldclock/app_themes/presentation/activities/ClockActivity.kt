@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.addCallback
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.presentation.adapter.WorldClockAdapter
 import com.worldclock.app_themes.databinding.ActivityClockBinding
@@ -26,6 +27,14 @@ import com.worldclock.app_themes.ads.helpers.models.NativeAdConfig
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 @AndroidEntryPoint
@@ -47,35 +56,86 @@ class ClockActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "ClockScreen", "activity_lifecycle")
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@ClockActivity,
-                screen = "ClockScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
+
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_clockactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
         }
 
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_clockactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
 
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@ClockActivity,
-                screen = "ClockScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
         }
+
 
         binding.toolbar.back.setOnClickListener {
-            finish()
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@ClockActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@ClockActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@ClockActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_ClockBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@ClockActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@ClockActivity, MainActivity::class.java))
+                    finish()
+                })
+
         }
+
+
+        onBackPressedDispatcher.addCallback(this@ClockActivity){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@ClockActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@ClockActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+
+            InterstitialAdManager.showIfReady(
+                this@ClockActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_ClockBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@ClockActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@ClockActivity, MainActivity::class.java))
+                    finish()
+                })
+        }
+
         binding.countryName.text = getCurrentWorldClock().countryName
         binding.countryImg.text = getCurrentWorldClock().flag
         binding.timeTv.text = getCurrentWorldClock().time
@@ -104,12 +164,22 @@ class ClockActivity : BaseActivity() {
             if (isPremium) {
                 navigate()
             } else {
-                safeShowInterstitialAction(
-                    screenName = "ClockScreen",
-                    trigger = "add_clock",
-                    noCounterNeeded = false,
-                    afterAd = navigate
-                )
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addclock_top,"top",this@ClockActivity,
+                    GetFirebase.adIdAddClock_bannerTop, GetFirebase.adIdAddClock_nativeTop)
+
+                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addclock_bottom,"bottom",this@ClockActivity,
+                    GetFirebase.adIdAddClock_bannerBottom, GetFirebase.adIdAddClock_nativeBottom)
+
+
+                InterstitialAdManager.showIfReady(this, InterstitialScreen.OTHER, GetFirebase.adIdOther_interstitial,
+                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                    GetFirebase.transition_ClockForward, GetFirebase.counter_interval,
+                    Utils.isPremium, GetFirebase.enable_interstitial_ads,{
+                        navigate()
+                    },{
+                        navigate()
+                    })
+
             }
         }
 

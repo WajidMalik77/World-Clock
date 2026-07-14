@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -26,6 +27,14 @@ import kotlinx.coroutines.launch
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
+import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.BannerPreload
+import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.preload.InterstitialScreen
+import com.worldclock.app_themes.ads.preload.NativePreload
+import com.worldclock.app_themes.ads.preload.PreloadController
+import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 
 @AndroidEntryPoint
@@ -56,37 +65,84 @@ class SleepSoundActivity : BaseActivity() {
         setContentView(binding.root)
         applyEdgeToEdgePadding(R.id.main)
 
-        lifecycleScope.launch {
-            bannerAdOrchestrator.loadBannerAd(
-                context = this@SleepSoundActivity,
-                screen = "SleepSoundScreen",
-                position = "top",
-                container = binding.bannerContainer.admobBanner,
-                shimmer = binding.bannerContainer.bannerAdShimmer
-            )
-        }
-
-
-
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@SleepSoundActivity,
-                screen = "SleepSoundScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "bottom",
-                        container = binding.adsContainer.admobNative,
-                        shimmer = binding.adsContainer.nativeAdShimmer
-                    )
-                )
-            )
-        }
 
         binding.toolbar.back.setOnClickListener {
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@SleepSoundActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@SleepSoundActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+
+
             AppEventLogger.trackButtonClick("SleepSoundScreen", "back", "navigate_back", "sleep_sound_flow")
-            finish()
+            InterstitialAdManager.showIfReady(
+                this@SleepSoundActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_SleepSoundBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@SleepSoundActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@SleepSoundActivity, MainActivity::class.java))
+                    finish()
+                })
         }
         binding.toolbar.title.text = getString(R.string.sleep_sound)
+
+        onBackPressedDispatcher.addCallback(this@SleepSoundActivity){
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_top,"top",this@SleepSoundActivity,
+                GetFirebase.adIdMainActivity_bannerTop, GetFirebase.adIdMainActivity_nativeTop)
+
+            PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_mainactivity_bottom,"bottom",this@SleepSoundActivity,
+                GetFirebase.adIdMainActivity_bannerBottom, GetFirebase.adIdMainActivity_nativeBottom)
+
+
+            InterstitialAdManager.showIfReady(
+                this@SleepSoundActivity,
+                InterstitialScreen.OTHER,
+                GetFirebase.adIdOther_interstitial,
+                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                GetFirebase.transition_SleepSoundBack,
+                GetFirebase.counter_interval,
+                Utils.isPremium,
+                GetFirebase.enable_interstitial_ads,
+                {
+                    startActivity(Intent(this@SleepSoundActivity, MainActivity::class.java))
+                    finish()
+                },
+                {
+                    startActivity(Intent(this@SleepSoundActivity, MainActivity::class.java))
+                    finish()
+                })
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_sleepsoundactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_sleepsoundactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
 
         checkStoragePermission()
         setupRecycler()
@@ -125,12 +181,32 @@ class SleepSoundActivity : BaseActivity() {
                 if (isPremium) {
                     navigate()
                 } else {
-                    safeShowInterstitialAction(
-                        screenName = "SleepSoundScreen",
-                        trigger = "play",
-                        noCounterNeeded = false,
-                        afterAd = navigate
-                    )
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_playsoundactivity_top,"top",this@SleepSoundActivity,
+                        GetFirebase.adIdPlaySound_bannerTop, GetFirebase.adIdPlaySound_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_playsoundactivity_bottom,"bottom",this@SleepSoundActivity,
+                        GetFirebase.adIdPlaySound_bannerBottom, GetFirebase.adIdPlaySound_nativeBottom)
+
+
+
+
+                    InterstitialAdManager.showIfReady(
+                        this,
+                        InterstitialScreen.OTHER,
+                        GetFirebase.adIdOther_interstitial,
+                        if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                        GetFirebase.transition_SleepSoundForward,
+                        GetFirebase.counter_interval,
+                        Utils.isPremium,
+                        GetFirebase.enable_interstitial_ads,
+                        {
+                            navigate()
+                        },
+                        {
+                            navigate()
+                        })
+
                 }
             }
         )
