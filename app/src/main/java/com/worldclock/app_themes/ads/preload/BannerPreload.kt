@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -40,7 +41,9 @@ object BannerPreload {
     }
 
     fun preLoadBannerAdTop(context: Context, adId: String) {
-
+        if (!GetFirebase.enable_banner_native_ads){
+            return
+        }
         bannerAdTopLoaded = null
         val adView = AdView(context)
 
@@ -93,6 +96,10 @@ object BannerPreload {
     }
 
     fun preLoadBannerAdBottom(context: Context, adID: String) {
+
+        if (!GetFirebase.enable_banner_native_ads){
+            return
+        }
 
         bannerAdBottomLoaded = null
 
@@ -165,6 +172,7 @@ object BannerPreload {
             layoutAd.removeAllViews()
 
             layoutAd.post {
+                (bannerAdTopLoaded?.parent as? ViewGroup)?.removeView(bannerAdTopLoaded)
                 layoutAd.addView(bannerAdTopLoaded)
             }
 
@@ -205,6 +213,7 @@ object BannerPreload {
             layoutAd.removeAllViews()
 
             layoutAd.post {
+                (bannerAdBottomLoaded?.parent as? ViewGroup)?.removeView(bannerAdBottomLoaded)
                 layoutAd.addView(bannerAdBottomLoaded)
             }
 

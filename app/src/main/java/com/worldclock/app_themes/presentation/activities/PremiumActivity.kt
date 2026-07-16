@@ -65,13 +65,14 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
 
 
 
-        if (GetFirebase.enable_on_demand_interstitial == 1){
+        if (GetFirebase.enable_on_demand_interstitial == 1 && GetFirebase.transition_PremiumBack == 1){
             InterstitialAdManager.loadPremium(this, GetFirebase.adIdPremium_interstitial)
         }
 
         Handler(mainLooper).postDelayed({
+            binding.progress.visibility = View.GONE
             binding.back.visibility = View.VISIBLE
-        }, 1400)
+        }, 3000)
 
         // ── Default selection — Monthly (yearly button) selected on open ──────
         purchasCount = 1

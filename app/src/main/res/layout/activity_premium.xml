@@ -35,17 +35,37 @@
                 app:layout_constraintVertical_chainStyle="packed"
                 tools:ignore="ContentDescription" />
 
-            <ImageView
-                android:id="@+id/back"
+
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_4sdp"
-                android:src="@drawable/close"
-                android:visibility="invisible"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                tools:ignore="ContentDescription" />
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/back"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:layout_marginHorizontal="@dimen/_10sdp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:src="@drawable/close"
+                    android:visibility="gone"
+                    tools:ignore="ContentDescription" />
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    android:layout_width="@dimen/_20sdp"
+                    android:layout_height="@dimen/_20sdp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/blue"
+                    android:indeterminateTintMode="src_in"
+                    android:layout_centerVertical="true"
+                    android:layout_margin="@dimen/_10sdp"
+                    android:layout_centerHorizontal="true"/>
+
+
+            </RelativeLayout>
+
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/premiumContent"

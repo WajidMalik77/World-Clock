@@ -69,6 +69,9 @@ object PreloadController {
         flag: Int, position: String,
         context: Context, adIDBanner: String, adIDNative: String
     ) {
+
+
+
         BannerPreload.adBannerBottomLiveData.value = false
         BannerPreload.adBannerTopLiveData.value = false
 
@@ -259,6 +262,10 @@ object PreloadController {
             return
         }
 
+        if (!GetFirebase.enable_banner_native_ads){
+            adParent.visibility = View.GONE
+            return
+        }
 
         if (adPosition == "top") {
             when (flag) {

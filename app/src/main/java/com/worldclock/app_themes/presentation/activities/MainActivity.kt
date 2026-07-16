@@ -83,7 +83,6 @@ class MainActivity : BaseActivity() {
                 )
 
 
-        requestNotificationPermissionIfNeeded()
 
         binding.toolbar.back.setImageResource(R.drawable.menu)
         binding.toolbar.back.setOnClickListener {

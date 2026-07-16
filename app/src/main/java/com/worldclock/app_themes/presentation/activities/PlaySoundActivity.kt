@@ -63,8 +63,8 @@ class PlaySoundActivity : BaseActivity() {
         val thumbnailRes = intent.getIntExtra("thumbnail_res", R.drawable.ic_sleep_placeholder)
         binding.ivFullThumbnail.setImageResource(thumbnailRes)
 
-        binding.tvTitle.text = soundName
-        binding.ivBack.setOnClickListener {
+        binding.toolbar.title.text = soundName
+        binding.toolbar.back.setOnClickListener {
             AppEventLogger.trackButtonClick("PlaySoundScreen", "back", "navigate_back", "sleep_sound_flow")
 
 

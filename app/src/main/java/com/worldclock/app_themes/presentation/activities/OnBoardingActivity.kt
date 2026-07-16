@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.edit
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.presentation.adapter.OnboardingAdapter
@@ -22,6 +26,7 @@ import com.worldclock.app_themes.core.utils.TYPE_AD
 import com.worldclock.app_themes.core.utils.TYPE_DATA
 
 import androidx.lifecycle.lifecycleScope
+import androidx.viewpager.widget.ViewPager
 import kotlinx.coroutines.launch
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -44,6 +49,7 @@ import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import com.worldclock.app_themes.core.utils.AdsConstants
 import com.worldclock.app_themes.databinding.LayoutFullscreenAdIntroBinding
+import com.worldclock.app_themes.databinding.NativeFullMediaBinding
 
 @AndroidEntryPoint
 class OnBoardingActivity : BaseActivity() {
@@ -54,6 +60,10 @@ class OnBoardingActivity : BaseActivity() {
     companion object {
         internal var isFullAd = false
     }
+
+    // Add a field to store the ad binding
+    private var adBinding: LayoutFullscreenAdIntroBinding? = null
+    private var adTimerShown = false
 
     private lateinit var adapter: OnboardingAdapter
     private var introFullscreenNativeLoaded = false
@@ -71,13 +81,17 @@ class OnBoardingActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "IntroScreen", "activity_lifecycle")
 
-        if (GetFirebase.enable_on_demand_interstitial == 1){
+        if (GetFirebase.enable_on_demand_interstitial == 1 && (GetFirebase.transition_OnboardingForward == 1)){
             InterstitialAdManager.loadOnboarding(this, GetFirebase.adIdOnboarding_interstitial)
+        }
+
+        if (GetFirebase.show_full_screen_native && !isPremium()){
+            NativePreload.loadNormalNative(this, GetFirebase.adIDOnboarding_FullNative)
         }
 
         isFullAd = false
         bottomNativeAvailable = shouldShowBottomNative()
-        updateOnboardingChromeForPage(binding.viewPager.currentItem)
+//        updateOnboardingChromeForPage(binding.viewPager.currentItem)
 
         setViewPager()
 
@@ -101,11 +115,9 @@ class OnBoardingActivity : BaseActivity() {
         }
 
 
-        binding.nextBtn.paintFlags = binding.nextBtn.paintFlags or Paint.UNDERLINE_TEXT_FLAG
-
         binding.nextBtn.setOnClickListener {
             val current = binding.viewPager.currentItem
-            val total = binding.viewPager.adapter?.itemCount ?: 0
+            val total = pages.size ?: 0
             AppEventLogger.trackButtonClick("IntroScreen", "next", "navigate_page", "onboarding_flow")
             if (current < total - 1) {
                 binding.viewPager.setCurrentItem(current + 1, true)
@@ -114,18 +126,83 @@ class OnBoardingActivity : BaseActivity() {
             }
         }
 
-        binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+        binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-
                 if (position == pages.size - 1) {
                     binding.nextBtn.text = getString(R.string.finish)
                 } else {
                     binding.nextBtn.text = getString(R.string.next)
                 }
-                updateOnboardingChromeForPage(position)
+
+                if (position == 0){
+                    binding.imageDot.setImageResource(R.drawable.ic_dot_one)
+                }
+                if (position == 1){
+                    binding.imageDot.setImageResource(R.drawable.ic_dot_two)
+                }
+                if (position == 2){
+                    binding.imageDot.setImageResource(R.drawable.ic_dot_three)
+                }
+                if (GetFirebase.show_full_screen_native && !isPremium()){
+                    if (position == 4){
+                        binding.imageDot.setImageResource(R.drawable.ic_dot_four)
+                    }
+                }
+                else{
+                    if (position == 3){
+                        binding.imageDot.setImageResource(R.drawable.ic_dot_four)
+                    }
+                }
+
+                val isAdPage = pages.getOrNull(position)?.type == TYPE_AD
+                if (isAdPage && !adTimerShown) {
+                    if (GetFirebase.banner_ad_onboardingactivity_bottom > 0){
+                        binding.adsContainer.bannerBottomContainer.visibility = View.GONE
+                    }
+
+                    if (GetFirebase.banner_ad_onboardingactivity_top > 0){
+                        binding.bannerContainer.bannerTopContainer.visibility = View.GONE
+
+                    }
+
+                    adBinding?.let { loadIntroFullScreenNative(it) }
+                }
+
+                if (!isAdPage){
+                    if (GetFirebase.banner_ad_onboardingactivity_bottom > 0){
+                        binding.adsContainer.bannerBottomContainer.visibility = View.VISIBLE
+                    }
+
+                    if (GetFirebase.banner_ad_onboardingactivity_top > 0){
+                        binding.bannerContainer.bannerTopContainer.visibility = View.VISIBLE
+
+                    }
+                    binding.footerContainer.visibility = View.VISIBLE
+                    binding.closeAdContainer.visibility = View.GONE
+                }
+                else{
+                    binding.footerContainer.visibility = View.GONE
+                    binding.closeAdContainer.visibility = View.VISIBLE
+
+                    if (GetFirebase.banner_ad_onboardingactivity_bottom > 0){
+                        binding.adsContainer.bannerBottomContainer.visibility = View.GONE
+                    }
+
+                    if (GetFirebase.banner_ad_onboardingactivity_top > 0){
+                        binding.bannerContainer.bannerTopContainer.visibility = View.GONE
+
+                    }
+
+                }
+
+//                updateOnboardingChromeForPage(position)
             }
+
+            override fun onPageScrolled(pos: Int, offset: Float, offsetPixels: Int) {}
+            override fun onPageScrollStateChanged(state: Int) {}
         })
+
+
     }
 
     private fun updateOnboardingChromeForPage(position: Int) {
@@ -170,34 +247,111 @@ class OnBoardingActivity : BaseActivity() {
     }
 
     private fun loadIntroFullScreenNative(adBinding: LayoutFullscreenAdIntroBinding) {
-        if (introFullscreenNativeLoaded || isPremium() || !shouldShowIntroFullScreenNative()) return
-        lifecycleScope.launch {
-            nativeAdOrchestrator.loadNativeAds(
-                context = this@OnBoardingActivity,
-                screen = "IntroScreen",
-                nativeConfigs = listOf(
-                    NativeAdConfig(
-                        position = "full_screen",
-                        container = adBinding.admobNativeFullScreenIntro,
-                        shimmer = adBinding.shimmerContainer
-                    )
-                )
-            )
-            introFullscreenNativeLoaded = true
-            startCloseAdTimer(adBinding)
+
+        startCloseAdTimer()
+
+        NativePreload.adNativeNormalLiveData.observe(this){
+            if (it){
+                adBinding.shimmerContainer.visibility = View.GONE
+                adBinding.admobNativeFullScreenIntroShimmer.visibility = View.GONE
+                adBinding.admobNativeFullScreenIntro.visibility = View.VISIBLE
+                var ad = NativePreload.nativeAdNormal
+
+                val inflater = LayoutInflater.from(this)
+                val container = adBinding.admobNativeFullScreenIntro
+
+                val binding = NativeFullMediaBinding.inflate(inflater)
+                val nativeAdView = binding.nativeAdView
+
+                // Media
+                nativeAdView.mediaView = binding.adMedia
+
+                // Icon
+                nativeAdView.iconView = binding.adAppIcon
+
+                // Headline
+                nativeAdView.headlineView = binding.adHeadline
+                binding.adHeadline.text = ad?.headline
+
+                // Body
+                nativeAdView.bodyView = binding.adBody
+                binding.adBody.text = ad?.body ?: ""
+
+                // Store
+                nativeAdView.storeView = binding.adStore
+                if (ad?.store != null) {
+                    binding.adStore.text = ad?.store
+                    binding.adStore.visibility = View.VISIBLE
+                } else {
+                    binding.adStore.visibility = View.GONE
+                }
+
+                // Advertiser
+                nativeAdView.advertiserView = binding.adAdvertiser
+                if (ad?.advertiser != null) {
+                    binding.adAdvertiser.text = ad.advertiser
+                    binding.adAdvertiser.visibility = View.VISIBLE
+                } else {
+                    binding.adAdvertiser.visibility = View.GONE
+                }
+
+                // Price
+                nativeAdView.priceView = binding.adPrice
+                if (ad?.price != null) {
+                    binding.adPrice.text = ad?.price
+                    binding.adPrice.visibility = View.VISIBLE
+                } else {
+                    binding.adPrice.visibility = View.GONE
+                }
+
+                // Star rating
+                nativeAdView.starRatingView = binding.adStars
+                if (ad?.starRating != null) {
+                    binding.adStars.rating = ad?.starRating!!.toFloat()
+                    binding.adStars.visibility = View.VISIBLE
+                } else {
+                    binding.adStars.visibility = View.GONE
+                }
+
+                // Icon
+                if (ad?.icon != null) {
+                    binding.adAppIcon.setImageDrawable(ad.icon!!.drawable)
+                    binding.adAppIcon.visibility = View.VISIBLE
+                } else {
+                    binding.adAppIcon.visibility = View.GONE
+                }
+
+                // Call to action
+                nativeAdView.callToActionView = binding.adCallToAction
+                binding.adCallToAction.text = ad?.callToAction ?: "Install"
+
+
+                // Register
+                ad?.let {
+                    nativeAdView.setNativeAd(ad)
+                }
+
+                container.addView(binding.root)
+            }
         }
     }
 
-    private fun startCloseAdTimer(adBinding: LayoutFullscreenAdIntroBinding) {
-        val timerTv = adBinding.tvTimer
-        val closeIv = adBinding.ivClose
-        val container = adBinding.closeAdContainer
+    private fun startCloseAdTimer() {
+
+        if (adTimerShown) return  // already shown once, skip
+        adTimerShown = true
+
+        val timerTv = binding.tvTimer
+        val closeIv = binding.ivClose
+        val container = binding.closeAdContainer
 
         container.visibility = View.VISIBLE
         timerTv.visibility = View.VISIBLE
         closeIv.visibility = View.GONE
 
-        var timeLeft = 3
+        binding.viewPager.swipeEnabled = false
+
+        var timeLeft = 5
         val timerRunnable = object : Runnable {
             override fun run() {
                 if (isFinishing || isDestroyed) return
@@ -208,9 +362,10 @@ class OnBoardingActivity : BaseActivity() {
                 } else {
                     timerTv.visibility = View.GONE
                     closeIv.visibility = View.VISIBLE
+                    binding.viewPager.swipeEnabled = true
                     closeIv.setOnClickListener {
                         val current = binding.viewPager.currentItem
-                        val total = binding.viewPager.adapter?.itemCount ?: 0
+                        val total = pages.size ?: 0
                         if (current < total - 1) {
                             binding.viewPager.setCurrentItem(current + 1, true)
                         } else {
@@ -306,49 +461,60 @@ class OnBoardingActivity : BaseActivity() {
             pages.add(
                 OnboardingItem(
                     type = TYPE_DATA,
-                    title = getString(R.string.set_alarm_time),
-                    description = getString(R.string.set_your_alarm_with_ease_using_customizable_options_for_effortless_scheduling),
-                    imageRes = R.drawable.i1,
-                    dotRes = R.drawable.ic_dot
+                    title = getString(R.string.set_your_wake_time),
+                    description = getString(R.string.effortlessly_schedule_your_custom_alarms_with_just_a_few_taps),
+                    imageRes = R.drawable.ic_onboarding_one,
+                    dotRes = R.drawable.ic_dot_one
                 )
             )
 
             pages.add(
                 OnboardingItem(
                     type = TYPE_DATA,
-                    title = getString(R.string.global_watch),
-                    description = getString(R.string.global_watch_provides_a_streamlined_solution_for_monitoring_global_time_zones),
-                    imageRes = R.drawable.i2,
-                    dotRes = R.drawable.ic_dot_1
+                    title = getString(R.string.gentle_wake_up_routines),
+                    description = getString(R.string.set_a_daily_wake_up_time_to_optimize_efficiency_and_build_consistency),
+                    imageRes = R.drawable.ic_onboarding_two,
+                    dotRes = R.drawable.ic_dot_two
                 )
             )
-
-//            if (!isPremium() && shouldShowIntroFullScreenNative()) {
-//                pages.add(
-//                    OnboardingItem(
-//                        type = TYPE_AD
-//                    )
-//                )
-//            }
 
             pages.add(
                 OnboardingItem(
                     type = TYPE_DATA,
-                    title = getString(R.string.timer_running_out),
-                    description = getString(R.string.the_timer_feature_enables_countdowns_for_specific_tasks_or_events),
-                    imageRes = R.drawable.i3,
-                    dotRes = R.drawable.ic_dot_2
+                    title = getString(R.string.sleeping_sounds),
+                    description = getString(R.string.listen_to_calming_sounds_to_quiet_your_mind_and_fall_asleep_fast),
+                    imageRes = R.drawable.ic_onboarding_three,
+                    dotRes = R.drawable.ic_dot_three
                 )
             )
 
-            adapter = OnboardingAdapter(pages) { adBinding ->
-//                loadIntroFullScreenNative(adBinding)
+            if (!isPremium() && GetFirebase.show_full_screen_native) {
+                pages.add(
+                    OnboardingItem(
+                        type = TYPE_AD
+                    )
+                )
             }
-            binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
+            pages.add(
+                OnboardingItem(
+                    type = TYPE_DATA,
+                    title = getString(R.string.optimize_your_work_day),
+                    description = getString(R.string.set_a_daily_wake_up_time_to_streamline_your_office_routine_and_build_consistent_productivity),
+                    imageRes = R.drawable.ic_onboarding_four,
+                    dotRes = R.drawable.ic_dot_four
+                )
+            )
+
+            adapter = OnboardingAdapter(pages) { Binding ->
+//                loadIntroFullScreenNative(adBinding)
+                adBinding = Binding
+            }
+//            binding.viewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
             binding.viewPager.adapter = adapter
             binding.viewPager.isSaveEnabled = false
             binding.viewPager.currentItem = 0
-            updateOnboardingChromeForPage(0)
+//            updateOnboardingChromeForPage(0)
         }
     }
 

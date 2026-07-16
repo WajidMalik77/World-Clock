@@ -21,44 +21,44 @@
 
     <ImageView
         android:id="@+id/ivFullThumbnail"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/_100sdp"
+        android:layout_height="@dimen/_100sdp"
         android:adjustViewBounds="true"
         android:contentDescription="@null"
         android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/tvTimer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
-    <ImageView
-        android:id="@+id/ivBack"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_10sdp"
-        android:layout_marginTop="@dimen/_16sdp"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_back"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/banner_container"
-        app:tint="@color/white" />
+<!--    <ImageView-->
+<!--        android:id="@+id/ivBack"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="@dimen/_10sdp"-->
+<!--        android:layout_marginTop="@dimen/_16sdp"-->
+<!--        android:contentDescription="@null"-->
+<!--        android:src="@drawable/ic_back"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/banner_container"-->
+<!--        app:tint="@color/white" />-->
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:fontFamily="@font/poppins_medium"
-        android:maxLines="1"
-        android:paddingHorizontal="@dimen/_5sdp"
-        android:textColor="@color/white"
-        android:textSize="@dimen/_12ssp"
-        app:layout_constraintBottom_toBottomOf="@+id/ivBack"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@id/ivBack"
-        app:layout_constraintTop_toTopOf="@+id/ivBack" />
+<!--    &lt;!&ndash; Title &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/tvTitle"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:ellipsize="end"-->
+<!--        android:fontFamily="@font/poppins_medium"-->
+<!--        android:maxLines="1"-->
+<!--        android:paddingHorizontal="@dimen/_5sdp"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:textSize="@dimen/_12ssp"-->
+<!--        app:layout_constraintBottom_toBottomOf="@+id/ivBack"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toEndOf="@id/ivBack"-->
+<!--        app:layout_constraintTop_toTopOf="@+id/ivBack" />-->
 
     <!-- Timer -->
     <TextView

@@ -85,4 +85,14 @@
     <string name="force_update_title">Update Required</string>
     <string name="force_update_message">A new version of the app is available. Please update to continue using all features.</string>
     <string name="force_update_action">Update Now</string>
+    <string name="world_clock_alarm_timer">World Clock - Alarm, Timer</string>
+    <string name="all_in_one_clock_app_with_world_clock_alarm_timer_amp_stopwatch_features"><![CDATA[All-in-one clock app with world clock, alarm, timer & stopwatch features.]]></string>
+    <string name="set_your_wake_time">Set Your Wake Time</string>
+    <string name="effortlessly_schedule_your_custom_alarms_with_just_a_few_taps">Effortlessly schedule your custom alarms with just a few taps</string>
+    <string name="gentle_wake_up_routines">Gentle Wake Up Routines</string>
+    <string name="set_a_daily_wake_up_time_to_optimize_efficiency_and_build_consistency">Set a daily wake up time to optimize efficiency and build consistency</string>
+    <string name="sleeping_sounds">Sleeping Sounds</string>
+    <string name="listen_to_calming_sounds_to_quiet_your_mind_and_fall_asleep_fast">Listen to calming sounds to quiet your mind and fall asleep fast</string>
+    <string name="optimize_your_work_day">Optimize Your Workday</string>
+    <string name="set_a_daily_wake_up_time_to_streamline_your_office_routine_and_build_consistent_productivity">Set a daily wake-up time to streamline your office routine and build consistent productivity</string>
 </resources>

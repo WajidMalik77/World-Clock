@@ -2,6 +2,12 @@ package com.worldclock.app_themes.ads.utils
 
 object GetFirebase {
 
+
+    var show_full_screen_native = false
+    var adIDOnboarding_FullNative = ""
+    var enable_banner_native_ads = false
+
+
     //interstitial ad
 
     var transition_PremiumBack = 1

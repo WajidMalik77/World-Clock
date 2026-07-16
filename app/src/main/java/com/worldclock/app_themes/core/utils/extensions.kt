@@ -59,14 +59,21 @@ data class Lang(val res: Int, val name: String, val locale: Locale)
 data class HomeItem(val res: Int, val name: String, val bgColor: Int)
 
 fun Context.getLangData() = arrayListOf(
-    Lang(R.drawable.flag_us, "English", Locales.English),
-    Lang(R.drawable.flag_hi, "Hindi", Locales.Hindi),
-    Lang(R.drawable.flag_es, "Spanish", Locales.Spanish),
-    Lang(R.drawable.flag_fr, "French", Locales.French),
-    Lang(R.drawable.flag_pt, "Portuguese", Locales.Portuguese),
-    Lang(R.drawable.flag_germany, "German", Locales.German),
-    Lang(R.drawable.flag_ja, "Japanese", Locales.Japanese),
-    Lang(R.drawable.flag_ar, "Arabic", Locales.Arabic),
+    Lang(com.hbb20.R.drawable.flag_afghanistan, "Afrikaans", Locales.Afrikaans),
+    Lang(com.hbb20.R.drawable.flag_albania, "Albanian", Locales.Albanian),
+    Lang(com.hbb20.R.drawable.flag_saudi_arabia, "Arabic", Locales.Arabic),
+    Lang(com.hbb20.R.drawable.flag_armenia, "Armenian", Locales.Armenian),
+    Lang(com.hbb20.R.drawable.flag_belarus, "Belarus", Locales.Belarus),
+    Lang(com.hbb20.R.drawable.flag_bulgaria, "Bulgarian", Locales.Bulgarian),
+    Lang(com.hbb20.R.drawable.flag_denmark, "Danish", Locales.Danish),
+    Lang(com.hbb20.R.drawable.flag_netherlands, "Dutch", Locales.Dutch),
+    Lang(com.hbb20.R.drawable.flag_united_kingdom, "English", Locales.English),
+    Lang(com.hbb20.R.drawable.flag_estonia, "Estonian", Locales.Estonian),
+    Lang(com.hbb20.R.drawable.flag_philippines, "Filipino", Locales.Filipino),
+    Lang(com.hbb20.R.drawable.flag_finland, "Finnish", Locales.Finnish),
+    Lang(com.hbb20.R.drawable.flag_france, "French", Locales.French),
+    Lang(com.hbb20.R.drawable.flag_georgia, "Georgian", Locales.Georgian),
+    Lang(com.hbb20.R.drawable.flag_germany, "German", Locales.German)
 )
 
 fun Context.getMenuData() = arrayListOf(

@@ -55,6 +55,7 @@ import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.ads.utils.Utils.isPremium
 import com.worldclock.app_themes.core.utils.AdsConstants
+import com.worldclock.app_themes.core.utils.requestNotificationPermissionIfNeeded
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.async
@@ -113,6 +114,9 @@ class Splash : BaseActivity() {
         binding.getStartedActionSpacer.visibility = View.GONE
         binding.imgLoading.visibility = View.GONE
 
+        requestNotificationPermissionIfNeeded()
+
+
         binding.getStarted.setOnClickListener {
             if (getStartedConsumed) return@setOnClickListener
             getStartedConsumed = true
@@ -122,7 +126,6 @@ class Splash : BaseActivity() {
             continueAfterAds()
         }
 
-        binding.splashImage.setImageResource(R.drawable.ic_splash)
         binding.adsContainerTop.adTextAdvertisementTop.visibility = View.INVISIBLE
         binding.adsContainerBottom.adTextAdvertisementBottom.visibility = View.INVISIBLE
         startProgressBar()
@@ -419,13 +422,8 @@ class Splash : BaseActivity() {
                             return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
                         }
                         else{
-                            if (GetFirebase.show_premium_for_retained_user){
-                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
-                            }
-                            else{
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
 
-                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
-                            }
                         }
 
                     }
@@ -444,12 +442,8 @@ class Splash : BaseActivity() {
                             return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
                         }
                         else{
-                            if (GetFirebase.show_premium_for_retained_user){
-                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
-                            }
-                            else{
-                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
-                            }
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+
                         }
 
                     }
@@ -468,12 +462,8 @@ class Splash : BaseActivity() {
                             return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
                         }
                         else{
-                            if (GetFirebase.show_premium_for_retained_user){
-                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
-                            }
-                            else{
-                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
-                            }
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+
                         }
 
                     }
@@ -492,12 +482,8 @@ class Splash : BaseActivity() {
                             return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
                         }
                         else{
-                            if (GetFirebase.show_premium_for_retained_user){
-                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
-                            }
-                            else{
-                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
-                            }
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+
                         }
 
                     }
@@ -516,12 +502,8 @@ class Splash : BaseActivity() {
                             return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
                         }
                         else{
-                            if (GetFirebase.show_premium_for_retained_user){
-                                return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
-                            }
-                            else{
-                                return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
-                            }
+                            return Intent(context, MainActivity::class.java).putExtra("isSplash", true)
+
                         }
 
                     }

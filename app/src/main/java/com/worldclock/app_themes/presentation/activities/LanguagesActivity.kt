@@ -67,7 +67,7 @@ class LanguagesActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "LanguagesScreen", "activity_lifecycle")
 
-        if (GetFirebase.enable_on_demand_interstitial == 1){
+        if (GetFirebase.enable_on_demand_interstitial == 1 && (GetFirebase.transition_LanguageForward == 1 || GetFirebase.transition_LanguagesBack == 1)){
             InterstitialAdManager.loadLanguage(this, GetFirebase.adIdLanguage_interstitial)
         }
 
@@ -264,24 +264,55 @@ class LanguagesActivity : BaseActivity() {
 
         when (currentScreen) {
             "splash" -> {
-                return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+                if (GetFirebase.show_premium_for_retained_user && !isFirstLaunch){
+                    return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
+
+                }
+                else{
+                    return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+
+                }
 
             }
             "languages" -> {
-                return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+                if (GetFirebase.show_premium_for_retained_user && !isFirstLaunch){
+                    return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
 
+                }
+                else{
+                    return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+
+                }
             }
             "intro" -> {
-                return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+                if (GetFirebase.show_premium_for_retained_user && !isFirstLaunch){
+                    return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
 
+                }
+                else{
+                    return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+
+                }
             }
             "premium" -> {
-                return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+                if (GetFirebase.show_premium_for_retained_user && !isFirstLaunch){
+                    return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
 
+                }
+                else{
+                    return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+
+                }
             }
             else -> {
-                return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+                if (GetFirebase.show_premium_for_retained_user && !isFirstLaunch){
+                    return Intent(context, PremiumActivity::class.java).putExtra("isSplash", true)
 
+                }
+                else{
+                    return Intent(context, OnBoardingActivity::class.java).putExtra("isSplash", true)
+
+                }
             }
         }
 
@@ -318,7 +349,7 @@ class LanguagesActivity : BaseActivity() {
                 binding.done.visibility = View.VISIBLE
             }
 
-        },3000)
+        },4000)
 
 
     }

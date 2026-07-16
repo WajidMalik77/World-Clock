@@ -13,115 +13,136 @@
         layout="@layout/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/banner_container"
         layout="@layout/layout_top_banner"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        android:layout_height="wrap_content" />
 
 
-    <ImageView
-        android:id="@+id/topImg"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_180sdp"
-        android:src="@drawable/world_clock_top"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/banner_container"
-        tools:ignore="ContentDescription" />
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/topCons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/topImg"
-        app:layout_constraintTop_toTopOf="@+id/topImg">
-
-        <TextView
-            android:id="@+id/countryImg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/_10sdp"
-            android:fontFamily="@font/poppins_regular"
-            android:text="🌐"
-            app:layout_constraintBottom_toBottomOf="@+id/countryName"
-            app:layout_constraintEnd_toStartOf="@+id/countryName"
-            app:layout_constraintTop_toTopOf="@+id/countryName"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/countryName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/poppins_medium"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_14ssp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/timeTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/_4sdp"
-            android:fontFamily="@font/poppins_medium"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_20ssp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/countryName" />
-
-        <TextView
-            android:id="@+id/dateTv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="@dimen/_4sdp"
-            android:fontFamily="@font/poppins_regular"
-            android:gravity="center"
-            android:text="@string/app_name"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_12ssp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/timeTv" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginHorizontal="@dimen/_4sdp"
-        android:layout_marginTop="@dimen/_10sdp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@+id/addClock"
-        app:layout_constraintTop_toBottomOf="@+id/topImg"
-        tools:itemCount="6"
-        tools:listitem="@layout/item_world_clock" />
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/ads_container"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container">
 
-    <ImageView
-        android:id="@+id/addClock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/_8sdp"
-        android:src="@drawable/add_clock"
-        app:layout_constraintBottom_toTopOf="@+id/ads_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="ContentDescription" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/topImg"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_180sdp"
+                    android:src="@drawable/world_clock_top"
+                    tools:ignore="ContentDescription" />
+
+                <LinearLayout
+                    android:id="@+id/topCons"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/countryImg"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:fontFamily="@font/poppins_regular"
+                            android:text="🌐"
+                            tools:ignore="ContentDescription" />
+
+                        <TextView
+                            android:id="@+id/countryName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/poppins_medium"
+                            android:gravity="center"
+                            android:text="@string/app_name"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_14ssp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/timeTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/_4sdp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:gravity="center"
+                        android:text="@string/app_name"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_20ssp" />
+
+                    <TextView
+                        android:id="@+id/dateTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="@dimen/_4sdp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:gravity="center"
+                        android:text="@string/app_name"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp" />
+                </LinearLayout>
+            </FrameLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_4sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:nestedScrollingEnabled="false"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="6"
+                android:layout_marginBottom="@dimen/_40sdp"
+                tools:listitem="@layout/item_world_clock" />
+
+
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <include
         android:id="@+id/ads_container"
         layout="@layout/layout_bottom_native"
         android:layout_width="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="wrap_content" />
+
+    <!-- Floating above everything -->
+    <ImageView
+        android:id="@+id/addClock"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_margin="@dimen/_8sdp"
+        android:elevation="@dimen/_4sdp"
+        android:src="@drawable/add_clock"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="ContentDescription" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

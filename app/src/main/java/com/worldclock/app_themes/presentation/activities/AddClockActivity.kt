@@ -38,6 +38,7 @@ import com.worldclock.app_themes.ads.preload.PreloadController
 import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.analytics.AppEventLogger
+import com.worldclock.app_themes.core.utils.getCurrentWorldClock
 
 @AndroidEntryPoint
 class AddClockActivity : BaseActivity() {
@@ -86,6 +87,8 @@ class AddClockActivity : BaseActivity() {
             NativePreload.adNativeBottomLiveData){
 
         }
+        val imm =
+            getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
 
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -93,7 +96,8 @@ class AddClockActivity : BaseActivity() {
 
             if (existingCount == 0) {
                 // generate and insert only if database is empty
-                val clocks = getAllWorldClocksUsingZoneTabWithRelation()
+                val currentClock = getCurrentWorldClock()
+                val clocks = getAllWorldClocksUsingZoneTabWithRelation().filter { it.country.lowercase() != currentClock.countryName.lowercase() }
                 dao.insertAll(clocks)
                 Log.d("DB", "Inserted ${clocks.size} clocks")
             } else {
@@ -189,8 +193,7 @@ class AddClockActivity : BaseActivity() {
                             .setDuration(300)
                             .withEndAction {
                                 binding.searchBar.requestFocus()
-                                val imm =
-                                    getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+
                                 imm?.showSoftInput(
                                     binding.searchBar,
                                     InputMethodManager.SHOW_IMPLICIT
@@ -199,7 +202,10 @@ class AddClockActivity : BaseActivity() {
                             .start()
                     } else {
                         binding.searchIcon.setImageResource(R.drawable.search)
-
+                        imm?.hideSoftInputFromWindow(
+                            window.decorView.windowToken,
+                            0
+                        )
                         // Collapse with animation
                         binding.searchBar.animate()
                             .alpha(0f)
@@ -256,8 +262,12 @@ class AddClockActivity : BaseActivity() {
                 WorldClockDatabase.getDatabase(this@AddClockActivity).worldClockDao().getAllClocks()
             val updated = updateTimes(clocks)
             withContext(Dispatchers.Main) {
-                adapter.updateList(updated)
-                binding.recycler.adapter = adapter
+                val currentClock = getCurrentWorldClock()
+                val clocksU = updated.filter { it.country.lowercase() != currentClock.countryName.lowercase() }
+
+
+
+                adapter.updateList(clocksU)
                 binding.recycler.adapter = adapter
                 binding.searchBar.addTextChangedListener(object : TextWatcher {
                     override fun afterTextChanged(s: Editable?) {}
@@ -278,9 +288,9 @@ class AddClockActivity : BaseActivity() {
                     ) {
                         val query = s.toString().trim()
                         val filtered = if (query.isEmpty()) {
-                            updated
+                            clocksU
                         } else {
-                            updated.filter {
+                            clocksU.filter {
                                 it.city.contains(query, ignoreCase = true) ||
                                         it.country.contains(query, ignoreCase = true)
                             }

@@ -72,7 +72,7 @@
             android:paddingEnd="@dimen/_5sdp"
             android:text="07:33"
             android:textColor="@color/black"
-            android:textSize="@dimen/_34ssp"
+            android:textSize="@dimen/_26ssp"
             app:layout_constraintBottom_toBottomOf="@+id/countryText"
             app:layout_constraintEnd_toStartOf="@+id/delImg"
             app:layout_constraintStart_toEndOf="@+id/cityText"

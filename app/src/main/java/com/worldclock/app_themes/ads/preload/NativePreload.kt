@@ -71,7 +71,9 @@ object NativePreload {
 
 
     fun loadTopNative(context: Context, adID: String) {
-
+        if (!GetFirebase.enable_banner_native_ads){
+            return
+        }
         nativeAdTop = null
 
         val builder = AdLoader.Builder(context, adID)
@@ -130,7 +132,9 @@ object NativePreload {
     }
 
     fun loadBottomNative(context: Context, adID: String) {
-
+        if (!GetFirebase.enable_banner_native_ads){
+            return
+        }
         nativeAdBottom = null
 
         val builder = AdLoader.Builder(
@@ -192,7 +196,9 @@ object NativePreload {
     }
 
     fun loadNormalNative(context: Context, adId: String) {
-
+        if (!GetFirebase.enable_banner_native_ads){
+            return
+        }
         nativeAdNormal = null
 
         val builder = AdLoader.Builder(context, adId)

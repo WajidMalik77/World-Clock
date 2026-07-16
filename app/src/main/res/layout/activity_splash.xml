@@ -18,119 +18,150 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Center splash branding -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/centerLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_110sdp"
-        app:layout_constraintBottom_toTopOf="@+id/splashProgress"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/splash_image"
-            android:layout_width="@dimen/_121sdp"
-            android:layout_height="@dimen/_130sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:id="@+id/mainTxt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_15sdp"
-            android:layout_marginHorizontal="@dimen/_10sdp"
-            android:fontFamily="@font/poppins_medium"
-            android:text="@string/alarm_clock"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_18ssp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/splash_image" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Circular progress bar shown while loading -->
-    <ProgressBar
-        android:id="@+id/splashProgress"
-        android:layout_width="@dimen/_40sdp"
-        android:layout_height="@dimen/_40sdp"
-        android:layout_marginBottom="@dimen/_30sdp"
-        android:indeterminate="true"
-        android:indeterminateTint="@color/blue"
-        android:indeterminateTintMode="src_in"
-        app:layout_constraintBottom_toTopOf="@+id/splashActionGroup"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Indeterminate spinner shown after "Get Started" is clicked -->
-    <ProgressBar
-        android:id="@+id/imgLoading"
-        android:layout_width="@dimen/_48sdp"
-        android:layout_height="@dimen/_48sdp"
-        android:layout_marginBottom="@dimen/_8sdp"
-        android:indeterminate="true"
-        android:indeterminateTint="@color/blue"
-        android:indeterminateTintMode="src_in"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/splashActionGroup"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Action group: Get Started CTA + disclosure text -->
-    <LinearLayout
-        android:id="@+id/splashActionGroup"
-        android:layout_width="0dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_20sdp"
-        android:layout_marginEnd="@dimen/_20sdp"
-        android:layout_marginBottom="@dimen/_26sdp"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/ads_container_bottom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:id="@+id/progressContainer"
+        app:layout_constraintTop_toBottomOf="@id/ads_container_top"
+        app:layout_constraintBottom_toTopOf="@id/ads_container_bottom">
 
-        <TextView
-            android:id="@+id/getStarted"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_splash_get_started"
-            android:clickable="true"
-            android:focusable="true"
-            android:fontFamily="@font/poppins_medium"
-            android:gravity="center"
-            android:includeFontPadding="false"
-            android:paddingTop="@dimen/_12sdp"
-            android:paddingBottom="@dimen/_12sdp"
-            android:text="Get Started"
-            android:textColor="@color/white"
-            android:textSize="16sp"
-            android:visibility="gone" />
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:gravity="center">
 
-        <View
-            android:id="@+id/getStartedActionSpacer"
-            android:layout_width="1dp"
-            android:layout_height="4dp"
-            android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/centerLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:fontFamily="@font/poppins_medium"
-            android:includeFontPadding="false"
-            android:text="@string/this_process_may_contains_ads"
-            android:textColor="@color/grey"
-            android:textSize="12sp"
-            android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/splash_image"
+                    android:layout_width="@dimen/_121sdp"
+                    android:layout_height="@dimen/_130sdp"
+                    android:src="@drawable/icon_splash_clock"
+                    tools:ignore="ContentDescription" />
 
-    </LinearLayout>
+                <TextView
+                    android:id="@+id/mainTxt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginHorizontal="@dimen/_10sdp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="@string/world_clock_alarm_timer"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:includeFontPadding="false"
+                    android:textSize="@dimen/_14ssp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_marginHorizontal="@dimen/_30sdp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:text="@string/all_in_one_clock_app_with_world_clock_alarm_timer_amp_stopwatch_features"
+                    android:textColor="@color/grey"
+                    android:textAlignment="center"
+                    android:includeFontPadding="false"
+                    android:textSize="@dimen/_9ssp" />
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_60sdp">
+
+                <ProgressBar
+                    android:id="@+id/splashProgress"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/blue"
+                    android:indeterminateTintMode="src_in"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"/>
+
+                <!-- Indeterminate spinner shown after "Get Started" is clicked -->
+                <ProgressBar
+                    android:id="@+id/imgLoading"
+                    android:layout_width="@dimen/_40sdp"
+                    android:layout_height="@dimen/_40sdp"
+                    android:indeterminate="true"
+                    android:indeterminateTint="@color/blue"
+                    android:indeterminateTintMode="src_in"
+                    android:visibility="gone"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"/>
+
+                <!-- Action group: Get Started CTA + disclosure text -->
+                <LinearLayout
+                    android:id="@+id/splashActionGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_40sdp"
+                    android:orientation="vertical"
+                    android:layout_centerHorizontal="true"
+
+                    android:layout_centerVertical="true">
+
+                    <TextView
+                        android:id="@+id/getStarted"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_splash_get_started"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:fontFamily="@font/poppins_medium"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:layout_marginHorizontal="@dimen/_60sdp"
+                        android:paddingVertical="@dimen/_10sdp"
+                        android:text="Get Started"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_13ssp"
+                        android:visibility="gone"/>
+
+                    <View
+                        android:id="@+id/getStartedActionSpacer"
+                        android:layout_width="1dp"
+                        android:layout_height="4dp"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/action"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:includeFontPadding="false"
+                        android:text="@string/this_process_may_contains_ads"
+                        android:textColor="@color/grey"
+                        android:textSize="12sp"
+                        android:visibility="gone" />
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+
 
     <!-- Bottom native ad container -->
     <include

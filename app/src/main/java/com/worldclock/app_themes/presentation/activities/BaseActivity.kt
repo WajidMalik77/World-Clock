@@ -34,9 +34,9 @@ open class BaseActivity : AppCompatActivity() {
             // Set your background color for the status bar
             window.statusBarColor = ContextCompat.getColor(this, R.color.white)
 
-            // Make status bar icons WHITE
+//             Make status bar icons WHITE
             WindowInsetsControllerCompat(window, window.decorView).apply {
-                isAppearanceLightStatusBars = false
+                isAppearanceLightStatusBars = true
             }
 
             localeDelegate.onCreate(this)

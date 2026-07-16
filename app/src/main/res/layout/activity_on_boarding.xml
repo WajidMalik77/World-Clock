@@ -8,15 +8,15 @@
     android:background="@color/white"
     tools:context=".activities.OnBoardingActivity">
 
-    <androidx.viewpager2.widget.ViewPager2
+    <com.worldclock.app_themes.ads.utils.NonSwipeableViewPager
         android:id="@+id/viewPager"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginBottom="@dimen/_8sdp"
-        app:layout_constraintBottom_toTopOf="@+id/ads_container"
+        android:layout_marginBottom="@dimen/_20sdp"
+        app:layout_constraintBottom_toTopOf="@+id/footerContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nextBtn" />
+        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
 
     <include
         android:id="@+id/ads_container"
@@ -32,17 +32,75 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/nextBtn"
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:id="@+id/footerContainer"
+        app:layout_constraintBottom_toTopOf="@+id/ads_container" >
+
+
+        <ImageView
+            android:layout_width="@dimen/_60sdp"
+            android:layout_height="@dimen/_5sdp"
+            android:src="@drawable/ic_dot_one"
+            android:scaleType="fitXY"
+            android:layout_centerVertical="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="@dimen/_20sdp"
+            android:id="@+id/imageDot"/>
+
+        <TextView
+            android:id="@+id/nextBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:gravity="center"
+            android:text="@string/next"
+            android:includeFontPadding="false"
+            android:layout_marginEnd="@dimen/_10sdp"
+            android:layout_alignParentEnd="true"
+            android:paddingHorizontal="@dimen/_30sdp"
+            android:paddingVertical="@dimen/_8sdp"
+            android:background="@drawable/bg_splash_get_started"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+    </RelativeLayout>
+
+
+    <FrameLayout
+        android:id="@+id/close_ad_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/banner_container"
         android:layout_margin="@dimen/_10sdp"
-        android:fontFamily="@font/poppins_medium"
-        android:gravity="center"
-        android:text="@string/next"
-        android:textColor="#7441D0"
-        android:textSize="@dimen/_14ssp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/banner_container" />
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_timer"
+            android:layout_width="@dimen/_24sdp"
+            android:layout_height="@dimen/_24sdp"
+            android:background="@drawable/bg_timer_circle"
+            android:gravity="center"
+            android:text="3"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/_10ssp" />
+
+        <ImageView
+            android:id="@+id/iv_close"
+            android:layout_width="@dimen/_24sdp"
+            android:layout_height="@dimen/_24sdp"
+            android:src="@drawable/close"
+            android:visibility="gone" />
+    </FrameLayout>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

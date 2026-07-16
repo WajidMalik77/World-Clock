@@ -116,4 +116,5 @@ dependencies {
     implementation(libs.play.app.update)
     implementation(libs.play.app.update.ktx)
     implementation(libs.firebase.perf)
+    implementation("com.hbb20:ccp:2.5.0")
 }
