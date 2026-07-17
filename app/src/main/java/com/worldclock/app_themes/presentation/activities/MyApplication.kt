@@ -21,6 +21,7 @@ import com.worldclock.app_themes.ads.managers.facebook.FbAdInitializer
 import com.worldclock.app_themes.ads.preload.AppOpenAdManager
 import com.worldclock.app_themes.ads.preload.AppOpenScreen
 import com.worldclock.app_themes.ads.preload.InterstitialAdManager
+import com.worldclock.app_themes.ads.utils.FetchRemoteConfig
 import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.core.utils.AdsConstants.LifeTimePref
@@ -216,7 +217,7 @@ class MyApplication : LocaleAwareApplication(),Application.ActivityLifecycleCall
 
         BillingUtilsIAP(this)
         mContext = this
-
+        FetchRemoteConfig.loadCachedValues()
         registerActivityLifecycleCallbacks(this)
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
@@ -244,6 +245,7 @@ class MyApplication : LocaleAwareApplication(),Application.ActivityLifecycleCall
                                 true,
                                 Utils.isPremium,
                                 true,
+                                GetFirebase.isAppOpenOnDemand,
                                 {
 
                                 },
@@ -267,6 +269,7 @@ class MyApplication : LocaleAwareApplication(),Application.ActivityLifecycleCall
                                 true,
                                 Utils.isPremium,
                                 true,
+                                GetFirebase.isAppOpenOnDemand,
                                 {
 
                                 },

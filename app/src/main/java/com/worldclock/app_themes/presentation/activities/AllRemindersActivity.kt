@@ -124,7 +124,8 @@ class AllRemindersActivity : BaseActivity() {
                     GetFirebase.adIdAddAllReminders_bannerBottom, GetFirebase.adIdAddAllReminders_nativeBottom)
 
 
-                InterstitialAdManager.showIfReady(this, InterstitialScreen.OTHER, GetFirebase.adIdOther_interstitial,
+                InterstitialAdManager.showIfReady(this,
+                    InterstitialScreen.OTHER, GetFirebase.adIdOther_interstitial,
                     if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
                     GetFirebase.transition_AllRemindersForward, GetFirebase.counter_interval,
                     Utils.isPremium, GetFirebase.enable_interstitial_ads,{

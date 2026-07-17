@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import com.google.android.gms.ads.AdError
@@ -161,6 +162,7 @@ object InterstitialAdManager {
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
+                    Log.d("INTER_FAILED", error.message.toString())
                     setAd(screen, null)
                 }
             }
@@ -444,6 +446,8 @@ object InterstitialAdManager {
                     }
 
                     override fun onAdFailedToLoad(error: LoadAdError) {
+                        Log.d("INTER_FAILED", error.message.toString())
+
                         if (hasResponded) return
                         hasResponded = true
                         isOnDemandLoading = false
@@ -453,61 +457,72 @@ object InterstitialAdManager {
                 }
             )
         } else {
-            isOnDemandLoading = true
-            var hasResponded = false
-            val handler = Handler(Looper.getMainLooper())
 
-            val dialog = createLoadingDialog(activity) ?: run {
-                onFailed()
-                return
+            if (onDemandAd != null){
+                showAd(onDemandAd!!, activity, screen, onDismiss, onFailed, isPreloaded = false)
+
             }
+            else{
+                isOnDemandLoading = true
+                var hasResponded = false
+                val handler = Handler(Looper.getMainLooper())
 
-            val timeoutRunnable = Runnable {
-                if (!hasResponded) {
-                    hasResponded = true
-                    isOnDemandLoading = false
-                    onDemandAd = null
-                    dismissDialog(dialog, activity)
+                val dialog = createLoadingDialog(activity) ?: run {
                     onFailed()
+                    return
                 }
-            }
 
-            handler.postDelayed(timeoutRunnable, GetFirebase.time_delay_for_ondemand_interstitial)
-
-            InterstitialAd.load(
-                activity,
-                adId,
-                AdRequest.Builder().build(),
-                object : InterstitialAdLoadCallback() {
-                    override fun onAdLoaded(ad: InterstitialAd) {
-                        if (hasResponded) return
+                val timeoutRunnable = Runnable {
+                    if (!hasResponded) {
                         hasResponded = true
-                        handler.removeCallbacks(timeoutRunnable)
-                        isOnDemandLoading = false
-                        onDemandAd = ad
-                        Utils.showMessage(activity, "interstitial loaded")
-
-                        if (activity.isFinishing) {
-                            dismissDialog(dialog, activity)
-                            onFailed()
-                            return
-                        }
-
-                        dismissDialog(dialog, activity)
-                        showAd(ad, activity, screen, onDismiss, onFailed, isPreloaded = false)
-                    }
-
-                    override fun onAdFailedToLoad(error: LoadAdError) {
-                        if (hasResponded) return
-                        hasResponded = true
-                        handler.removeCallbacks(timeoutRunnable)
                         isOnDemandLoading = false
                         onDemandAd = null
                         dismissDialog(dialog, activity)
                         onFailed()
                     }
                 }
-            )
+
+                handler.postDelayed(timeoutRunnable, GetFirebase.time_delay_for_ondemand_interstitial)
+
+                InterstitialAd.load(
+                    activity,
+                    adId,
+                    AdRequest.Builder().build(),
+                    object : InterstitialAdLoadCallback() {
+                        override fun onAdLoaded(ad: InterstitialAd) {
+                            if (hasResponded) return
+                            hasResponded = true
+                            handler.removeCallbacks(timeoutRunnable)
+                            isOnDemandLoading = false
+                            onDemandAd = ad
+                            Utils.showMessage(activity, "interstitial loaded")
+
+                            if (activity.isFinishing) {
+                                dismissDialog(dialog, activity)
+                                onFailed()
+                                return
+                            }
+
+                            dismissDialog(dialog, activity)
+                            showAd(ad, activity, screen, onDismiss, onFailed, isPreloaded = false)
+                        }
+
+                        override fun onAdFailedToLoad(error: LoadAdError) {
+                            Log.d("INTER_FAILED", error.message.toString())
+
+                            if (hasResponded) return
+                            hasResponded = true
+                            handler.removeCallbacks(timeoutRunnable)
+                            isOnDemandLoading = false
+                            onDemandAd = null
+                            dismissDialog(dialog, activity)
+                            onFailed()
+                        }
+                    }
+                )
+            }
+
+
         }
     }
 

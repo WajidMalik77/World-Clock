@@ -39,6 +39,7 @@ import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
 import com.worldclock.app_themes.ads.helpers.ui.BannerAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
 import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.AppOpenAdManager
 import com.worldclock.app_themes.ads.preload.BannerPreload
 import com.worldclock.app_themes.ads.preload.InterstitialAdManager
 import com.worldclock.app_themes.ads.preload.InterstitialScreen
@@ -83,6 +84,10 @@ class OnBoardingActivity : BaseActivity() {
 
         if (GetFirebase.enable_on_demand_interstitial == 1 && (GetFirebase.transition_OnboardingForward == 1)){
             InterstitialAdManager.loadOnboarding(this, GetFirebase.adIdOnboarding_interstitial)
+        }
+
+        if (GetFirebase.open_ad_from_background && !GetFirebase.isAppOpenOnDemand){
+            AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
         }
 
         if (GetFirebase.show_full_screen_native && !isPremium()){

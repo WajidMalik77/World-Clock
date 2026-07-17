@@ -203,15 +203,15 @@ class Splash : BaseActivity() {
     fun initializedAds() {
         MobileAds.initialize(this)
 
-        if (GetFirebase.transition_splash_ad_type == 1){
+        if (GetFirebase.transition_splash_ad_type == 1 && !GetFirebase.isAppOpenOnDemand){
             AppOpenAdManager().loadSplash(this, GetFirebase.adIdSplash_appopen)
         }
-        else if (GetFirebase.transition_splash_ad_type == 2){
+        else if (GetFirebase.transition_splash_ad_type == 2 && GetFirebase.enable_on_demand_interstitial == 1){
             InterstitialAdManager.loadSplash(this, GetFirebase.adIdSplash_interstitial)
         }
 
 
-        if (GetFirebase.open_ad_from_background){
+        if (GetFirebase.open_ad_from_background_splash && !GetFirebase.isAppOpenOnDemand){
             AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
         }
 
@@ -309,7 +309,7 @@ class Splash : BaseActivity() {
         if (GetFirebase.transition_splash_ad_type == 1){
             preloadAds(this, "splash")
             AppOpenAdManager().showIfAvailable(this@Splash, AppOpenScreen.SPLASH,
-                true, isPremium = isPremium, true, {
+                true, isPremium = isPremium, true,  GetFirebase.isAppOpenOnDemand,{
                     startMainActivity(showInterstitial = false)
                 }, {
                     InterstitialAdManager.showWithoutCounter(this@Splash,

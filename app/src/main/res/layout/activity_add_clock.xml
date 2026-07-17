@@ -15,6 +15,17 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/addNewClock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/_10sdp"
+        android:src="@drawable/ic_check_done"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        tools:ignore="ContentDescription" />
+
     <include
         android:id="@+id/banner_container"
         layout="@layout/layout_top_banner"
@@ -22,37 +33,25 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
-
     <EditText
         android:id="@+id/searchBar"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@drawable/bg_black_10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/_10sdp"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:background="@drawable/bg_search"
         android:drawableStart="@drawable/search"
         android:drawablePadding="@dimen/_10sdp"
         android:hint="@string/search_city_or_region"
         android:inputType="text"
         android:paddingHorizontal="@dimen/_10sdp"
+        android:paddingVertical="@dimen/_12sdp"
         android:textColor="@color/black"
         android:textColorHint="#666666"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-        app:layout_constraintEnd_toStartOf="@+id/searchIcon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        android:fontFamily="@font/poppins_regular"
+        android:includeFontPadding="false"
+        app:layout_constraintTop_toBottomOf="@+id/banner_container"
         tools:ignore="Autofill" />
-
-    <ImageView
-        android:id="@+id/searchIcon"
-        android:layout_width="@dimen/_30sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_margin="@dimen/_8sdp"
-        android:padding="@dimen/_6sdp"
-        android:src="@drawable/search"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/toolbar"
-        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
-        tools:ignore="ContentDescription" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler"
@@ -61,23 +60,10 @@
         android:layout_marginHorizontal="@dimen/_10sdp"
         android:layout_marginVertical="@dimen/_10sdp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@+id/addNewClock"
-        app:layout_constraintTop_toBottomOf="@+id/banner_container"
-        tools:itemCount="8"
-        tools:layout_editor_absoluteX="13dp"
-        tools:listitem="@layout/item_add_clock" />
-
-
-    <ImageView
-        android:id="@+id/addNewClock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:src="@drawable/add_check"
         app:layout_constraintBottom_toTopOf="@+id/ads_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="ContentDescription" />
+        app:layout_constraintTop_toBottomOf="@+id/searchBar"
+        tools:itemCount="8"
+        tools:listitem="@layout/item_add_clock" />
 
     <include
         android:id="@+id/ads_container"

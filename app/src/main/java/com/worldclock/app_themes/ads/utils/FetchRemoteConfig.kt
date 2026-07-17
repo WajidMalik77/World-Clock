@@ -5,7 +5,9 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.ads.utils.GetFirebase.adIDOnboarding_FullNative
 import com.worldclock.app_themes.ads.utils.GetFirebase.enable_banner_native_ads
+import com.worldclock.app_themes.ads.utils.GetFirebase.isAppOpenOnDemand
 import com.worldclock.app_themes.ads.utils.GetFirebase.show_full_screen_native
+import com.worldclock.app_themes.ads.utils.GetFirebase.time_delay_for_ondemand_appopen
 import org.json.JSONObject
 
 object FetchRemoteConfig {
@@ -25,8 +27,22 @@ object FetchRemoteConfig {
         }
     }
 
-    private fun applyAll(rc: FirebaseRemoteConfig) {
+    fun loadCachedValues() {
+        val remoteConfig = FirebaseRemoteConfig.getInstance()
 
+
+
+
+        remoteConfig.activate().addOnCompleteListener {
+
+
+
+            applyAll(remoteConfig)
+        }
+    }
+
+    private fun applyAll(rc: FirebaseRemoteConfig) {
+        if (rc.getString("interstitials").isEmpty()) return
         // ══════════════════════════════════════
         // INTERSTITIAL TRANSITIONS
         // ══════════════════════════════════════
@@ -132,8 +148,10 @@ object FetchRemoteConfig {
         GetFirebase.show_premium_for_retained_user = jsonMisc.getBoolean("show_premium_for_retained_user")
         GetFirebase.enable_on_demand_interstitial = jsonMisc.getLong("enable_on_demand_interstitial").toInt()
         GetFirebase.counter_interval = jsonMisc.getLong("counter_interval").toInt()
-        show_full_screen_native = jsonMisc.optBoolean("jsonMisc",false)
-        enable_banner_native_ads = jsonMisc.optBoolean("jsonMisc",false)
+        show_full_screen_native = jsonMisc.optBoolean("show_full_screen_native",false)
+        enable_banner_native_ads = jsonMisc.optBoolean("enable_banner_native_ads",false)
+        time_delay_for_ondemand_appopen = jsonMisc.optInt("time_delay_for_ondemand_appopen",5000)
+        isAppOpenOnDemand = jsonMisc.optBoolean("isAppOpenOnDemand",false)
         // ══════════════════════════════════════
         // NATIVE AD STYLING — SPLASH
         // ══════════════════════════════════════
@@ -201,7 +219,7 @@ object FetchRemoteConfig {
         GetFirebase.adIdOnboarding_interstitial =jsonIds.getString("adIdOnboarding_interstitial")
         GetFirebase.adIdPremium_interstitial = jsonIds.getString("adIdPremium_interstitial")
         GetFirebase.adIdOther_interstitial = jsonIds.getString("adIdOther_interstitial")
-        adIDOnboarding_FullNative = jsonIds.optString("jsonMisc","")
+        adIDOnboarding_FullNative = jsonIds.optString("adIDOnboarding_FullNative","")
 
 
         // ══════════════════════════════════════

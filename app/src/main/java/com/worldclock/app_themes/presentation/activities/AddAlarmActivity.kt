@@ -232,6 +232,8 @@ class AddAlarmActivity : BaseActivity() {
 //                                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
 //                                    finish()
 //                                })
+                            startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+
                             finish()
                         }
                     } else {
@@ -259,6 +261,8 @@ class AddAlarmActivity : BaseActivity() {
 //                                    startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
 //                                    finish()
 //                                })
+                            startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
+
                             finish()
                         }
                     }
@@ -289,12 +293,10 @@ class AddAlarmActivity : BaseActivity() {
                     Utils.isPremium,
                     GetFirebase.enable_interstitial_ads,
                     {
-                        startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
-                        finish()
+                        saveAction()
                     },
                     {
-                        startActivity(Intent(this@AddAlarmActivity, AlarmActivity::class.java))
-                        finish()
+                        saveAction()
                     })
             }
         }

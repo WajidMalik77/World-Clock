@@ -2130,6 +2130,9 @@ object NativePreload {
         nativeAdView.bodyView = binding.adBody
         nativeAdView.callToActionView = binding.adCallToAction
         nativeAdView.iconView = binding.adAppIcon
+        nativeAdView.priceView = binding.adPrice
+        nativeAdView.starRatingView = binding.adStars
+        nativeAdView.storeView = binding.adStore
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
         binding.adHeadline.text = ad.headline
 
@@ -2154,6 +2157,33 @@ object NativePreload {
         } else {
             binding.adAppIcon.setImageDrawable(ad.icon?.drawable)
             binding.adAppIcon.visibility = View.VISIBLE
+        }
+          if (ad.price == null) {
+            binding.adPrice.visibility = View.GONE
+        } else {
+            binding.adPrice.visibility = View.VISIBLE
+            binding.adPrice.text = ad.price
+        }
+
+        if (ad.store == null) {
+            binding.adStore.visibility = View.GONE
+        } else {
+            binding.adStore.visibility = View.VISIBLE
+            binding.adStore.text = ad.store
+        }
+
+        if (ad.starRating == null) {
+            binding.adStars.visibility = View.GONE
+        } else {
+            binding.adStars.rating = ad.starRating!!.toFloat()
+            binding.adStars.visibility = View.VISIBLE
+        }
+
+        if (ad.advertiser == null) {
+            binding.adAdvertiser.visibility = View.GONE
+        } else {
+            binding.adAdvertiser.text = ad.advertiser
+            binding.adAdvertiser.visibility = View.VISIBLE
         }
 
         nativeAdView.setNativeAd(ad)
@@ -2172,6 +2202,9 @@ object NativePreload {
         nativeAdView.bodyView = binding.adBody
         nativeAdView.callToActionView = binding.adCallToAction
         nativeAdView.iconView = binding.adAppIcon
+        nativeAdView.priceView = binding.adPrice
+        nativeAdView.starRatingView = binding.adStars
+        nativeAdView.storeView = binding.adStore
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
         binding.adHeadline.text = ad.headline
 
@@ -2196,6 +2229,34 @@ object NativePreload {
         } else {
             binding.adAppIcon.setImageDrawable(ad.icon?.drawable)
             binding.adAppIcon.visibility = View.VISIBLE
+        }
+
+        if (ad.price == null) {
+            binding.adPrice.visibility = View.GONE
+        } else {
+            binding.adPrice.visibility = View.VISIBLE
+            binding.adPrice.text = ad.price
+        }
+
+        if (ad.store == null) {
+            binding.adStore.visibility = View.GONE
+        } else {
+            binding.adStore.visibility = View.VISIBLE
+            binding.adStore.text = ad.store
+        }
+
+        if (ad.starRating == null) {
+            binding.adStars.visibility = View.GONE
+        } else {
+            binding.adStars.rating = ad.starRating!!.toFloat()
+            binding.adStars.visibility = View.VISIBLE
+        }
+
+        if (ad.advertiser == null) {
+            binding.adAdvertiser.visibility = View.GONE
+        } else {
+            binding.adAdvertiser.text = ad.advertiser
+            binding.adAdvertiser.visibility = View.VISIBLE
         }
 
         nativeAdView.setNativeAd(ad)
@@ -2303,6 +2364,9 @@ object NativePreload {
         nativeAdView.bodyView = binding.adBody
         nativeAdView.callToActionView = binding.adCallToAction
         nativeAdView.iconView = binding.adAppIcon
+        nativeAdView.priceView = binding.adPrice
+        nativeAdView.starRatingView = binding.adStars
+        nativeAdView.storeView = binding.adStore
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
         binding.adHeadline.text = ad.headline
         ad.mediaContent?.let { binding.adMedia.setMediaContent(it) }
@@ -2328,6 +2392,34 @@ object NativePreload {
         } else {
             binding.adAppIcon.setImageDrawable(ad.icon?.drawable)
             binding.adAppIcon.visibility = View.VISIBLE
+        }
+
+        if (ad.price == null) {
+            binding.adPrice.visibility = View.GONE
+        } else {
+            binding.adPrice.visibility = View.VISIBLE
+            binding.adPrice.text = ad.price
+        }
+
+        if (ad.store == null) {
+            binding.adStore.visibility = View.GONE
+        } else {
+            binding.adStore.visibility = View.VISIBLE
+            binding.adStore.text = ad.store
+        }
+
+        if (ad.starRating == null) {
+            binding.adStars.visibility = View.GONE
+        } else {
+            binding.adStars.rating = ad.starRating!!.toFloat()
+            binding.adStars.visibility = View.VISIBLE
+        }
+
+        if (ad.advertiser == null) {
+            binding.adAdvertiser.visibility = View.GONE
+        } else {
+            binding.adAdvertiser.text = ad.advertiser
+            binding.adAdvertiser.visibility = View.VISIBLE
         }
 
         nativeAdView.setNativeAd(ad)
@@ -2368,6 +2460,9 @@ object NativePreload {
         nativeAdView.bodyView = binding.adBody
         nativeAdView.callToActionView = binding.adCallToAction
         nativeAdView.iconView = binding.adAppIcon
+        nativeAdView.priceView = binding.adPrice
+        nativeAdView.starRatingView = binding.adStars
+        nativeAdView.storeView = binding.adStore
         // The headline and media content are guaranteed to be in every UnifiedNativeAd.
         binding.adHeadline.text = ad.headline
         ad.mediaContent?.let { binding.adMedia.setMediaContent(it) }

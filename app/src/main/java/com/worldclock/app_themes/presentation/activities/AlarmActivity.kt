@@ -219,45 +219,53 @@ class AlarmActivity : BaseActivity() {
         }
 
         binding.addClock.setOnClickListener {
-            val navigate = {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    if (!isNotificationPermissionGranted()) {
-                        requestPermissions(
-                            arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                            com.worldclock.app_themes.core.utils.NOTIFICATION_PERMISSION_CODE
-                        )
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && checkOverlayPermissionGranted()) {
+                val navigate = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        if (!isNotificationPermissionGranted()) {
+                            requestPermissions(
+                                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                                com.worldclock.app_themes.core.utils.NOTIFICATION_PERMISSION_CODE
+                            )
+                        } else {
+
+                            startActivity(Intent(this@AlarmActivity, AddAlarmActivity::class.java))
+                        }
                     } else {
                         startActivity(Intent(this@AlarmActivity, AddAlarmActivity::class.java))
                     }
-                } else {
-                    startActivity(Intent(this@AlarmActivity, AddAlarmActivity::class.java))
+                }
+
+                val isPremium = PrefUtil(this).getBool("is_premium", false)
+                        || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
+
+                if (isPremium) {
+                    navigate()
+                }
+                else {
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addalarm_top,"top",this@AlarmActivity,
+                        GetFirebase.adIdAddAlarm_bannerTop, GetFirebase.adIdAddAlarm_nativeTop)
+
+                    PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addalarm_bottom,"bottom",this@AlarmActivity,
+                        GetFirebase.adIdAddAlarm_bannerBottom, GetFirebase.adIdAddAlarm_nativeBottom)
+
+
+
+                    InterstitialAdManager.showIfReady(this, InterstitialScreen.OTHER, GetFirebase.adIdOther_interstitial,
+                        if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                        GetFirebase.transition_AlarmForward, GetFirebase.counter_interval,
+                        Utils.isPremium, GetFirebase.enable_interstitial_ads,{
+                            navigate()
+                        },{
+                            navigate()
+                        })
                 }
             }
-
-            val isPremium = PrefUtil(this).getBool("is_premium", false)
-                || getSharedPreferences(LifeTimePref, 0).getBoolean("premium", false)
-
-            if (isPremium) {
-                navigate()
-            } else {
-
-                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addalarm_top,"top",this@AlarmActivity,
-                    GetFirebase.adIdAddAlarm_bannerTop, GetFirebase.adIdAddAlarm_nativeTop)
-
-                PreloadController.loadAdInBannerPosition(GetFirebase.banner_ad_addalarm_bottom,"bottom",this@AlarmActivity,
-                    GetFirebase.adIdAddAlarm_bannerBottom, GetFirebase.adIdAddAlarm_nativeBottom)
-
-
-
-                InterstitialAdManager.showIfReady(this, InterstitialScreen.OTHER, GetFirebase.adIdOther_interstitial,
-                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
-                    GetFirebase.transition_AlarmForward, GetFirebase.counter_interval,
-                    Utils.isPremium, GetFirebase.enable_interstitial_ads,{
-                        navigate()
-                    },{
-                        navigate()
-                    })
+            else{
+                checkOverlayPermission()
             }
+
 
 //            val hour = 7
 //            val minute = 30
@@ -298,6 +306,7 @@ class AlarmActivity : BaseActivity() {
 
     }
 
+
     private val NOTIFICATION_PERMISSION_CODE = 101
 
     override fun onRequestPermissionsResult(
@@ -322,6 +331,23 @@ class AlarmActivity : BaseActivity() {
                 showNotificationPermissionSettings()
             }
         }
+    }
+
+    fun checkOverlayPermissionGranted(): Boolean {
+
+        // Exact alarm permission (Android 12+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val alarmManager = getSystemService(AlarmManager::class.java)
+            if (!alarmManager.canScheduleExactAlarms()) {
+                startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM))
+                return false
+            }
+        }
+
+        // Notification permission (Android 13+)
+        requestNotificationPermissionIfNeeded()
+
+        return true
     }
 
     fun checkOverlayPermission() {

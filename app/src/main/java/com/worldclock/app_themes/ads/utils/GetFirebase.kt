@@ -7,40 +7,44 @@ object GetFirebase {
     var adIDOnboarding_FullNative = ""
     var enable_banner_native_ads = false
 
+    var time_delay_for_ondemand_appopen = 5000
+    var isAppOpenOnDemand = false
+
+
 
     //interstitial ad
 
-    var transition_PremiumBack = 1
-    var transition_AddAlarmBack = 1
-    var transition_splash_ad_type = 1
-    var transition_AddAllRemindersBack = 1
-    var transition_AddClockBack = 1
-    var transition_AddReminderBack = 1
-    var transition_AlarmActivityBack = 1
-    var transition_AllRemindersBack = 1
-    var transition_ClockBack = 1
-    var transition_CompassBack = 1
-    var transition_LanguagesBack = 1
-    var transition_MainBack = 1
-    var transition_MenuBack = 1
-    var transition_PlaySoundBack = 1
-    var transition_SleepSoundBack = 1
-    var transition_StopWatchBack = 1
-    var transition_TimerBack = 1
-    var transition_WidgetBack = 1
+    var transition_PremiumBack = 0
+    var transition_AddAlarmBack = 0
+    var transition_splash_ad_type = 0
+    var transition_AddAllRemindersBack = 0
+    var transition_AddClockBack = 0
+    var transition_AddReminderBack = 0
+    var transition_AlarmActivityBack = 0
+    var transition_AllRemindersBack = 0
+    var transition_ClockBack = 0
+    var transition_CompassBack = 0
+    var transition_LanguagesBack = 0
+    var transition_MainBack = 0
+    var transition_MenuBack = 0
+    var transition_PlaySoundBack = 0
+    var transition_SleepSoundBack = 0
+    var transition_StopWatchBack = 0
+    var transition_TimerBack = 0
+    var transition_WidgetBack = 0
 
-    var transition_AddAllRemindersForward = 1
+    var transition_AddAllRemindersForward = 0
 
-    var transition_AlarmForward = 1
-    var transition_AllRemindersForward = 1
-    var transition_ClockForward = 1
-    var transition_ExitForward = 1
-    var transition_ExitBackpress = 1
-    var transition_LanguageForward = 1
-    var transition_MainForward = 1
-    var transition_MenuForward = 1
-    var transition_OnboardingForward = 1
-    var transition_SleepSoundForward = 1
+    var transition_AlarmForward = 0
+    var transition_AllRemindersForward = 0
+    var transition_ClockForward = 0
+    var transition_ExitForward = 0
+    var transition_ExitBackpress = 0
+    var transition_LanguageForward = 0
+    var transition_MainForward = 0
+    var transition_MenuForward = 0
+    var transition_OnboardingForward = 0
+    var transition_SleepSoundForward = 0
 
     //top bottom ads
     var banner_ad_addalarm_top = 0
@@ -76,8 +80,8 @@ object GetFirebase {
     var banner_ad_languagesactivity_top = 0
     var banner_ad_languagesactivity_bottom = 0
 
-    var banner_ad_mainactivity_top = 1
-    var banner_ad_mainactivity_bottom = 6
+    var banner_ad_mainactivity_top = 0
+    var banner_ad_mainactivity_bottom = 0
 
     var banner_ad_menuactivity_top = 0
     var banner_ad_menuactivity_bottom = 0

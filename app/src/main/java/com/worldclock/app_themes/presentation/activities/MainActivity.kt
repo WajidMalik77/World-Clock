@@ -34,6 +34,7 @@ import com.worldclock.app_themes.ads.helpers.ui.BannerAdOrchestrator
 import com.worldclock.app_themes.ads.helpers.safeShowInterstitialAction
 import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
 import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.AppOpenAdManager
 import com.worldclock.app_themes.ads.preload.BannerPreload
 import com.worldclock.app_themes.ads.preload.InterstitialAdManager
 import com.worldclock.app_themes.ads.preload.InterstitialScreen
@@ -88,6 +89,10 @@ class MainActivity : BaseActivity() {
         binding.toolbar.back.setOnClickListener {
             AppEventLogger.trackButtonClick("HomeScreen", "menu", "navigate", "home_flow")
             startActivity(Intent(this, MenuActivity::class.java))
+        }
+
+        if (GetFirebase.open_ad_from_background && !GetFirebase.isAppOpenOnDemand){
+            AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
         }
 
         clockRunnable = object : Runnable {

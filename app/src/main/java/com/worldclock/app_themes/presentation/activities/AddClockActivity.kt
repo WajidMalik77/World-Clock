@@ -175,48 +175,48 @@ class AddClockActivity : BaseActivity() {
                 }
 
 
-                binding.searchIcon.setOnClickListener {
-                    AppEventLogger.trackButtonClick(
-                        "AddClockScreen",
-                        "search",
-                        "toggle",
-                        "clock_search"
-                    )
-                    if (binding.searchBar.isGone) {
-                        // Expand with animation
-                        binding.searchBar.visibility = View.VISIBLE
-                        binding.searchIcon.setImageResource(R.drawable.close)
-
-                        binding.searchBar.alpha = 0f
-                        binding.searchBar.animate()
-                            .alpha(1f)
-                            .setDuration(300)
-                            .withEndAction {
-                                binding.searchBar.requestFocus()
-
-                                imm?.showSoftInput(
-                                    binding.searchBar,
-                                    InputMethodManager.SHOW_IMPLICIT
-                                )
-                            }
-                            .start()
-                    } else {
-                        binding.searchIcon.setImageResource(R.drawable.search)
-                        imm?.hideSoftInputFromWindow(
-                            window.decorView.windowToken,
-                            0
-                        )
-                        // Collapse with animation
-                        binding.searchBar.animate()
-                            .alpha(0f)
-                            .setDuration(300)
-                            .withEndAction {
-                                binding.searchBar.visibility = View.GONE
-                                binding.searchBar.text?.clear()
-                            }
-                            .start()
-                    }
-                }
+//                binding.searchIcon.setOnClickListener {
+//                    AppEventLogger.trackButtonClick(
+//                        "AddClockScreen",
+//                        "search",
+//                        "toggle",
+//                        "clock_search"
+//                    )
+//                    if (binding.searchBar.isGone) {
+//                        // Expand with animation
+//                        binding.searchBar.visibility = View.VISIBLE
+//                        binding.searchIcon.setImageResource(R.drawable.close)
+//
+//                        binding.searchBar.alpha = 0f
+//                        binding.searchBar.animate()
+//                            .alpha(1f)
+//                            .setDuration(300)
+//                            .withEndAction {
+//                                binding.searchBar.requestFocus()
+//
+//                                imm?.showSoftInput(
+//                                    binding.searchBar,
+//                                    InputMethodManager.SHOW_IMPLICIT
+//                                )
+//                            }
+//                            .start()
+//                    } else {
+//                        binding.searchIcon.setImageResource(R.drawable.search)
+//                        imm?.hideSoftInputFromWindow(
+//                            window.decorView.windowToken,
+//                            0
+//                        )
+//                        // Collapse with animation
+//                        binding.searchBar.animate()
+//                            .alpha(0f)
+//                            .setDuration(300)
+//                            .withEndAction {
+//                                binding.searchBar.visibility = View.GONE
+//                                binding.searchBar.text?.clear()
+//                            }
+//                            .start()
+//                    }
+//                }
             }
         }
 

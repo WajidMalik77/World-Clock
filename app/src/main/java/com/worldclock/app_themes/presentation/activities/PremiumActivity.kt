@@ -37,6 +37,7 @@ import com.worldclock.app_themes.core.analytics.AppEventLogger
 import dagger.hilt.android.EntryPointAccessors
 import com.worldclock.app_themes.ads.di.AdConfigEntryPoint
 import com.worldclock.app_themes.ads.preload.AdLoadMode
+import com.worldclock.app_themes.ads.preload.AppOpenAdManager
 import com.worldclock.app_themes.ads.preload.InterstitialAdManager
 import com.worldclock.app_themes.ads.preload.InterstitialScreen
 import com.worldclock.app_themes.ads.preload.PreloadController
@@ -63,7 +64,9 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
 
         isSplash = intent.getBooleanExtra("isSplash", false)
 
-
+        if (GetFirebase.open_ad_from_background && !GetFirebase.isAppOpenOnDemand){
+            AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
+        }
 
         if (GetFirebase.enable_on_demand_interstitial == 1 && GetFirebase.transition_PremiumBack == 1){
             InterstitialAdManager.loadPremium(this, GetFirebase.adIdPremium_interstitial)

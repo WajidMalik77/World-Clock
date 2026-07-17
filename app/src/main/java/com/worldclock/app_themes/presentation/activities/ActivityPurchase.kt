@@ -57,7 +57,7 @@ class ActivityPurchase : BaseActivity() {
         }, 1400)
 
 
-        if (GetFirebase.enable_on_demand_interstitial == 1){
+        if (GetFirebase.enable_on_demand_interstitial == 1 && GetFirebase.transition_PremiumBack == 1){
             InterstitialAdManager.loadPremium(this, GetFirebase.adIdPremium_interstitial)
         }
 
