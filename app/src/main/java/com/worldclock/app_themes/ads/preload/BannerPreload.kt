@@ -19,7 +19,9 @@ import com.google.android.gms.ads.LoadAdError
 import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.ads.utils.Utils.getSdpHeightInPx
+import com.worldclock.app_themes.ads.utils.Utils.splashAdLoaded
 import com.worldclock.app_themes.core.analytics.AppEventLogger
+import com.worldclock.app_themes.presentation.activities.Splash
 
 object BannerPreload {
 
@@ -67,6 +69,10 @@ object BannerPreload {
                 adBannerTopLiveData.value = true
                 if (GetFirebase.toastForAds) {
                     Utils.showMessage(context, "banner loaded")
+                }
+
+                if ((context as AppCompatActivity) is Splash){
+                    splashAdLoaded.value = true
                 }
 
             }
@@ -124,6 +130,10 @@ object BannerPreload {
                 adBannerBottomLiveData.value = true
                 if (GetFirebase.toastForAds) {
                     Utils.showMessage(context, "banner loaded")
+                }
+
+                if ((context as AppCompatActivity) is Splash){
+                    splashAdLoaded.value = true
                 }
 
             }

@@ -35,6 +35,7 @@ import com.worldclock.app_themes.core.utils.AdsConstants.isFirstTime
 import com.worldclock.app_themes.core.utils.PrefUtil
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.observe
 import com.google.android.gms.ads.MobileAds
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
@@ -52,17 +53,21 @@ import com.worldclock.app_themes.ads.preload.NativePreload
 import com.worldclock.app_themes.ads.preload.PreloadController
 import com.worldclock.app_themes.ads.utils.FetchRemoteConfig
 import com.worldclock.app_themes.ads.utils.GetFirebase
+import com.worldclock.app_themes.ads.utils.GetFirebase.enable_on_demand_interstitial_splash
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.ads.utils.Utils.isPremium
 import com.worldclock.app_themes.core.utils.AdsConstants
 import com.worldclock.app_themes.core.utils.requestNotificationPermissionIfNeeded
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.Dispatcher
 import timber.log.Timber
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -206,7 +211,7 @@ class Splash : BaseActivity() {
         if (GetFirebase.transition_splash_ad_type == 1 && !GetFirebase.isAppOpenOnDemand){
             AppOpenAdManager().loadSplash(this, GetFirebase.adIdSplash_appopen)
         }
-        else if (GetFirebase.transition_splash_ad_type == 2 && GetFirebase.enable_on_demand_interstitial == 1){
+        else if (GetFirebase.transition_splash_ad_type == 2 && GetFirebase.enable_on_demand_interstitial_splash == 1){
             InterstitialAdManager.loadSplash(this, GetFirebase.adIdSplash_interstitial)
         }
 
@@ -249,6 +254,17 @@ class Splash : BaseActivity() {
 
         },10000)
 
+        Utils.splashAdLoaded.observe(this){
+            if (it){
+                lifecycleScope.launch {
+                    withContext(Dispatchers.Main){
+                        delay(2000)
+                        showGetStartedCta()
+                    }
+                }
+
+            }
+        }
 
 
     }
@@ -312,20 +328,14 @@ class Splash : BaseActivity() {
                 true, isPremium = isPremium, true,  GetFirebase.isAppOpenOnDemand,{
                     startMainActivity(showInterstitial = false)
                 }, {
-                    InterstitialAdManager.showWithoutCounter(this@Splash,
-                        InterstitialScreen.SPLASH, GetFirebase.adIdSplash_interstitial,
-                        AdLoadMode.ON_DEMAND,1,isPremium, true, {
-                            startMainActivity(showInterstitial = false)
-                        },{
-                            startMainActivity(showInterstitial = false)
-                        })
+                    startMainActivity(showInterstitial = false)
                 })
         }
         else if (GetFirebase.transition_splash_ad_type == 2){
             preloadAds(this, "splash")
             InterstitialAdManager.showWithoutCounter(this@Splash,
                 InterstitialScreen.SPLASH, GetFirebase.adIdSplash_interstitial,
-                AdLoadMode.PRELOADED,1,isPremium, true, {
+                if (enable_on_demand_interstitial_splash == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,1,isPremium, true, {
                     startMainActivity(showInterstitial = false)
                 },{
                     startMainActivity(showInterstitial = false)

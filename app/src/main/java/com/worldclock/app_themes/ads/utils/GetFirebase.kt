@@ -123,6 +123,14 @@ object GetFirebase {
     var show_premium_for_retained_user = false
 
     var enable_on_demand_interstitial = 0
+    var enable_on_demand_interstitial_splash = 0
+    var enable_on_demand_interstitial_language = 0
+    var enable_on_demand_interstitial_inapp = 0
+    var enable_on_demand_interstitial_onboarding = 0
+
+
+
+
 
     var counter_interval = 3
 
@@ -167,6 +175,17 @@ object GetFirebase {
     var native_ad_bodytextheight_for_languagescreen: Double = 12.0
     var native_ad_language_iconsize: Int = 30
     var native_ad_backgroundcolor_for_languagescreen: String = "#FFFFFF"
+
+    var native_ad_buttonheight_for_homescreen: Double = 35.0
+    var native_ad_buttontextcolor_for_homescreen: String = "#FFFFFF"
+    var native_ad_buttontextheight_for_homescreen: Double = 12.0
+    var native_ad_buttoncolor_for_homescreen: String = "#FF5722"
+    var native_ad_headlinecolor_for_homescreen: String = "#000000"
+    var native_ad_headlinetextheight_for_homescreen: Double = 14.0
+    var native_ad_othertextcolor_for_homescreen: String = "#808080"
+    var native_ad_bodytextheight_for_homescreen: Double = 12.0
+    var native_ad_homescreen_iconsize: Int = 30
+    var native_ad_backgroundcolor_for_homescreen: String = "#FFFFFF"
 
     // ══════════════════════════════════════
     // NATIVE AD STYLING — OTHER SCREENS
@@ -251,6 +270,13 @@ object GetFirebase {
     var adIdLanguagesActivity_bannerBottom = "ca-app-pub-3940256099942544/6300978111"
     var adIdLanguagesActivity_nativeTop = "ca-app-pub-3940256099942544/2247696110"
     var adIdLanguagesActivity_nativeBottom = "ca-app-pub-3940256099942544/2247696110"
+    var adIdLanguagesActivity_bannerTop_home = "ca-app-pub-3940256099942544/6300978111"
+    var adIdLanguagesActivity_bannerBottom_home = "ca-app-pub-3940256099942544/6300978111"
+    var adIdLanguagesActivity_nativeTop_home = "ca-app-pub-3940256099942544/2247696110"
+    var adIdLanguagesActivity_nativeBottom_home = "ca-app-pub-3940256099942544/2247696110"
+
+
+
 
     var adIdMainActivity_bannerTop = "ca-app-pub-3940256099942544/6300978111"
     var adIdMainActivity_bannerBottom = "ca-app-pub-3940256099942544/6300978111"

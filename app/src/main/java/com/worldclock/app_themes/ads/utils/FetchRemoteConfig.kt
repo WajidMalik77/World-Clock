@@ -5,6 +5,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.worldclock.app_themes.R
 import com.worldclock.app_themes.ads.utils.GetFirebase.adIDOnboarding_FullNative
 import com.worldclock.app_themes.ads.utils.GetFirebase.enable_banner_native_ads
+import com.worldclock.app_themes.ads.utils.GetFirebase.enable_on_demand_interstitial_onboarding
 import com.worldclock.app_themes.ads.utils.GetFirebase.isAppOpenOnDemand
 import com.worldclock.app_themes.ads.utils.GetFirebase.show_full_screen_native
 import com.worldclock.app_themes.ads.utils.GetFirebase.time_delay_for_ondemand_appopen
@@ -152,6 +153,12 @@ object FetchRemoteConfig {
         enable_banner_native_ads = jsonMisc.optBoolean("enable_banner_native_ads",false)
         time_delay_for_ondemand_appopen = jsonMisc.optInt("time_delay_for_ondemand_appopen",5000)
         isAppOpenOnDemand = jsonMisc.optBoolean("isAppOpenOnDemand",false)
+        GetFirebase.enable_on_demand_interstitial_splash = jsonMisc.optInt("enable_on_demand_interstitial_splash",0)
+        GetFirebase.enable_on_demand_interstitial_language = jsonMisc.optInt("enable_on_demand_interstitial_language",0)
+        GetFirebase.enable_on_demand_interstitial_inapp = jsonMisc.optInt("enable_on_demand_interstitial_inapp",0)
+        enable_on_demand_interstitial_onboarding = jsonMisc.optInt("enable_on_demand_interstitial_onboarding",0)
+
+
         // ══════════════════════════════════════
         // NATIVE AD STYLING — SPLASH
         // ══════════════════════════════════════
@@ -193,6 +200,21 @@ object FetchRemoteConfig {
         GetFirebase.native_ad_bodytextheight_for_languagescreen =jsonMisc.getDouble("native_ad_bodytextheight_for_languagescreen")
         GetFirebase.native_ad_language_iconsize =jsonMisc.getLong("native_ad_language_iconsize").toInt()
         GetFirebase.native_ad_backgroundcolor_for_languagescreen =jsonMisc.getString("native_ad_backgroundcolor_for_languagescreen")
+
+        GetFirebase.native_ad_buttonheight_for_homescreen =jsonMisc.getDouble("native_ad_buttonheight_for_homescreen")
+        GetFirebase.native_ad_buttontextcolor_for_homescreen =jsonMisc.getString("native_ad_buttontextcolor_for_homescreen")
+        GetFirebase.native_ad_buttontextheight_for_homescreen =jsonMisc.getDouble("native_ad_buttontextheight_for_homescreen")
+        GetFirebase.native_ad_buttoncolor_for_homescreen =jsonMisc.getString("native_ad_buttoncolor_for_homescreen")
+        GetFirebase.native_ad_headlinecolor_for_homescreen =jsonMisc.getString("native_ad_headlinecolor_for_homescreen")
+        GetFirebase.native_ad_headlinetextheight_for_homescreen =jsonMisc.getDouble("native_ad_headlinetextheight_for_homescreen")
+        GetFirebase.native_ad_othertextcolor_for_homescreen =jsonMisc.getString("native_ad_othertextcolor_for_homescreen")
+        GetFirebase.native_ad_bodytextheight_for_homescreen =jsonMisc.getDouble("native_ad_bodytextheight_for_homescreen")
+        GetFirebase.native_ad_homescreen_iconsize =jsonMisc.getLong("native_ad_homescreen_iconsize").toInt()
+        GetFirebase.native_ad_backgroundcolor_for_homescreen =jsonMisc.getString("native_ad_backgroundcolor_for_homescreen")
+
+
+
+
 
         // ══════════════════════════════════════
         // NATIVE AD STYLING — OTHER SCREENS
@@ -311,6 +333,11 @@ object FetchRemoteConfig {
         GetFirebase.adIdTimer_nativeBottom = jsonIds.getString("adIdTimer_nativeBottom")
         GetFirebase.adIdWidget_nativeTop = jsonIds.getString("adIdWidget_nativeTop")
         GetFirebase.adIdWidget_nativeBottom = jsonIds.getString("adIdWidget_nativeBottom")
+
+        GetFirebase.adIdLanguagesActivity_bannerTop_home = jsonIds.optString("adIdLanguagesActivity_bannerTop_home","")
+        GetFirebase.adIdLanguagesActivity_bannerBottom_home = jsonIds.optString("adIdLanguagesActivity_bannerBottom_home","")
+        GetFirebase.adIdLanguagesActivity_nativeTop_home = jsonIds.optString("adIdLanguagesActivity_nativeTop_home","")
+        GetFirebase.adIdLanguagesActivity_nativeBottom_home = jsonIds.optString("adIdLanguagesActivity_nativeBottom_home","")
 
         // ══════════════════════════════════════
         // AD IDs — COLLAPSIBLE

@@ -68,7 +68,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
             AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
         }
 
-        if (GetFirebase.enable_on_demand_interstitial == 1 && GetFirebase.transition_PremiumBack == 1){
+        if (GetFirebase.enable_on_demand_interstitial_inapp == 1 && GetFirebase.transition_PremiumBack == 1){
             InterstitialAdManager.loadPremium(this, GetFirebase.adIdPremium_interstitial)
         }
 
@@ -107,7 +107,7 @@ class PremiumActivity : BaseActivity(), SubscriptionPurchaseInterface {
                 this@PremiumActivity,
                 InterstitialScreen.PREMIUM,
                 GetFirebase.adIdOther_interstitial,
-                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                if (GetFirebase.enable_on_demand_interstitial_inapp == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
                 GetFirebase.transition_PremiumBack,
                 GetFirebase.counter_interval,
                 Utils.isPremium,

@@ -82,16 +82,19 @@ class OnBoardingActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "IntroScreen", "activity_lifecycle")
 
-        if (GetFirebase.enable_on_demand_interstitial == 1 && (GetFirebase.transition_OnboardingForward == 1)){
+        if (GetFirebase.enable_on_demand_interstitial_onboarding == 1 &&
+            (GetFirebase.transition_OnboardingForward == 1)){
             InterstitialAdManager.loadOnboarding(this, GetFirebase.adIdOnboarding_interstitial)
         }
 
         if (GetFirebase.open_ad_from_background && !GetFirebase.isAppOpenOnDemand){
-            AppOpenAdManager().loadBackground(this, GetFirebase.adIdBackground_appopen)
+            AppOpenAdManager().loadBackground(this,
+                GetFirebase.adIdBackground_appopen)
         }
 
         if (GetFirebase.show_full_screen_native && !isPremium()){
-            NativePreload.loadNormalNative(this, GetFirebase.adIDOnboarding_FullNative)
+            NativePreload.loadNormalNative(this,
+                GetFirebase.adIDOnboarding_FullNative)
         }
 
         isFullAd = false
@@ -410,7 +413,7 @@ class OnBoardingActivity : BaseActivity() {
                 this,
                 InterstitialScreen.ONBOARDING,
                 GetFirebase.adIdOther_interstitial,
-                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                if (GetFirebase.enable_on_demand_interstitial_onboarding == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
                 GetFirebase.transition_OnboardingForward,
                 GetFirebase.counter_interval,
                 Utils.isPremium,

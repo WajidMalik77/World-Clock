@@ -68,7 +68,29 @@ class LanguagesActivity : BaseActivity() {
         applyEdgeToEdgePadding(R.id.main)
         AppEventLogger.trackScreenCreate(this, savedInstanceState, "LanguagesScreen", "activity_lifecycle")
 
-        if (GetFirebase.enable_on_demand_interstitial == 1 && (GetFirebase.transition_LanguageForward == 1 || GetFirebase.transition_LanguagesBack == 1)){
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerTopLiveData,
+            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
+            GetFirebase.banner_ad_languagesactivity_top,"top",
+            window,
+            NativePreload.adNativeTopLiveData){
+
+        }
+
+        PreloadController.observeBanner(this,
+            BannerPreload.adBannerBottomLiveData,
+            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
+            GetFirebase.banner_ad_languagesactivity_bottom,"bottom",
+            window,
+            NativePreload.adNativeBottomLiveData){
+
+        }
+
+        if (GetFirebase.enable_on_demand_interstitial_language == 1 &&
+            (GetFirebase.transition_LanguageForward == 1
+                    ||
+                    GetFirebase.transition_LanguagesBack == 1)){
             InterstitialAdManager.loadLanguage(this, GetFirebase.adIdLanguage_interstitial)
         }
 
@@ -92,23 +114,7 @@ class LanguagesActivity : BaseActivity() {
         else binding.back.visibility = View.INVISIBLE
 
 
-        PreloadController.observeBanner(this,
-            BannerPreload.adBannerTopLiveData,
-            binding.bannerContainer.bannerTopContainer,binding.bannerContainer.adVeiwTop,binding.bannerContainer.adTextAdvertisementTop,
-            GetFirebase.banner_ad_languagesactivity_top,"top",
-            window,
-            NativePreload.adNativeTopLiveData){
 
-        }
-
-        PreloadController.observeBanner(this,
-            BannerPreload.adBannerBottomLiveData,
-            binding.adsContainer.bannerBottomContainer,binding.adsContainer.adVeiwBottom,binding.adsContainer.adTextAdvertisementBottom,
-            GetFirebase.banner_ad_languagesactivity_bottom,"bottom",
-            window,
-            NativePreload.adNativeBottomLiveData){
-
-        }
 
         binding.back.setOnClickListener {
             AppEventLogger.trackButtonClick("LanguagesScreen", "back", "navigate_back", "languages_flow")
@@ -124,7 +130,7 @@ class LanguagesActivity : BaseActivity() {
                 this@LanguagesActivity,
                 InterstitialScreen.LANGUAGE,
                 GetFirebase.adIdOther_interstitial,
-                if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                if (GetFirebase.enable_on_demand_interstitial_language == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
                 GetFirebase.transition_LanguagesBack,
                 GetFirebase.counter_interval,
                 Utils.isPremium,
@@ -196,7 +202,7 @@ class LanguagesActivity : BaseActivity() {
                     this,
                     InterstitialScreen.LANGUAGE,
                     GetFirebase.adIdOther_interstitial,
-                    if (GetFirebase.enable_on_demand_interstitial == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
+                    if (GetFirebase.enable_on_demand_interstitial_language == 0) AdLoadMode.ON_DEMAND else AdLoadMode.PRELOADED,
                     GetFirebase.transition_LanguageForward,
                     GetFirebase.counter_interval,
                     Utils.isPremium,

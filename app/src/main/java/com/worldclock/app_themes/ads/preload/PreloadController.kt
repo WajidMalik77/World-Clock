@@ -397,7 +397,7 @@ object PreloadController {
                         context
                     )
                     NativePreload.showNativeAdForPreload(
-                        adParent, adLayout, context as AppCompatActivity, window,6,
+                        adParent, adLayout, context as AppCompatActivity, window,7,
                         NativePreload.nativeAdTop,textView, liveDataNative, adPosition
                     )
                 }

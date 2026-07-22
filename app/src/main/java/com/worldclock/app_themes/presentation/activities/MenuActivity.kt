@@ -142,12 +142,12 @@ class MenuActivity : BaseActivity() {
 
                     PreloadController.loadAdInBannerPosition(
                         GetFirebase.banner_ad_languagesactivity_top, "top", this@MenuActivity,
-                        GetFirebase.adIdLanguagesActivity_bannerTop, GetFirebase.adIdLanguagesActivity_nativeTop
+                        GetFirebase.adIdLanguagesActivity_bannerTop_home, GetFirebase.adIdLanguagesActivity_nativeTop_home
                     )
 
                     PreloadController.loadAdInBannerPosition(
                         GetFirebase.banner_ad_languagesactivity_bottom, "bottom", this@MenuActivity,
-                        GetFirebase.adIdLanguagesActivity_bannerBottom, GetFirebase.adIdLanguagesActivity_nativeBottom
+                        GetFirebase.adIdLanguagesActivity_bannerBottom_home, GetFirebase.adIdLanguagesActivity_nativeBottom_home
                     )
 
                     InterstitialAdManager.showIfReady(

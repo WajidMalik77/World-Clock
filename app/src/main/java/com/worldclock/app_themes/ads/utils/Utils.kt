@@ -3,8 +3,12 @@ package com.worldclock.app_themes.ads.utils
 import android.content.Context
 import android.util.TypedValue
 import android.widget.Toast
+import androidx.lifecycle.MutableLiveData
 
 object Utils {
+
+    var splashAdLoaded: MutableLiveData<Boolean> = MutableLiveData(false)
+
     fun showMessage(context: Context, string: String) {
         if (GetFirebase.toastForAds){
             Toast.makeText(context, string, Toast.LENGTH_SHORT).show()

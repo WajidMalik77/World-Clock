@@ -16,9 +16,9 @@ android {
     defaultConfig {
         applicationId = "com.cw.worldclock.alram.clock.timer.widgets"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 8
-        versionName = "1.0.8"
+        targetSdk = 36
+        versionCode = 9
+        versionName = "1.0.9"
         setProperty("archivesBaseName", "World_Clock-v$versionCode($versionName)")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

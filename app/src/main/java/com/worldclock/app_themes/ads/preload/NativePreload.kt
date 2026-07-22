@@ -29,6 +29,7 @@ import com.worldclock.app_themes.ads.utils.GetFirebase
 import com.worldclock.app_themes.ads.utils.Utils
 import com.worldclock.app_themes.ads.utils.Utils.getSdpHeightInPx
 import com.worldclock.app_themes.ads.utils.Utils.getSspTextSizeInPx
+import com.worldclock.app_themes.ads.utils.Utils.splashAdLoaded
 import com.worldclock.app_themes.core.analytics.AppEventLogger
 import com.worldclock.app_themes.databinding.NativeAdWithoutMediaOneBinding
 import com.worldclock.app_themes.databinding.NativeAdWithoutMediaThreeBinding
@@ -109,7 +110,9 @@ object NativePreload {
                             super.onAdLoaded()
 
                             adNativeTopLiveData.value = true
-
+                            if ((context as AppCompatActivity) is Splash){
+                                splashAdLoaded.value = true
+                            }
                             if (GetFirebase.toastForAds) {
                                 Utils.showMessage(context, "native ad loaded")
                             }
@@ -160,6 +163,7 @@ object NativePreload {
                     object : AdListener() {
                         override fun onAdFailedToLoad(loadAdError: LoadAdError) {
 
+                            if ((context as AppCompatActivity).localClassName.lowercase() == "")
 
                             if (GetFirebase.toastForAds)
                                 Utils.showMessage(
@@ -177,7 +181,9 @@ object NativePreload {
                             if (GetFirebase.toastForAds) {
                                 Utils.showMessage(context, "native ad loaded")
                             }
-
+                            if ((context as AppCompatActivity) is Splash){
+                                splashAdLoaded.value = true
+                            }
                         }
 
                         override fun onAdClicked() {
@@ -688,6 +694,57 @@ object NativePreload {
                                 admobBinding.adCallToAction
                             )
                         }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
                         else {
 
                             val density = 1
@@ -902,6 +959,57 @@ object NativePreload {
 
                             setButtonColor(
                                 GetFirebase.native_ad_buttoncolor_for_languagescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
                                 activity,
                                 admobBinding.adCallToAction
                             )
@@ -1125,6 +1233,57 @@ object NativePreload {
                                 admobBinding.adCallToAction
                             )
                         }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
                         else {
 
                             val density = 1
@@ -1338,6 +1497,57 @@ object NativePreload {
 
                             setButtonColor(
                                 GetFirebase.native_ad_buttoncolor_for_languagescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
                                 activity,
                                 admobBinding.adCallToAction
                             )
@@ -1559,6 +1769,57 @@ object NativePreload {
                                 admobBinding.adCallToAction
                             )
                         }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
                         else {
 
                             val density = 1
@@ -1770,6 +2031,57 @@ object NativePreload {
 
                             setButtonColor(
                                 GetFirebase.native_ad_buttoncolor_for_languagescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
                                 activity,
                                 admobBinding.adCallToAction
                             )
@@ -1991,6 +2303,57 @@ object NativePreload {
                                 admobBinding.adCallToAction
                             )
                         }
+                        else if (activity is MainActivity) {
+
+                            val density = 1
+
+// Calculate height in pixels from dp
+                            val buttonHeightPx =
+                                (GetFirebase.native_ad_buttonheight_for_homescreen * density).toInt()
+
+                            with(admobBinding.adCallToAction) {
+                                layoutParams = layoutParams.apply {
+                                    height = activity.getSdpHeightInPx(buttonHeightPx)
+                                }
+                                setTextColor(Color.parseColor(GetFirebase.native_ad_buttontextcolor_for_homescreen))
+                                setTextSize(
+                                    TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                        GetFirebase.native_ad_buttontextheight_for_homescreen.toInt()
+                                    ).toFloat()
+                                )
+                            }
+
+                            admobBinding.adHeadline.setTextColor(Color.parseColor(GetFirebase.native_ad_headlinecolor_for_homescreen))
+                            admobBinding.adBody.setTextColor(Color.parseColor(GetFirebase.native_ad_othertextcolor_for_homescreen))
+                            admobBinding.adHeadline.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_headlinetextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+                            admobBinding.adBody.setTextSize(
+                                TypedValue.COMPLEX_UNIT_PX, activity.getSspTextSizeInPx(
+                                    GetFirebase.native_ad_bodytextheight_for_homescreen.toInt()
+                                ).toFloat()
+                            )
+
+                            val sizeInDp = GetFirebase.native_ad_homescreen_iconsize
+
+                            val sizeInPx =
+                                (sizeInDp * activity.resources.displayMetrics.density).toInt()
+
+                            val params = admobBinding.adAppIcon.layoutParams
+
+                            params.width = sizeInPx
+                            params.height = sizeInPx
+
+                            admobBinding.adAppIcon.layoutParams = params
+
+                            setButtonColor(
+                                GetFirebase.native_ad_buttoncolor_for_homescreen,
+                                activity,
+                                admobBinding.adCallToAction
+                            )
+                        }
                         else {
 
                             val density = 1
@@ -2076,7 +2439,16 @@ object NativePreload {
                 activity
             )
 
-        } else {
+        }
+        else if (activity is LanguagesActivity) {
+            changeBackgroundForNativeAds(
+                GetFirebase.native_ad_backgroundcolor_for_homescreen,
+                layoutParent,
+                activity
+            )
+
+        }
+        else {
             changeBackgroundForNativeAds(
                 GetFirebase.native_ad_backgroundcolor_for_otherscreens,
                 layoutParent,
